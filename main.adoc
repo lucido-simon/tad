@@ -1,0 +1,17 @@
+= Micro-services: Polycode TAD
+Simon LUCIDO <simon.lucido@etu.umontpellier.fr>
+v0.1, 2022-10-14
+:toc:
+
+include::00_Introduction.adoc[]
+include::10_Domains.adoc[]
+include::20_Identification.adoc[]
+include::30_CommunicationBetweenMicroservices.adoc[]
+include::40_TraceRequests.adoc[]
+include::50_SearchEngine.adoc[]
+include::60_RunnerArchitecture.adoc[]
+include::70_DataArchitecture.adoc[]
+include::80_MobileApp.adoc[]
+include::90_Security.adoc[]
+include::100_UI_Integration.adoc[]
+
