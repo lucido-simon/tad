@@ -1,1 +1,33 @@
-= 1
+= 1 =
+
+== Ubiquitous Language ==
+
+
+
+|===
+| Word | Definition 
+| Practice | A section of Polycode made to train users 
+| Assessment | A section of polycode made to evaluate user 
+| Admin | A privileged user that have access that can CRUD all resources of Polycode. 
+| User | Someone who has a Polycode account. 
+| Candidate | A person who participate to a test or assessment. 
+| Guest | Someone who doesn't have an account. 
+| Captain | A user who manages a team. 
+| Assessment Creator | A user who can edit or create assessment, and invite candidates. 
+| Practice Creator | A user who can edit or create his content. 
+| Test | It is an ordered group of contents made to evaluate users. It has a grade, which is the total score divided by the total number of points of the contents bank. It is created by an assessment creator. 
+| Campaign | Utilization of a test on a group of candidates 
+| Module | A grouping, possibly nested, holding contents and that can give points when fully completed. 
+| Content | A content is a coherent group of components. The contents are organized in a tree structure. The modules are branches and the contents are leaves. In other words, unlike modules, a content can't contain modules or other contents. 
+| Component | Its a small unit of what will be displayed to the end users. You must use components to build your content, components compose contents. Can be of multiple types, a markdown or an editor for example. 
+| Hint | A hint is an item to help the user to finish a component in exchange for PolyPoints. 
+| Item | Represents a purchasable resource. 
+| Polypoints | A virtual money responsible of the gamification of Polycode. Polypoints can be used to buy items. The user and team leaderboards are based on the number of Polypoints. Polypoints can be earned by completing contents or modules. 
+| Runner | A service that executes code in a given language and returns the output (stdout and stderr). 
+| Submittable | A component that can be submitted by a user to the application. 
+| Submission | A user's answer to a submitable. Can be validated through a validator 
+| Team | Group of users. One of them is the team's captain. The team Polypoint count is the sum of the Polypoints of its users. Team are ranked according to their Polypoints. 
+| Validator | Expected responses for a submitable 
+| Tag | Keyword associated to a resource used for statistics and filtering 
+| Purchase | Items that was buy by a user 
+|===
