@@ -1,1 +1,78 @@
-= 2
+= How to manage authentication using an OIDC =
+
+== Introduction ==
+
+Let's break down this problem by first understanding important concepts that surrounds authentication, OIDC - and by extension, authorization and the Keycloak vocabulary. 
+
+=== What is authentication? ===
+
+Most of today's systems defines personalized behavior based on who is using the application. Think of a bank application, you want to see your accounts and transactions, but you don't want to see someone else's !
+To be able to do this, the application needs to know who you are. This is what authentication is. Authentication is the process of verifying the identity of a user.
+
+This process can be done in a myriad, but the most common ways the end user is going to identify themselves is by providing a username and password. Or by using a third party service, like Facebook or Google, to identify themselves. 
+
+Those third party service, like Facebook or Google, are called identity providers (IdP). There are multiples types of them, the most common being OpenID Connect (OIDC) and SAML. 
+
+This question is about OIDC, so I'm not going to go into details about SAML. OIDC is gaining in popularity, thanks to its use of JSON which make it much more easier to work with with nowadays solutions, while the older SAML protocol is XML based. SAML is still widely used, but mostly in enterprise environments.
+
+=== What is authorization? ===
+
+Let's take our bank example a step further. When logging in, you want to see your accounts and transactions, but you don't want anybody else to see them ! This is what authorization is. Authorization is the process of verifying what a user is allowed to do.
+
+To do so, whenever a user is taking an action which requires a level of authorization, the application is going to check whether the user actually have the right to do so. 
+
+=== OpenID Connect ===
+
+OpenID Connect (OIDC) is a identity layer build on top of OAuth2. It allows to authenticate users using an Authorization Server (AS) and to get information about the user, using a REST-like manner. 
+
+The main participants are :
+
+* The end user, which is the entity that is going to authenticate. They are the equivalent of the resource owner in OAuth2, and one of the resource they own is their identity.
+* The Relying Party (RP), or client, which is the application that is going to use the identity of the end user. They rely on the OpenID Provider (OP) to authenticate the end user.
+* The OpenID Provider (OP), which is the entity that is going to authenticate the end user. They are an authorization server in OAuth2. They provide the identity of the end user to the relying party. The identity may contains information about the user, like their name, email, etc..
+* The Resource Server, which owns the resource that the end user or client is going to access. They trusts the Authorization Server (the OIDC Provider), and will check the token provided by the OP to verify the client was given access to the resource. A Resource Server may be in the same system as the Authorization Server.
+
+This data is exchanged using JSON Web Tokens (JWT). JWT are a way to encode data in a compact way, using JSON. They are usually signed using an asymmetric algorithm, and can be verified using a public key.
+
+The main token used in the OIDC protocol is the ID Token. It contains information about the user, and is signed by the OP. It is the ID Card of the OIDC protocol.
+
+Another type of token used in the OAuth2 protocol (which is used in OIDC since it's a superset), is the access token. It is used by the client application to access the resource owner's (the end user) resources. This token is usually short lived, and a new one can be obtain using a refresh token in most authentication flows. An access token is tied to a client, and defines the scopes and resources the client is allowed to access.
+
+In most flows, the user is also given a refresh token. Since access token are short lived, refresh token provides a way to refresh them, as its name indicate.
+
+https://openid.net/specs/openid-connect-core-1_0.html[More information can be found in the official specifications^]
+
+=== Keycloak ===
+
+Keycloak is an open-source identity and access management solution that provides a centralized platform for managing authentication and authorization for applications and services. It offers a range of features and capabilities, including support for a wide range of authentication mechanisms and protocols, user management and provisioning, and integration with third-party systems.
+
+Keycloak is built on top of the WildFly application server and uses the OAuth 2.0 and OpenID Connect (OIDC) standards for authentication and authorization. This allows applications to verify the identity of users through a third-party identity provider (IdP), such as Keycloak, and securely access resources on behalf of users without requiring them to share their credentials.
+
+It provides a web-based administration console that allows administrators to manage users, roles, and applications, as well as configure authentication and authorization settings. It also offers a range of customization options, such as custom themes and branding, to tailor the user experience for specific applications or organizations.
+
+Keycloak is designed to be highly scalable and can handle millions of users and thousands of applications. It is easy to deploy and can be integrated with a wide range of applications and services, including web, mobile, and single-page applications. Overall, Keycloak provides a comprehensive solution for managing user authentication and authorization in modern applications and services.
+
+==== Keycloak terminology ====
+
+Keycloak has its own vocabulary of terms and concepts that are important to understand in order to effectively use and configure the platform. Some key terms and concepts in Keycloak include:
+
+* *Realm*: A realm is a logical partition in Keycloak that represents a separate security domain. Each realm has its own set of users, roles, and applications, and can have its own authentication and authorization policies.
+
+* *User*: A user is an individual who is registered in Keycloak and can authenticate to access applications and services. Users are associated with one or more realms and can be assigned different roles within each realm.
+
+* *Role*: A role is a collection of permissions that can be assigned to users. Roles are defined at the realm level and can be used to control access to different resources and applications within a realm.
+
+* *Client*: A client is an application or service that is registered in Keycloak and can authenticate users. Clients can be public or confidential, depending on whether they can securely store and manage their own secrets.
+
+* *Protocol*: Keycloak supports a range of authentication protocols, such as OAuth 2.0, SAML, and OpenID Connect (OIDC), which define the messages and flows used to authenticate users and access resources.
+
+* *Identity provider (IdP)*: An identity provider is a service that provides authentication and identity information for users. In Keycloak, the Keycloak server itself acts as an IdP, allowing applications to verify the identity of users through the Keycloak IdP.
+
+* *Access token*: An access token is a JSON Web Token (JWT) that is issued by the Keycloak server and used to authenticate and authorize access to protected resources. Access tokens contain information about the user and the permissions they have been granted.
+
+* *Scope*: A scope is a collection of permissions that can be associated with an access token. Scopes define the specific resources and actions that a user is allowed to access and perform.
+
+* *Federation*: Federation is the process of connecting Keycloak to other identity providers, such as social media or enterprise directories, to allow users to authenticate using their existing credentials. This allows users to log in to applications using a single set of credentials, without the need for each application to manage its own authentication processes.
+
+Understanding these terms and concepts is essential for using and configuring Keycloak effectively.
+
