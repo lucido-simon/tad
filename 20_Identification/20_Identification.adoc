@@ -76,3 +76,9 @@ Keycloak has its own vocabulary of terms and concepts that are important to unde
 
 Understanding these terms and concepts is essential for using and configuring Keycloak effectively.
 
+== Keycloak and Polycode ==
+
+As of the right now, Polycode defines and runs it's own implementation of a basic OAuth2 server, implementing only the direct grant flow. It is running on the same application that also is the resource server.
+
+The goal is to replace this implementation with one using Keycloak, and its OIDC capabilities. We will slightly touch on some migration steps, but the main goal is to have an high level overview of the architecture.
+
