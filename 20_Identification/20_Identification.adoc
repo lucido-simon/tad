@@ -82,3 +82,53 @@ As of the right now, Polycode defines and runs it's own implementation of a basi
 
 The goal is to replace this implementation with one using Keycloak, and its OIDC capabilities. We will slightly touch on some migration steps, but the main goal is to have an high level overview of the architecture.
 
+=== Architecture Schema ===
+
+image::TAD_20_ArchitectureSchema.png[]
+
+=== Deployment Schema ===
+
+=== Sequence Diagrams ===
+
+<<<
+[#auth-code-flow]
+==== *General authentication flow: the code flow* ====
+
+This diagram sequence presents the authorization code flow, a way of granting access to a web application using an authorization code. This flow is often used in the context of OIDC. In the authorization code flow, the user is first redirected to the IdP to authenticate. The IdP then redirects the user to the provided redirect URI, with an authorization code. This code can then be sent to the API that will exchange the code for an access and ID token. This access token can be used to access protected resources, by the API, on behalf of the user.
+
+The authorization code flow provides several benefits over other authentication flows. It allows the user to authenticate without sharing their credentials with the API, and it allows the API to verify the user's identity without having to store the user's credentials. Additionally, the use of an authorization code adds an extra layer of security, as the code can only be exchanged for an access token by the intended recipient.
+
+The authorization code flow is commonly used in modern web and mobile applications to securely access user data from a third-party service. In the case of Keycloak, the IdP is responsible for authenticating the user and managing their identity information, while the web application and API can focus on providing a great user experience and accessing protected resources on behalf of the user. The future diagrams in this sequence will describe different ways to connect to the application using this flow, such as connecting with a Google, Polytech or vanilla account.
+
+Once the API has exchanged the code for the tokens, it should create a mapping between its Session ID and the tokens. This Session ID will be used by the web Application to authenticate its requests to the API.
+
+Implementing this can be done in multiple ways. The API can use a shared, fast database such a Redis or Memcached, since the data stored should be indexed by a simple key, with no need for relationship. TTL would also be useful, since each entry could be set to expire at the time the tokens expire. By doing so, we keep our API stateless, and scalability is not impacted.
+
+We can also think about creating a gateway that would be responsible for this mapping. In a microservice world, it is out of the scope of each microservice to map cookies with tokens, and should be off-loaded to a gateway. This gateway could also be used to implement rate limiting, observability, and other features that are not directly related to the business logic of the API.
+
+
+image::./20_Identification/TAD_20_AuthorizationCode.png[]
+<<<
+==== User creates an account, vanilla ====
+The following diagram shows the process of creating a vanilla account on Polycode. We can see that the user is redirected to Keycloak to create an account and provide their email address and password. The IDP will then check for email duplication, validity, and password strength to ensure that the user's account is secure.
+
+Once the user has created their account, the IDP will send a verification email to the user, which the user must click on to confirm their email address. Once the user's email address has been verified, they can use their vanilla account to log in to the web application and access protected resources on the web application on behalf of the user.
+
+The next diagram will describe how the user can use their vanilla account to log in to the web application and access protected resources.
+
+image::./20_Identification/TAD_20_Vanilla_Create.png[]
+<<<
+==== User logs in, vanilla ====
+This diagram sequence demonstrates how the user can log into Polycode using a vanilla account. The user is redirected to the IDP, where they can enter their email address and password. The IDP will then verify the user's credentials and redirect the user to the web application, with an authorization code. The authorization code flow is described in a xref:auth-code-flow[previous diagram].
+
+image::./20_Identification/TAD_20_Vanilla_Login.png[]
+<<<
+==== User creates an account or logs in, via Polytech LDAP ====
+image::./20_Identification/TAD_20_LDAP.png[]
+<<<
+==== User creates an account or logs in, via Google ====
+image::./20_Identification/TAD_20_Google.png[]
+<<<
+
+==== User links its Polycode account to its Google account ====
+image::./20_Identification/TAD_20_Google_LinkAccount.png[]
