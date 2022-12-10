@@ -124,11 +124,29 @@ This diagram sequence demonstrates how the user can log into Polycode using a va
 image::./20_Identification/TAD_20_Vanilla_Login.png[]
 <<<
 ==== User creates an account or logs in, via Polytech LDAP ====
+In the following sequence diagram, the user logs in into Polycode using its Polytech LDAP account. The user is redirected to the IDP, where they can enter their Polytech LDAP credentials. If it's the first time the user connects to Polycode, a new entry will be made in the Keycloak database. Keycloak needs to do this in order to store information that are needed in the OIDC context. Since we are likely to be limited to a read-only access to the LDAP, we also need to store everything the user might edit later on. Storing in the local database also allows for caching, which will speed up all requests that needs to check for a LDAP linked user.
+
+It is worth noting that Keycloak will always validate the user password using the LDAP, and delegates the storage of the password to. This is done to ensure that the user's password is always up to date, and synchronized with the LDAP.
+
+The IdP will then verify the user's credentials and redirect the user to the web application, with an authorization code. The authorization code flow is described in a xref:auth-code-flow[previous diagram].
+
 image::./20_Identification/TAD_20_LDAP.png[]
 <<<
 ==== User creates an account or logs in, via Google ====
+In this diagram, we will be demonstrating the process of connecting to an application using a Google account. This process is becoming increasingly popular among users as it allows them to easily and securely access multiple applications using a single set of credentials.
+
+Since Google is an external identity provider, the user will be redirected to the Google login page, where they can enter their Google credentials. Google also uses OIDC, so the user will be redirected to an OIDC endpoint, with a authorization code. The authorization code flow will then be used to exchange the authorization code for an access token and ID token. Keycloak automates this process.
+
+If it's the first time the user logs in using Google, a new entry in the Keycloak database will be created. This entry will contain the user's Google ID, which will be used to identify the user in the future. 
+
+The user will then be redirected to the web application, with an authorization code. The authorization code flow is described in a xref:auth-code-flow[previous diagram].
+
 image::./20_Identification/TAD_20_Google.png[]
 <<<
-
 ==== User links its Polycode account to its Google account ====
+
+A user that created an vanilla account on Polycode might also want to log in via its Google account. This is possible if both uses the same mail address. This is what this sequence diagram describes.
+
+In this case, when logging in, the user will be able to edit its profile before linking its Google account. The user then need to verify that he is the owner of the Google account by clicking on a link sent to his email address. Once the user has verified his email address, the user will be redirected to the web application, with an xref:auth-code-flow[authorization code].
+
 image::./20_Identification/TAD_20_Google_LinkAccount.png[]
