@@ -80,19 +80,43 @@ Understanding these terms and concepts is essential for using and configuring Ke
 
 As of the right now, Polycode defines and runs it's own implementation of a basic OAuth2 server, implementing only the direct grant flow. It is running on the same application that also is the resource server.
 
+It's important to realize that, as our API becomes a Resource Server, accessing it requires authentication, even inside the Polycode application. 
+
 The goal is to replace this implementation with one using Keycloak, and its OIDC capabilities. We will slightly touch on some migration steps, but the main goal is to have an high level overview of the architecture.
 
-=== Architecture Schema ===
+=== Architecture Diagram ===
 
-image::TAD_20_ArchitectureSchema.png[]
+We will discuss how we can integrate OIDC in Polycode. As of right now, Polycode still follows a monolithic approach. However, as discussed in the previous chapter, there is a clear path to split the application in multiple microservices. Although this is a significant change in the architecture, I think we can simplify the relationship between the different components of the OAuth2 flow. Indeed, in practice, an API Gateway or a shared library between our microservices will handle the authentication. One will run only in one application, and the other will run on multiples services, but since the code that will handle the authentication will be the same, we can for simplicity sake, consider that the authentication will be handled by only one application. I will refer to this application as the "Polycode API" throughout this chapter, whatever the implementation.
 
-=== Deployment Schema ===
+I think this approach is justifiable, since I want to focus on the core concepts behind OIDC (and AuthN / AuthZ in general). What I want to show throughout this chapter is the flow of data between the different actors, and the different responsibilities of each actor. The Polycode API, will be a Resource Server and an Client application, whatever how the application is break down.
 
-=== Sequence Diagrams ===
+With that out of the way, let's have a look at the architecture schema:
+
+image::./20_Identification/TAD_20_ArchitectureDiagram.png[]
 
 <<<
+=== Deployment Diagram ===
+
+We have seen all the elements of our architecture, but we still need to know how they are deployed. This is an important step in the design of our architecture, since it will impact performance, security, scalability and resilience.
+
+First of all, we need to understand that our IdP (Keycloak) is not directly linked to Polycode. Although the API is the only client of the IdP, this might change in the future. We can imagine using this Keycloak for all Polytech related projects for example. Keycloak becomes a dependency of our API, but it is not part of our API. 
+
+We that in mind, I think it's a good idea to deploy Keycloak in a separate system. This will allow us to scale it independently from the API, and to have a clear separation of concerns, which will allow us to take down the API without impacting other future users of our IdP.
+We can see in the following diagram how this is realized. The Keycloak is deployed in its own server, with its own database. It is an independent system that doesn't rely on the API deployment infrastructure.
+
+Just like the current implementation of Polycode, all the services of Polycode are deployed in a single Kubernetes cluster, composed of multiple nodes (only one node is shown in the diagram for simplicity). I've made the decision to use SaaS services for the databases, to off-load the time and risks associated with managing its own database. We could use self-hosted database, but this would require more maintenance and would be less resilient. This, however, has performance and cost implications. 
+
+Performance will be greatly impacted, since the database will be hosted in a different location the the API, which is currently hosted at Polytech. By doing this, we are increasing delays by orders of magnitude. This is a trade-off I'm willing to make, and migrating back and forth to a self-hosted database is not a huge task (but still needs careful thinking), just like migrating the current infrastructure to the cloud.
+
+As shown in the diagram, the Keycloak will be accessible from the internet, just like the API and the Frontend. It is necessary but it is important to recognize that this is a security risk. We need to make sure that the Keycloak is properly secured, and that we don't expose any sensitive information. 
+
+Just like like in the previous diagram, the API is a simplification of what actually runs. This is still justifiable, since all micro-services and gateways will be running in the same cluster, and in the same namespace.
+
+image::./20_Identification/TAD_20_DeploymentDiagram.png[]
+<<<
+=== Sequence Diagrams ===
 [#auth-code-flow]
-==== *General authentication flow: the code flow* ====
+==== General authentication flow: the code flow ====
 
 This diagram sequence presents the authorization code flow, a way of granting access to a web application using an authorization code. This flow is often used in the context of OIDC. In the authorization code flow, the user is first redirected to the IdP to authenticate. The IdP then redirects the user to the provided redirect URI, with an authorization code. This code can then be sent to the API that will exchange the code for an access and ID token. This access token can be used to access protected resources, by the API, on behalf of the user.
 
