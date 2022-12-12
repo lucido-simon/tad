@@ -1,1 +1,8 @@
-= 8
+= Adding a mobile app to Polycode =
+
+The internet and websites are now mostly accessed through mobile devices. More and more people are letting their laptop in the drawer, using their phone as their only device to access the web. To reach this audience, creating a responsive website is not enough. People expect a native app experience, with a offline mode, push notifications, and a smooth user experience.
+
+However, before diving into how we can integrate a mobile app into the system, I would like to discuss if it really makes sense to do so.
+Indeed, I would argue that Polycode functionalities are not suited at all for a mobile user-agent. Coding on a phone is a horrible experience that nobody is willing to do. Following lessons would also be a pain, since we provide interactive coding environments. It looks like all the current Polycode functionalities are not suited for a mobile app.
+
+To me, justifying a mobile app would only makes sense if you are also providing a new set of functionalities that are mobile friendly.
