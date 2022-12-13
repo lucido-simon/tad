@@ -3,6 +3,101 @@
 The internet and websites are now mostly accessed through mobile devices. More and more people are letting their laptop in the drawer, using their phone as their only device to access the web. To reach this audience, creating a responsive website is not enough. People expect a native app experience, with a offline mode, push notifications, and a smooth user experience.
 
 However, before diving into how we can integrate a mobile app into the system, I would like to discuss if it really makes sense to do so.
-Indeed, I would argue that Polycode functionalities are not suited at all for a mobile user-agent. Coding on a phone is a horrible experience that nobody is willing to do. Following lessons would also be a pain, since we provide interactive coding environments. It looks like all the current Polycode functionalities are not suited for a mobile app.
+Indeed, I would argue that Polycode functionalities are not suited at all for a mobile user-agent. Coding on a phone is a horrible experience that nobody is willing to endure. Following currently available lessons would also be a pain, since we provide interactive coding environments. It looks like all the current Polycode functionalities are not suited for a mobile app.
 
 To me, justifying a mobile app would only makes sense if you are also providing a new set of functionalities that are mobile friendly.
+
+== What is important ? ==
+Let's start by identifying what is important in a mobile app. Users has come to expect some behaviors from mobile applications, and failing to match those behaviors will cause the user to have a bad experience.
+
+=== Offline ===
+Although we live in a country (France) where cellular data is really cheap, we need to consider that a lot of people around the world does not have this privilege. Creating an application that relies on being connected at all time may seem not that big of a deal, but in reality, it is.
+
+We need to provide a set of functionalities that are available offline, the goal being to have the same experience whether you're online or not.
+
+==== Sets of contents packaged with the app ====
+The first obvious approach is to bundle the application content with the app. This makes the app not reliant on connectivity to work.
+However, it comes with its disadvantages. The app is bigger to download, updating content means going through each platform long and painful validation process, which also makes it very difficult to rollback or fix broken updates, we will touch on that later. We don't want the user to update the application everyday for the xref:repetitive[eventual daily content either].
+
+==== Fetch data when possible ====
+We can take the opposite approach and not ship anything but the application logic in the app, and download contents whenever the device retrieves connectivity. After all, the user is most likely to open the app right after downloading it, meaning he has connectivity. Moreover, I would argue that the user will need to log in before using any features, guarantying that the app has the ability to download contents before the user needs it.
+
+==== Best of both worlds ? ====
+The previous approach looks like the best for the user experience, but it has some issues:
+
+* This increases significantly the load on the infrastructure, for contents that are stable, bug free, known to be working and that is going to be downloaded anyway
+* The user might have a very limited bandwidth, which may cause the application to be too data-hungry for them
+
+Mixing both approaches will limit or eliminate their drawbacks, but it is important that it is at the cost of the app complexity.
+
+==== Handling releases ====
+The mobile app distribution is controlled by basically two actors (Google and Apple), who both have strict review processes for each applications and each of their updates. This means that relying on updating the application to releases new content or fix mundane bugs becomes a long process, and you need something that can circumvent those limitations.
+
+This is the problem of some frameworks out there, that promises a fast and easy development, for both platform, but actually bundles the rendering engine with the application as well as your application code, meaning that there is no way to update the rendering, except updating the app. This might be a tradeoff you're willing to make, but I don't think it's worth the pain.
+
+On the other side, you can opt to develop an app that is closer to a web view, that can be updated on the fly, without needing to go through the painful verification process of each store. Using the right framework, you can have the same code base (modulo some minors tweaks) for both iOS and Android, while using natives bindings for the rendering, and having views that can be updated on the fly.
+
+With that being said, let's switch to another important aspect of a mobile app.
+
+=== Short in time ===
+We want users to be able to use the application as much as possible. This means, the user must be able to spend some time on the application whenever they have a few minutes to spare. By extension, we must give them functionalities and things to do that are short in time and that can be completed within a few minutes, maximum.
+This creates an incentive for the user to come to the app when they have a little bit of time to spare, or when they want to take a break of whatever they are doing. This, plus the educational aspect of the application, contributes to fight the feeling of wasting time and procrastination the user might have. 
+
+[#repetitive]
+=== Repetitive ===
+As an application, you want your users to come back to it as much as possible. What can we do to make our users come back ?
+
+==== Create an habit ====
+The first thing that is important to recognize is that for a user to come back, we need them to create a habit. A habit is triggered by an event, and results in the brain associating this event with an action. For example, a smoking student might say that, at every class break (the trigger), he goes smoking (the action).
+
+We need the user to create this kind of habit. To do so, we need to provide something that incentives the creation of this habit, like for examples, daily contents, that is rewarded whenever it's completed, with a system of streak that pushes the user to not miss the next day content.
+
+Deconstructing a habit is hard, harder that it is to create it. Once the user has this habit, we can try to use it as a way to push them towards the desktop application, where more in-depth content is available, and where he can find the full set of functionalities of the application.
+
+==== Push notifications ====
+One powerful tool that is available on mobile, are the push notifications. This is a way to remind the user of our daily contents. This might be both the tool that will make the user creates the habit, but also the trigger on which the user will then open the app.
+
+One way of increasing the effectiveness of push notifications, is to time it well. You don't want to send this notifications at 9h30, right after the user got to work. You might want to send this notifications at 7h30 in the morning, while commuting, at 1pm, during lunch break or at 6pm when commuting back from work. This can be fine tuned based on the user behaviors, and might take multiple days for the app to get it right. But creating an algorithm that tries to figure out where the user is most likely to have free time and send that push notification should give a great trade-off between the resources put into creating it, and its reward, although difficult to measures.
+
+== Mobile only ? ==
+=== Incentive for desktop users ===
+
+
+== Mobile functionalities ==
+
+As discussed above, to justify a mobile app, we need to provide a new set of functionalities that are mobile friendly, with new contents available daily. Here are some ideas, we will dive into each of them, in details, later in this document :
+
+* Daily short coding lessons
+* Daily coding quizzes
+* Find the bug
+
+
+=== Daily coding lessons ===
+
+Mobile users are usually able to have short period of free time during the day, while commuting or during lunch break for example. This is a opportunity to give them a recurring short coding lesson, that they can do in a few minutes. By offering a new lesson every day, we can keep the user engaged and motivated to learn coding, as well as creating a habit of using the app during their daily commute, for example.
+
+As soon as the app retrieves connectivity, it will try to download new lessons, which can be published multiple days in advance. This way, the user will always have a lesson to do, even if they are offline for a few days.
+
+=== Daily coding quizzes ===
+
+=== Find the bug ===
+
+==== Click on the wrong line ====
+
+==== Explaining the problem ====
+
+=== Application flow ===
+==== General layout ====
+==== Browsing leader boards ====
+==== Each idea figmas ====
+
+=== API ===
+
+== Authentication ==
+=== Requirements ===
+The typical mobile user has come to expect a &smooth user experience, with a native app feel. This means that we need to provide a login experience that is as smooth as possible.
+==== Keeping the user logged in ====
+
+==== Not storing the password ====
+== How to do it ? ==
+== Sequence diagram ==
