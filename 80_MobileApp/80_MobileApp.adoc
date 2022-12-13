@@ -95,9 +95,15 @@ As soon as the app retrieves connectivity, it will try to download new lessons, 
 
 == Authentication ==
 === Requirements ===
-The typical mobile user has come to expect a &smooth user experience, with a native app feel. This means that we need to provide a login experience that is as smooth as possible.
+The typical mobile user has come to expect a smooth user experience, with a native app feel. This means that we need to provide a login experience that is as smooth as possible.
 ==== Keeping the user logged in ====
+One of the main behavior users expect, is not to have to login everytime they open the app. All the the application you use daily, even those who might be sensitive, does not require logging in after the initial setup. 
+We want the user to access the application as fast as possible, and logging in is a barrier to that. Moreover, this would cause a displeasing experience for the user, entering your credentials is not fun.
+
+We need to find a way to make sure the user needs to log in only once.
 
 ==== Not storing the password ====
+With that being said, one big requirement we need to respect is not to store the user's password at all. Doing so is a big security risk if their device were to be compromised, albeit by a malicious actor or by someone gaining physical access to the device. This is harmful to the user, since he might be reusing this password elsewhere, but also for us, since the attacker have access to the whole account, not only the session in the application. 
+
 == How to do it ? ==
 == Sequence diagram ==
