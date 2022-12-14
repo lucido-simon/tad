@@ -1,1 +1,77 @@
-= Introduction
+= Introduction =
+The web development world has evolved from a simple, monolithic, centralized model to resilient, highly scalable and flexible architectures over the past decades. This means that, getting it right, in what may appears as a convoluted and overly complex way of handling simple requests from users, has become complicated. In this paper, we will explore the key concepts and considerations involved in migrating to a microservices architecture. We will begin by defining microservices and discussing their key characteristics and benefits. We will then delve into specific topics, such as authentication, communication between microservices, tracing and logging requests, and handling security. We will also discuss how to integrate a mobile app with a microservices architecture. We will try to dive into what makes sense and what doesn't for our Polycode application.
+
+For those unfamiliar, Polycode is a platform aimed at developers, offering courses and challenges around development. It mainly focuses on learning languages or coding concepts, and provides interactive development session where the user can mess around with its code, trying to match the requirements of the exercise.
+
+However, the service has evolved quite rapidly, with new features being requested and added. The architecture and the code must reflect this dynamic, fast-paced constraint. Wide-range of features are being developed and will be developed, and this decoupling must be reflected in the approach taken by the project's development team.
+
+The newest feature currently is development, is a new service that opens Polycode to be a assessment platform. Schools will be able to create tests for candidates, and get summed up scores and results. More on that in later.
+XREF HELLO DON'T FORGET ABOUT ME PLEASE <--------------------------------------------------
+
+It is important to note that, although this will all be related to Polycode, not every answers aims at directly solving the problem at the Polycode level. Some suggestions are broader, and can be applied for most microservices architecture.
+With the same mindset, most suggestions can be applied with no system in already in place, and can be used as foundations for building a microservices architecture, with no existing system.
+
+== The assumptions ==
+Before continuing, I would like to pause on some assumptions made along this papers. Unless specified, those assumptions will always be taken as true all along this document.
+First off, this project is maintained by students, in a scholar environments. This is a tool for learning as its core, and monetary aspects will be dampened in the suggestions. 
+I would suggest that, if it was not, migrating to microservices would be a waste of resources. I will dive more into that later in the paragraph. 
+XREF HELLO DON'T FORGET ABOUT ME PLEASE <--------------------------------------------------
+With that being said, I will take the stance that we have limited time resources, since the team is fixed and can't grow. I will assume that the team will be able to work for a few months specifically on this migration, letting us enough time to implement reasonable solutions. Rewriting a HTTP Proxy from scratch is not reasonable. Setting up a Service Mesh is.
+
+== The existing ==
+We first need to understand the current architecture of Polycode. To do so, I think looking at a (very) simplified diagram of the current architecture will best describes what is currently going on :
+
+[#currentArchitecture]
+image:00_Introduction/TAD_00_CurrentArchitecture.png[]
+
+To give some contexts for those unfamiliar with the project, what I call "Polycode Runners", is the API that allow us to run the code that the user typed in.
+
+Very quick pass on the stack we have :
+
+* https://kubernetes.io/[Kubernetes] as our container manager.
+* https://argo-cd.readthedocs.io/en/stable/[ArgoCD] as our https://www.gitops.tech/[GitOps] engine
+* https://github.com/kubernetes/ingress-nginx[Nginx Ingress Controller] as our Kubernetes https://kubernetes.io/docs/concepts/services-networking/ingress/[ingress.]
+* The https://prometheus.io/docs/visualization/grafana/[Prometheus/Grafana] stack for our metrics and monitoring.
+
+As you may have noticed, the current implementation is halfway between an old monolithic application, with a heavy native application, running on a bare-metal server.
+Instead, we are already in a Kubernetes context, which already allow for automatic scaling, if the application is made with the correct architecture decisions.
+
+It is also worth noting that the current implementation mostly follows a service-oriented architecture.
+
+=== Current limitations ===
+As shown in the diagram xref:currentArchitecture[above], except for the runner, everything is still mixed up in one big application, __the API (™)__. This gives us enough flexibility to scale our application if the user count were to increase, but we would spin up a heavy server every time, although probably only a small portion of our application takes a the load.
+
+[#scalingMonolith]
+For example, we currently handles the authentication within the API. The users routes are hit pretty heavily, since every time the user loads the website, they try to fetch their own data. This might take over half of the available resources of the container (totally arbitrary, for the example), and the team routes only taking less than 1 percent of the available resources. This can lead to poor performance in high-traffic environments.
+
+Another downside of the current implementation is that the application getting harder to maintain and update, caused by its growing codebase size and the intricacies and dependencies between each part.
+It becomes hard to introduce new features, or update existing ones, without running the risk of breaking other parts of the code, although this problem is softened by our code architecture. Developing new features in parallel has also taken a hit, for the same reasons.
+Deploying it is a heavy process, since the API as a whole needs to be recreated in our cluster.
+
+== Microservices ==
+Microservices seek to solve those problems. We will try to understand how, and at what cost. But first, let's define a microservice.
+
+=== What are microservices ===
+Microservices are a modern architectural approach to building software applications. They involve splitting a large, monolithic application into smaller, independent services that can be developed, deployed, and scaled individually. Each microservice has a specific role and communicates with other microservices through well-defined interfaces, typically using a lightweight messaging protocol.
+
+=== Why microservices ===
+==== Scalability ====
+One of the key advantages of microservices is that they allow for greater flexibility and scalability. Indeed, because microservices are typically deployed in containers, they can be easily scaled up or down to meet changing demand. This is perfect for our use case, since we are already running a Kubernetes cluster, whose purpose is to provide tools to automate this task.
+This resolves the issue mentioned xref:scalingMonolith[above]. We can now spin up 15 authentication microservices, while only having 3 team microservices. 
+
+==== Resiliency and decoupling ====
+Another advantage of microservices is that they are designed to be fault-tolerant and resilient. Because microservices are modular and independent, if one service fails, the others can continue to operate, minimizing the impact of any issues on the overall application. This is not a given feature of microservices, but the architecture sets the groundwork for developers to build systems that are resilient, giving options to exploit the decoupling of microservices to achieve a great resiliency a fail-overs solutions.
+
+==== Reducing complexity ====
+Because each microservice is a standalone component that communicates with other microservices through well-defined interfaces, developers can easily add new features or capabilities to the application by building and deploying additional microservices. This makes it possible to rapidly iterate and improve the application without having to make changes to the entire codebase.
+
+Finally, microservices can be easier to test and maintain than monolithic applications. Because microservices are modular and self-contained, it is easier to test individual services and ensure that they are functioning correctly. Additionally, because each microservice has a specific role, it is easier to identify and fix issues when they arise, and to make changes to individual microservices without affecting the rest of the application.
+
+=== The cost of microservices ===
+==== Migrating ====
+==== Time ====
+==== Cost of infrastructure ====
+
+== Wrap up ==
+
+
