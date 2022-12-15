@@ -1,4 +1,6 @@
-= Introduction =
+= Introducing microservices  =
+
+== Introduction ==
 The web development world has evolved from a simple, monolithic, centralized model to resilient, highly scalable and flexible architectures over the past decades. This means that, getting it right, in what may appears as a convoluted and overly complex way of handling simple requests from users, has become complicated. In this paper, we will explore the key concepts and considerations involved in migrating to a microservices architecture. We will begin by defining microservices and discussing their key characteristics and benefits. We will then delve into specific topics, such as authentication, communication between microservices, tracing and logging requests, and handling security. We will also discuss how to integrate a mobile app with a microservices architecture. We will try to dive into what makes sense and what doesn't for our Polycode application.
 
 For those unfamiliar, Polycode is a platform aimed at developers, offering courses and challenges around development. It mainly focuses on learning languages or coding concepts, and provides interactive development session where the user can mess around with its code, trying to match the requirements of the exercise.

@@ -1,5 +1,6 @@
 = Adding a mobile app to Polycode =
 
+== Introduction ==
 The internet and websites are now mostly accessed through mobile devices. More and more people are letting their laptop in the drawer, using their phone as their only device to access the web. To reach this audience, creating a responsive website is not enough. People expect a native app experience, with a offline mode, push notifications, and a smooth user experience.
 
 However, before diving into how we can integrate a mobile app into the system, I would like to discuss if it really makes sense to do so.
@@ -64,7 +65,6 @@ One way of increasing the effectiveness of push notifications, is to time it wel
 
 
 == Mobile functionalities ==
-
 As discussed above, to justify a mobile app, we need to provide a new set of functionalities that are mobile friendly, with new contents available daily. Here are some ideas, we will dive into each of them, in details, later in this document :
 
 * Daily short coding lessons
@@ -73,7 +73,6 @@ As discussed above, to justify a mobile app, we need to provide a new set of fun
 
 
 === Daily coding lessons ===
-
 Mobile users are usually able to have short period of free time during the day, while commuting or during lunch break for example. This is a opportunity to give them a recurring short coding lesson, that they can do in a few minutes. By offering a new lesson every day, we can keep the user engaged and motivated to learn coding, as well as creating a habit of using the app during their daily commute, for example.
 
 As soon as the app retrieves connectivity, it will try to download new lessons, which can be published multiple days in advance. This way, the user will always have a lesson to do, even if they are offline for a few days.
@@ -97,7 +96,7 @@ As soon as the app retrieves connectivity, it will try to download new lessons, 
 === Requirements ===
 The typical mobile user has come to expect a smooth user experience, with a native app feel. This means that we need to provide a login experience that is as smooth as possible.
 ==== Keeping the user logged in ====
-One of the main behavior users expect, is not to have to login everytime they open the app. All the the application you use daily, even those who might be sensitive, does not require logging in after the initial setup. 
+One of the main behavior users expect, is not to have to login every time they open the app. All the the application you use daily, even those who might be sensitive, does not require logging in after the initial setup. 
 We want the user to access the application as fast as possible, and logging in is a barrier to that. Moreover, this would cause a displeasing experience for the user, entering your credentials is not fun.
 
 We need to find a way to make sure the user needs to log in only once.
