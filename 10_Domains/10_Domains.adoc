@@ -1,38 +1,49 @@
-= 1 =
+= From domains to microservices =
+
+== Introduction ==
+It's important to recognize the way you design you microservices will be reflected on the quality of your application. Poorly divided microservices will result in poor performance, poor maintainability, poor developer experience, and overall a bad user experience. If your data is poorly isolated, it will span multiple microservices and create a integrity and consistency mess. Make microservices too big and you lose the benefits. Make microservices too small and you begin to overload your network infrastructure, increase costs, decrease maintainability and increase your risks of bugs. Whatever your implementation, a poorly designed infrastructure will cause headaches. Let's see how we can create a sensible microservice architecture, using Polycode as our use case.
+
+The first step in decomposing your application into microservices is to understand the domain that it lives in. To make sure that everybody is on the same page, and to provide a common vocabulary for your engineers, marketing team, executive team, architects and whoever might be working on the project, we need to define the language that is used around your project.
 
 == Ubiquitous Language ==
+The ubiquitous language is a common vocabulary everybody involved in the project should define together and use to communicate. The goal is to make sure that everybody refers to the same concept when talking about the project, reducing confusion and misunderstanding, avoiding conflicts and unnecessary discussion.
 
+As the Polycode team, we defined the following vocabulary for the Polycode project. Please take some time to read through it, to make sure your understanding is aligned with mine.
 
 
 |===
 | Word | Definition 
 | Practice | A section of Polycode made to train users 
-| Assessment | A section of polycode made to evaluate user 
-| Admin | A privileged user that have access that can CRUD all resources of Polycode. 
+| Assessment | A section of Polycode made to evaluate user 
+| Admin | A privileged user that have access and permission to manage all resources in Polycode. 
 | User | Someone who has a Polycode account. 
 | Candidate | A person who participate to a test or assessment. 
 | Guest | Someone who doesn't have an account. 
 | Captain | A user who manages a team. 
 | Assessment Creator | A user who can edit or create assessment, and invite candidates. 
-| Practice Creator | A user who can edit or create his content. 
-| Test | It is an ordered group of contents made to evaluate users. It has a grade, which is the total score divided by the total number of points of the contents bank. It is created by an assessment creator. 
-| Campaign | Utilization of a test on a group of candidates 
+| Practice Creator / Content creator | A user who can edit or create his content. 
+| Test | It is an ordered group of contents made to evaluate users. It has a grade, which is the total score divided by the total number of points in the set of contents. It is created by an assessment creator. 
+| Campaign | Usage of a test on a group of candidates 
 | Module | A grouping, possibly nested, holding contents and that can give points when fully completed. 
 | Content | A content is a coherent group of components. The contents are organized in a tree structure. The modules are branches and the contents are leaves. In other words, unlike modules, a content can't contain modules or other contents. 
 | Component | Its a small unit of what will be displayed to the end users. You must use components to build your content, components compose contents. Can be of multiple types, a markdown or an editor for example. 
 | Hint | A hint is an item to help the user to finish a component in exchange for PolyPoints. 
 | Item | Represents a purchasable resource. 
-| Polypoints | A virtual money responsible of the gamification of Polycode. Polypoints can be used to buy items. The user and team leaderboards are based on the number of Polypoints. Polypoints can be earned by completing contents or modules. 
+| Polypoints | A virtual money responsible of the gamification of Polycode. Polypoints can be used to buy items. The user and team leader boards are based on the number of Polypoints. Polypoints can be earned by completing contents or modules. 
 | Runner | A service that executes code in a given language and returns the output (stdout and stderr). 
-| Submittable | A component that can be submitted by a user to the application. 
-| Submission | A user's answer to a submitable. Can be validated through a validator 
-| Team | Group of users. One of them is the team's captain. The team Polypoint count is the sum of the Polypoints of its users. Team are ranked according to their Polypoints. 
-| Validator | Expected responses for a submitable 
-| Tag | Keyword associated to a resource used for statistics and filtering 
-| Purchase | Items that was buy by a user 
+| Submittable | A component that can be submitted for validation by a user to the application. 
+| Submission | A user's answer to a submittable. Can be validated through a validator.
+| Team | Group of users. One of them is the team's captain. The team's Polypoint count is the sum of the Polypoints of its users. Team are ranked according to their Polypoints. 
+| Validator | Validate users submission. 
+| Tag | Keyword associated to a resource used for statistics and filtering.
+| Purchase | Items that was bought by a user.
 |===
 
 == User stories
+Now that we agree on the vocabulary, and that we clearly defined what are the meaning behind words in the scope of the Polycode application, we now need to define the features that needs to be available to all our users. This can be done using user stories. They define actions that someone should be able to do on the platform, giving context as why they want to do so. Defining why they want to do so tries to make sure we define features that makes sense, and to keep the end goal in sight.
+
+Here are the user stories we came up with, based on our client specifications:
+
 |===
 | As a | I want to | In order to
 | Guest | Create my account | Use the application functionalities
