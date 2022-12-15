@@ -31,3 +31,90 @@
 | Tag | Keyword associated to a resource used for statistics and filtering 
 | Purchase | Items that was buy by a user 
 |===
+
+== User stories
+|===
+| As a | I want to | In order to
+| Guest | Create my account | Use the application functionalities
+| User | Update my email | Recover my account if I was to change my email address
+| User | Reset my password using my email | Recover my account if I was to forget my password
+| User | Receive a welcome mail when I sign up | Be notified when my registration is completed
+| User | Show my account details | To review my personal information
+| User | Show other's details | To gather information about another user
+| User | Change my username, my preferred programming language and my bio | Update personal information and settings if there was to change
+| User | Delete my account | Delete my fingerprint on the Polycode application
+| User | Connect to my account using my username and my password | Access the application's functionalities
+| User | Logout of my account | Avoid non authorized access from a computer I used
+| User | Create a new team | Gather a user group and participate to teams leader board
+| Captain | Invite other users in my team | Grow my team
+| Captain | Delete a member from my team | Remove a problematic member, for whatever reasons
+| Captain | Give the captain role to another member of my team | Dispose of my role
+| Captain | Delete my team | Delete this team's fingerprint on Polycode, for whatever reasons
+| Captain | Change the name and the description of my team | Keeping the team's infos up to date
+| User | Accept or decline a team invite | Join the team I want to join
+| User | Leave a team | Not being associated to a certain group of user
+| User | See my team's points | Follow my team progress
+| User | See the teams leader board | See my team placement
+| User | See the internal ranking of my team's members | See who participates the most in the team
+| User | See the list of available exercises | Choose an exercise
+| User | See the list of available modules | Choose a module
+| User | See the sub-modules and exercises of a module | See the steps needed to complete the module
+| User | See the list of available evaluations | Choose an evaluation to pass
+| User | See the latest exercises / modules posted online | See the new content
+| User | See the information of an exercise | Get information on the subject of an exercise
+| User | See the information of a module | Get information on the subject of the module, the objective
+| User | See the information of an evaluation | Get information on the subject of the evaluation, the objective
+| User | See the statement of an exercise | Know the problem to be solved and the questions to answer before validating the concept
+| User | Propose a solution to the exercise | Earn PolyPoints and progress in the associated module
+| User | In the case of code to be written, execute an intermediate validator | Check if my code is correct for the validator in question
+| User | Save the last solution that was the most successful | Take the code from a different device, at another time, to improve it
+| User | Write (and modify) my code solution in an editor integrated into the exercise page (code exercise case) | Propose a solution to the exercise
+| User | Add files to the editor | Organize my solution into multiple files
+| User | Delete files in the editor | Organize the solution into multiple files
+| User | Buy hints with PolyPoints | Better understand how to solve the exercise
+| User | Follow my progress in each module | See what I completed, and what's still in progress
+| User | See the global leader board users | Gain motivation to reach the top
+| User | Take an evaluation | Get a certification
+| User | Read the content of a course | Become competent on a subject
+| Content Creator | Create an exercise, add markdown, a code editor, a QCM | Teach a new concept, check the knowledge of this concept with a question / code to be written
+| Content Creator | Create a module | Organize exercises by major concept / theme
+| Assessment Creator | Create an test | check the skill set of a user on something
+| Content Creator | Add my exercises to a module I have created | Fill the content of a module with a coherent and organized set of elements
+| Content Creator | Add submodules to a module | Fill the content of a module with a coherent and organized set of elements
+
+| Content Creator | Delete a content I created | Fix a mistake or delete the existence of this content
+| Content Creator | Delete a module I created | Fix a mistake or delete the existence of this module
+| Assessment Creator | Delete a test I created | Fix a mistake or delete the existence of this test
+| Assessment Creator | See the results of my test | Mark a candidate
+| Admin | Promote a user to a creator | Add a new creator
+| Admin | Promote a user to an admin | Add a new admin
+| Admin | Fetch data of a user | See the personal information of a user
+| Admin | Update user's data | Help recover and fix problems with a user account
+| Admin | Delete a user | Remove access of a user
+| Admin | Have a content creator or assessment creator permissions | Edit and manage existing content, if the need arise
+| Admin | Have a user permissions | Use the site as a normal user
+| Assessment Creator | Create a campaign | Test a set of candidates
+| Assessment Creator | Add candidates via a web interface | Add candidates to my campaign
+| Assessment Creator | Delete candidates via a web interface | Delete candidates to my campaign
+| Assessment Creator | Add candidates via a web API | Add candidates to my campaign
+| Assessment Creator | Delete candidates via a web API | Delete candidates to my campaign
+| Assessment Creator | Add candidates via a CSV file | Add candidates to my campaign
+| Assessment Creator | See results and stats of a campaign I created | Evaluate the candidates level
+| Assessment Creator | Add tags to candidates | Group candidates
+| Assessment Creator | Define a expiration time for my campaign | Close my campaign at a fixed time
+| Candidate | Come back to a test, without losing my progress | Finish my test if I were to leave the app
+| Assessment Creator | Define a limited time for each of my questions | Restrain the maximum time a candidate has for a question
+| Assessment Creator | Define the points a question can give | Score candidates
+| Candidate | Receive a mail to opt-in the campaign | Join or decline a campaign
+| Candidate | Accept a campaign | Participate in a campaign
+| Candidate | Decline a campaign | Not participate in a campaign, and notify the creator
+| Assessment Creator | Edit my campaign | Fix mistakes or edit its content
+| Assessment Creator | Define a beginning date for my campaign | Time frame my campaign
+| Assessment creator | Manually send begin campaign mail to candidates | Customize the campaign access
+| Candidate | Receive a email when I finished passing my test | Get a confirmation that my answers was taken into account
+| Assessment Creator | Visualize the results by tag in a graph | Better visualize results
+| Assessment Creator | Export summed up results as PDF | Save results in a synthetic way
+| Assessment Creator | Export detailed results as PDS | Save results and have them available locally
+| Assessment Creator | Compare candidates results via a excel document | Compare candidates
+| Assessment Creator | Sort candidates by tags or results | Compare candidates using the criteria I want
+|===
