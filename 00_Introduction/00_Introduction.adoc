@@ -41,7 +41,7 @@ Instead, we are already in a Kubernetes context, which already allow for automat
 It is also worth noting that the current implementation mostly follows a service-oriented architecture.
 
 === Current limitations ===
-As shown in the diagram xref:currentArchitecture[above], except for the runner, everything is still mixed up in one big application, __the API (™)__. This gives us enough flexibility to scale our application if the user count were to increase, but we would spin up a heavy server every time, although probably only a small portion of our application takes a the load.
+As shown in the diagram xref:currentArchitecture[above], except for the runner, everything is still mixed up in one big application, the API. This gives us enough flexibility to scale our application if the user count were to increase, but we would spin up a heavy server every time, although probably only a small portion of our application takes a the load.
 
 [#scalingMonolith]
 For example, we currently handles the authentication within the API. The users routes are hit pretty heavily, since every time the user loads the website, they try to fetch their own data. This might take over half of the available resources of the container (totally arbitrary, for the example), and the team routes only taking less than 1 percent of the available resources. This can lead to poor performance in high-traffic environments.
@@ -94,7 +94,7 @@ With that being said, we need to take a short time to stop and reconsider if mig
 But as a company, you might see that this project is getting little to no traction, and would probably try to limit expenditure for a project that is not showing signs of growth. You could flip the problem the other way around, and say that you need to invest more to actually have growth, but this is risky, and adding new features is bad, but not too bad as of right now. The load is next to none, scalability is not a problem, and I would argue that we currently have enough flexibility if the project were to gain traction to scale the application enough to have the time to react and rethink our system.
 I would even argue that this project is already too costly to run for what it is right now, architecture wise (although negligible at this scale) and employee wise. You would need developers that now how to build for the cloud, an operation employee to monitor and maintain your stack. Those are very expensive, and are a huge upfront investment that might yield no return.
 
-Of course, all those considerations are out the window when you take into account that, we are not a company, but a group of students, working for free, with (not a lot of) time to spare, longing for new technologies and complex systems. The downsides for us are negligible, and curiosity and the learning experience is worth it every step of the way.
+Of course, all those considerations are out the window when you take into account that, we are not a company, but a group of students, working for free, with time to spare, longing for new technologies and complex systems. The downsides for us are negligible, and curiosity and the learning experience is worth it every step of the way.
 
 == Wrap up ==
 With that being said, we will now dive and explore the microservices world. But before getting all technical, and before talking stacks, implementation, we first need to understand what we are working with, and how we can define our microservices in a sensible and maintainable way.
