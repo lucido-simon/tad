@@ -68,10 +68,32 @@ Because each microservice is a standalone component that communicates with other
 Finally, microservices can be easier to test and maintain than monolithic applications. Because microservices are modular and self-contained, it is easier to test individual services and ensure that they are functioning correctly. Additionally, because each microservice has a specific role, it is easier to identify and fix issues when they arise, and to make changes to individual microservices without affecting the rest of the application.
 
 === The cost of microservices ===
-==== Migrating ====
-==== Time ====
+As you might expect, this doesn't come without downsides. This is not a perfect fit for every situation. Microservices are a great architectural tool, but like every tool, you need to use them wisely.
+
 ==== Cost of infrastructure ====
+The first thing I would like to touch on, is the cost associated with running a microservice architecture. As you might have realized, running microservices come with a big resource overhead. Running multiple containers, each allocating resources for your language runtime (if applicable), running inside a Kubernetes cluster, that, by itself, will reserve some more resources for services, ingresses, internal DNS, will require more resources.
+For a basic, low traffic service, with no requirements or low requirements on uptime, microservices will add significant cost to your infrastructure. Stick to a well-architected monolith, as you will not benefit from a microservice architecture.
+
+==== Time and entry barrier ====
+Another aspect to microservices that can be a limiting factor to you, is the added complexity compared to a simple, heavy, monolithic application. You will both need a team architects that have the skill set and the knowledge to actually build a architecture that makes sense (which is not necessarily easy)
+XREF HELLO DON'T FORGET ABOUT ME PLEASE <--------------------------------------------------
+and a team that can code in a "cloud-native" way, meaning they understand cloud patterns, how to build a stateless application, how to handle failures and how to define stable and sane APIs.
+You will also need experts to monitor and identify problem with your infrastructure. Developers don't typically now how to handle operations properly, you'll need to hire someone with this knowledge to actually keep an eye on your logs, metrics and traces, giving an helping hand to developers that might need help.
+[#educateYourTeam]
+These teams may need to adopt new tools, processes, and ways of working to support the development, deployment, and management of microservices. This can require significant training and organizational changes.
+
+==== Migrating ====
+The last point I would like to touch on, applies to teams and project which already have an application running, in the form of a monolith. The process of migration is bumpy, and will cause headaches.
+Decomposing a monolithic application can be a complex and time-consuming process. It requires a deep understanding of the existing application and its dependencies, as well as careful planning to ensure that the resulting microservices are maintainable and scalable. There are tools you can use to ease this migration, such as the https://microservices.io/patterns/refactoring/strangler-application.html[strangler pattern], which aims at destructuring your monolith and putting your business logic into microservices step by step, while putting the new features in their own microservice to begin with.
+However, this also requires educating your team, as mentioned xref:educateYourTeam[above].
+
+== Does it really makes sense ? ==
+With that being said, we need to take a short time to stop and reconsider if migrating Polycode to microservices is actually worth it. Our current application structure and deployment scheme makes the migration easier than it would be with most of the monolith out there.
+But as a company, you might see that this project is getting little to no traction, and would probably try to limit expenditure for a project that is not showing signs of growth. You could flip the problem the other way around, and say that you need to invest more to actually have growth, but this is risky, and adding new features is bad, but not too bad as of right now. The load is next to none, scalability is not a problem, and I would argue that we currently have enough flexibility if the project were to gain traction to scale the application enough to have the time to react and rethink our system.
+I would even argue that this project is already too costly to run for what it is right now, architecture wise (although negligible at this scale) and employee wise. You would need developers that now how to build for the cloud, an operation employee to monitor and maintain your stack. Those are very expensive, and are a huge upfront investment that might yield no return.
+
+Of course, all those considerations are out the window when you take into account that, we are not a company, but a group of students, working for free, with (not a lot of) time to spare, longing for new technologies and complex systems. The downsides for us are negligible, and curiosity and the learning experience is worth it every step of the way.
 
 == Wrap up ==
-
+With that being said, we will now dive and explore the microservices world. But before getting all technical, and before talking stacks, implementation, we first need to understand what we are working with, and how we can define our microservices in a sensible and maintainable way.
 
