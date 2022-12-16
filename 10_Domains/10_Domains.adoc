@@ -129,3 +129,28 @@ Here are the user stories we came up with, based on our client specifications:
 | Assessment Creator | Compare candidates results via a excel document | Compare candidates
 | Assessment Creator | Sort candidates by tags or results | Compare candidates using the criteria I want
 |===
+
+== Domain Driven Design (DDD) ==
+Great! We now have defined a common language around the Polycode domain, and we also have explicitly defined the features and expected user interaction with our app. We now have a solid foundation to start thinking about the architecture of our application. In order to make this goal more achievable, and to actually come up with a sensible approach, we are going to design our architecture based on the functional needs of our applications. Starting high up in the mental model of relations between components of our application, diving deeper and deeper until we come up with an actual microservice architecture. This is called Domain Driven Design.
+
+=== The origin ===
+Domain-driven design (DDD) is a software development approach that focuses on the design and development of a system from the perspective of the business domain it operates in. It was first proposed by Eric Evans in his book __Domain-Driven Design: Tackling Complexity in the Heart of Software__ which was published in 2003. DDD is based on the idea that by better understanding the business domain and the underlying processes, it is possible to design and develop more effective software systems that can help organizations operate more efficiently and effectively. In his book, Eric Evans defines key component around this approach, as well as identifying and naming common patterns you often encounter in complex, business-logic-heavy domains. This book triggered several engineers and practitioners in this field, to add onto this idea.
+As you might have realized, the origin of DDD is not rooted within the microservice world. It is a software design approach that can be applied more broadly, when developing software, although it suits particularly well our microservice architecture.
+
+=== What is the goal ===
+Why should we design our application this way ? Why not just dive right into developing microservices, creating new one every time it __feels__ like the right choice ?
+
+Your intuition might be right, but several problems arise :
+
+* Getting it right gets exponentially more difficult the more complex your domain is. Moreover, xref:costOfMicroservices[as mentioned in the introduction], if you have a simple architecture, microservice might not be the best fit for you.
+* Even if you're right, you need to justify your choices. Intuition is not a justification.
+* You need to document your architecture, and the steps you've taken to get to here. This is important for anyone joining your team, to truly understand the decisions that have been made, why the current state of this architecture is the way it is.
+* If you're wrong, it's much more difficult to come back and rethink your design. You will have no base to work with. This won't be a revision of what you've made, it's starting from the ground up once again.
+
+And if it looks to costly to fix your architecture or if you're too stubborn to realize that you've made a mistake, you will have to work around those errors, adding band-aid on top of band-aids, and you'll have a unreliable, under-performing, hard to maintain architecture. It is key to understand that the decisions you're making when designing your architecture will impact every line of code written.
+
+The goal of domain-driven design (DDD) is to help developers create software that accurately reflects the business domain and can be easily understood and maintained by domain experts. By aligning the software with the needs and goals of the business, DDD helps ensuring that the software is able to effectively support the business and its operations.
+
+=== Microsoft ===
+I wanted to highlight the work done by the Microsoft engineers in documenting and creating a microservice architecture. Their architecture documentation is a great resource, and I've learnt most of what I'm applying through it. As a matter of fact, I will apply their process for creating a microservice application using a DDD approach. I **highly** suggest reading their documentation https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/[here] and https://learn.microsoft.com/en-us/azure/architecture/microservices/model/domain-analysis[here] for a better understanding of DDD. We will walk trough each step in this chapter, but having a deeper understanding that the very high level overview that I'm going to give through this paper is worth it. Note that, while going much deeper, the Microsoft documentation is not the bible of DDD, and you might want to read https://www.amazon.fr/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215[__Domain-Driven Design: Tackling Complexity in the Heart of Software__] instead.
+Microsoft goes much more into details about where using DDD to define your architecture makes sense. There is a lot to say about DDD, and this is misaligned with the core goal of this chapter, which is to explain the thought-process I had when architecting Polycode.

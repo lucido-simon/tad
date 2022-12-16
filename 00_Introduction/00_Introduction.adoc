@@ -69,6 +69,7 @@ Because each microservice is a standalone component that communicates with other
 
 Finally, microservices can be easier to test and maintain than monolithic applications. Because microservices are modular and self-contained, it is easier to test individual services and ensure that they are functioning correctly. Additionally, because each microservice has a specific role, it is easier to identify and fix issues when they arise, and to make changes to individual microservices without affecting the rest of the application.
 
+[#costOfMicroservices]
 === The cost of microservices ===
 As you might expect, this doesn't come without downsides. This is not a perfect fit for every situation. Microservices are a great architectural tool, but like every tool, you need to use them wisely.
 
