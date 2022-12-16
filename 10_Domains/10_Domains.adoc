@@ -154,3 +154,30 @@ The goal of domain-driven design (DDD) is to help developers create software tha
 === Microsoft ===
 I wanted to highlight the work done by the Microsoft engineers in documenting and creating a microservice architecture. Their architecture documentation is a great resource, and I've learnt most of what I'm applying through it. As a matter of fact, I will apply their process for creating a microservice application using a DDD approach. I **highly** suggest reading their documentation https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/[here] and https://learn.microsoft.com/en-us/azure/architecture/microservices/model/domain-analysis[here] for a better understanding of DDD. We will walk trough each step in this chapter, but having a deeper understanding that the very high level overview that I'm going to give through this paper is worth it. Note that, while going much deeper, the Microsoft documentation is not the bible of DDD, and you might want to read https://www.amazon.fr/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215[__Domain-Driven Design: Tackling Complexity in the Heart of Software__] instead.
 Microsoft goes much more into details about where using DDD to define your architecture makes sense. There is a lot to say about DDD, and this is misaligned with the core goal of this chapter, which is to explain the thought-process I had when architecting Polycode.
+
+== Polycode Domain ==
+Domain Driven Design starts high up, with domain experts, and progressively dive in deeper until we have a clear architecture. But what are domain experts ? What is our domain exactly ? Let's start with the basics.
+Domain experts are the people that are knowledgeable in their field, and provide the necessary expertise to ensure that the software accurately reflects the real-world domain it is intended to model. But what is our domain ? Good thing for us is that we already did all the hard-work. We defined our ubiquitous language around Polycode, and our user-stories to define the functionalities. Talking with domain experts, we can plot all our vocabulary on a diagram to better understand all the parts around Polycode. Here's what I came up with:
+
+image:10_Domains/TAD_10_PolycodeDomain.png[]
+
+This diagram gives an overview of relations between concepts inside our Polycode domain. This is already quite a lot to work with ! It might look frightening at first, manufacturing a great architecture out of these seemingly abstract vocabulary might be concerning. Don't be, DDD will guide us.
+
+== Bounded Contexts ==
+If you've read the Microsoft documentation or if you've had some experience with DDD, you'll know the next step is to define bounded contexts.
+A bounded context is a specific way of defining the boundaries and scope of a domain. It is a way of partitioning the domain into smaller, more manageable pieces that can be developed and understood independently, but still fit within the overall context of the domain. The goal of a bounded context is to create a clear separation between different parts of the domain and to explicitly define the ways in which they interact with one another. 
+We are going to divide our Polycode domain in a subset of contexts, that can be worked on independently. I'll give my take on the Polycode bounded contexts, and explain why each of them makes sense:
+
+image:10_Domains/TAD_10_BoundedContexts.png[]
+
+As you can see, I've divided the domain in 4 bounded contexts:
+
+* The user context, which I also might refer as the account context, is the context where we have a deep knowledge about what a user is. This is where we handle his settings, account management, authentication. This is also the context responsible of sending emails, since an email is intrinsically linked to users.
+* The practice context is responsible of handling the practice side of Polycode. This is where we have knowledge about teams and items, where we handle user progression and defines modules that the user will be able to follow. It is important to note that the notion of user in the practice context is not the same as the notion of user in the user context. A user, in the practice context, does not have a password or even an email. It is not needed in this context. This means that there will be translation layer in the communication between contexts, and this is normal. This is the cost we have to pay to make each of our context easy to work with and self-contained.
+* The assessment context, in the same regards that the practice context, is responsible of handling the assessment side of Polycode. Separating it from the practice context makes sense to me, since we are handling a very different business logic. We need to grade candidates, with an invitation system on test that have a limit in time and that you can't retry.
+* The content context. This is the harder one to justify, and it might look like I've let the technical implementation and details take over my thought process. I don't think this is the case. Wether you are in the practice or assessment context, you're not really concerned about the content itself, but more about the functionalities around it. You're concerned about what is a module, and that it has content within it, but whatever is the content. What is important to you is "Did the user finish this content ?" for example. In the content context, we don't really care where the content actually is. What we care about is inside this content, can we validate it, can we execute it ? How can we create new contents ? Contents exists in the assessment (as a question) and practice context, but they have a very different purpose than in the content context.
+
+The great thing with DDD, is that it can be an iterative process. If you realize that you've made a mistake, you can always come back to the previous step and fix it. And since we're dividing our domain into contexts very early, if we were to come to make a mistake, it should not impact the other bounded contexts.
+
+Now that we have defined our bounded contexts, let's move on to the next steps.
+
