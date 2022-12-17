@@ -61,8 +61,10 @@ One powerful tool that is available on mobile, are the push notifications. This 
 One way of increasing the effectiveness of push notifications, is to time it well. You don't want to send this notifications at 9h30, right after the user got to work. You might want to send this notifications at 7h30 in the morning, while commuting, at 1pm, during lunch break or at 6pm when commuting back from work. This can be fine tuned based on the user behaviors, and might take multiple days for the app to get it right. But creating an algorithm that tries to figure out where the user is most likely to have free time and send that push notification should give a great trade-off between the resources put into creating it, and its reward, although difficult to measures.
 
 == Mobile only ? ==
-=== Incentive for desktop users ===
+A concern you might have, is how to integrate these functionalities into the Polycode website ? I would argue that the question is more along the lines of __Do we need to integrate these functionalities into the Polycode website ?__. 
 
+Gate-keeping these functionalities will create an incentive for desktop users to download and use the application. If you're already spending time on the website, pushing them towards another platform where they can interact with our service when they have a little bit of free time, like discussed previously, will not be difficult. This would both increase the time the user interacts with our service, and create new habits so they keep coming using our service. They should not be pushed to aggressively, as this will impact the user experience, and also create a surface for backlash.
+I would like to point out that this is mostly a executive decision, and not a technical one. When building the backend for those new features, you should do it in a agnostic manner: any user-agent should be able to interact with it, letting us the possibility to integrate easily other platforms in the future.
 
 == Mobile functionalities ==
 As discussed above, to justify a mobile app, we need to provide a new set of functionalities that are mobile friendly, with new contents available daily. Here are some ideas, we will dive into each of them, in details, later in this document :
