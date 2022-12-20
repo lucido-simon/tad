@@ -133,6 +133,11 @@ Here are the user stories we came up with, based on our client specifications:
 == Domain Driven Design (DDD) ==
 Great! We now have defined a common language around the Polycode domain, and we also have explicitly defined the features and expected user interaction with our app. We now have a solid foundation to start thinking about the architecture of our application. In order to make this goal more achievable, and to actually come up with a sensible approach, we are going to design our architecture based on the functional needs of our applications. Starting high up in the mental model of relations between components of our application, diving deeper and deeper until we come up with an actual microservice architecture. This is called Domain Driven Design.
 
+I will introduce the vocabulary linked to DDD when needed. Here's the important ones that you should now before going any further with DDD: 
+
+* Domain: The sphere of knowledge or activity related to a particular subject or business. In the context of software development, the domain is the area of expertise or focus of the system being developed.
+* Domain model: A representation of the key concepts, relationships, and rules within a domain. A domain model is used to capture and communicate the understanding of the domain to both domain experts and developers.
+
 === The origin ===
 Domain-driven design (DDD) is a software development approach that focuses on the design and development of a system from the perspective of the business domain it operates in. It was first proposed by Eric Evans in his book __Domain-Driven Design: Tackling Complexity in the Heart of Software__ which was published in 2003. DDD is based on the idea that by better understanding the business domain and the underlying processes, it is possible to design and develop more effective software systems that can help organizations operate more efficiently and effectively. In his book, Eric Evans defines key component around this approach, as well as identifying and naming common patterns you often encounter in complex, business-logic-heavy domains. This book triggered several engineers and practitioners in this field, to add onto this idea.
 As you might have realized, the origin of DDD is not rooted within the microservice world. It is a software design approach that can be applied more broadly, when developing software, although it suits particularly well our microservice architecture.
@@ -179,5 +184,22 @@ As you can see, I've divided the domain in 4 bounded contexts:
 
 The great thing with DDD, is that it can be an iterative process. If you realize that you've made a mistake, you can always come back to the previous step and fix it. And since we're dividing our domain into contexts very early, if we were to come to make a mistake, it should not impact the other bounded contexts.
 
-Now that we have defined our bounded contexts, let's move on to the next steps.
+Now that we have defined our bounded contexts, let's move on to the next step.
 
+== Tactical DDD ==
+We have defined our bounded contexts, and successfully divided Polycode into smaller, workable domains. This is great, from now on we can move in parallel, with domain experts for each of our bounded contexts identifying the key elements within each of our contexts. But our bounded contexts is still way too broad, we still can't jump to microservices directly.
+We need to define our domain model with more precision. To do so, we will be using tactical DDD.
+
+The first step is to identify and categorize all the area of functionalities you have. Tactical DDD defines the following categories : 
+
+* Entity: A domain object that is defined by its identity and attributes, rather than its behavior. Entities are typically used to represent things or concepts in the domain that have a long-lived existence and are subject to change over time.
+* Value object: A domain object that is defined by its attributes, rather than its identity. Value objects are typically used to represent things or concepts in the domain that are immutable and do not have a long-lived existence.
+* Aggregate: A group of related domain objects that are treated as a single unit. An aggregate is used to enforce consistency and to ensure that certain invariants are maintained within the system.
+* Service: A domain object that is defined by its behavior and is not tied to a specific entity or value object. Services are used to encapsulate business logic that is not closely related to a particular domain object.
+* Domain events: A domain object that conveys information when something happens in the domain. This is useful to synchronize microservice, since they usually don't share data stores.
+
+Once again, for a more detailed description of each of them, a highly recommend reading the https://learn.microsoft.com/en-us/azure/architecture/microservices/model/tactical-ddd[Microsoft's documentation].
+
+With the terminology set, we now need to analyze each of our bounded contexts, and come up with a well-defined and precise domain model.
+
+=== The user context ===
