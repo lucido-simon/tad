@@ -75,11 +75,14 @@ As discussed above, to justify a mobile app, we need to provide a new set of fun
 
 
 === Daily coding lessons ===
-Mobile users are usually able to have short period of free time during the day, while commuting or during lunch break for example. This is a opportunity to give them a recurring short coding lesson, that they can do in a few minutes. By offering a new lesson every day, we can keep the user engaged and motivated to learn coding, as well as creating a habit of using the app during their daily commute, for example.
-
-As soon as the app retrieves connectivity, it will try to download new lessons, which can be published multiple days in advance. This way, the user will always have a lesson to do, even if they are offline for a few days.
+Fitting into the short-in-time and repetitive constraint we have, I would propose daily coding lessons, which would be short (5 to 10 minutes) lessons the user can follow. You should not have to follow the previous lessons to be able to follow the current one. This might look unintuitive at first, but I think we trade the benefits of having a tailored progression for each user for having a easier to make, broader content that we can really focus on each day.
+This would also have the benefits of making it a topic of conversation among the Polycode mobile app users. If the lesson is the same for everybody, it means that they can talk about it every day, discussing the significance of what they learnt and how they can better use it in their life.
+However, making unique lessons that have no progression curve might also be boring for the user after a certain time, and finding new interesting content that has not be covered will become more and more difficult over time. This is a trade-off, and we keep the other approach in mind when implementing it, making sure we can easily extend the functionality to be based on the user's level later on. The lessons should be able in offline as well. As soon as the app retrieves connectivity, it will try to download new lessons, which can be published multiple days in advance. This way, the user will always have a lesson to do, even if they are offline for a few days.
+To incentivize the user coming back everyday, we should establish a streak system, keeping count of how long you have been doing your daily lessons. The user will not want to lose its streak and try to find time to complete its lesson. I think we should also grant the user Polypoints at different stages of progression, that they can use to buy things in the shop (which is currently only composed of hints for desktop exercises).
 
 === Daily coding quizzes ===
+On the same model as the daily coding lessons, daily coding quizzes would be a small quiz, 5 minutes maximum, that would also be pushed to the user every day. The quiz would relate to the lesson of that day, and have the same streak system than the daily coding lessons. However, they would be pushed later on in the day than the lessons, to make sure the user correctly understood and remembered the lesson of earlier. For every answer, a short explanation of why this was the correct answer should be displayed, even if the user was right.
+The quiz should be downloaded when the device retrieves connectivity, ideally at the same time as the lesson.
 
 === Find the bug ===
 
