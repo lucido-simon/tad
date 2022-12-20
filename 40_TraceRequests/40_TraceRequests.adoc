@@ -1,1 +1,18 @@
-= 4
+= Tracing and logging =
+
+== Introduction ==
+Managing a distributed system like a microservices architecture can introduce new challenges, particularly when it comes to monitoring and debugging. When a request is made to a microservices system, it may involve multiple services working together to fulfill the request. This can make it difficult to understand exactly what happened to the request as it made its way through the system.
+
+Tracing requests is a technique that can help with this problem by providing a way to follow the path of a request through the system and understand how each service interacted with it. Tracing works by assigning a unique identifier to a request and propagating that identifier throughout the system as the request is processed. This allows you to see the complete lifecycle of a request and understand how it flowed through the system.
+
+More broadly, monitoring a distributed system is key to understand where you system is weak. Without monitoring, you have no idea of the state of your system, where are the errors coming from, why some requests may fail, and what needs to be done to fix this.
+
+There are three pillars that are essential for effective monitoring of a microservice system: traces, logs, and metrics.
+
+* Traces provide a detailed view of the path of a request through the system, showing the sequence of events that occurred and how long each step took. They can also carry data added at each step, to have a further understanding of the request.
+* Logs provide a record of what happened within each service, including any errors or issues that may have occurred. Logging is going to provide actual errors and this is usually where you can really understand what is going on in your system.
+* Metrics provide a high-level overview of the system's performance and resource usage, helping you to identify trends and potential issues. Metrics can play a big role in scaling effectively your system (but you should also take into account business metrics, not only resource usage).
+
+By combining these three pillars of monitoring, you can gain a comprehensive understanding of your microservices system and how it is functioning. This can be crucial for identifying and resolving issues, optimizing performance, and ensuring the overall reliability and stability of your system.
+
+Let's dive deeper into two of those: traces and logs, and see how we can implement a good solution into our Polycode system.
