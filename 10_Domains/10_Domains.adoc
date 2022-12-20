@@ -203,3 +203,18 @@ Once again, for a more detailed description of each of them, a highly recommend 
 With the terminology set, we now need to analyze each of our bounded contexts, and come up with a well-defined and precise domain model.
 
 === The user context ===
+Using the terminology above, I've divided the user bounded context and identified the following entities:
+
+image::10_Domains/TAD_10_Account_DDD.png[]
+
+This is a pretty simple context, not much to define here. Let's go over what I came up with.
+
+As entities, we have the User entity and the Email entity. The user defines the basics of what is a user, in the account bounded context. A user should have a name, an email, and a unique identifier. We don't need to define anything else in this bounded context.
+
+I've also defined a Email entity. This entity is here to represent and store emails sent to users (validation emails for example). It is important to note that there is a reference to its corresponding user, via a userId. But, this is only a uuid, meaning that it is not strongly linked to it. Since our email entity is also an aggregate, to enforce consistency, you should be able to modify any child entities of the email aggregate only via the aggregate. This is not what we want here, and we don't need consistency between the two. However, this means that we need to take into account that the user id might not exists anymore.
+
+In the Email entity, I'm also storing the destination email. By doing so, we make sure that we know the destination email at the time the email was sent. A user might change its email, and if we rely on the User entity, we lose this information. Moreover, as discussed above, having a user that exists is not a valid assumption.
+
+I've defined the Email Status value object, which represents the status of an email. The email status of an email should only be modified via the aggregate. 
+
+Finally, I've also defined the Email Status domain event, which will notify the domain whenever a email changes status. This event should be sent when a email is created, when it has successfully been sent, or when it failed.
