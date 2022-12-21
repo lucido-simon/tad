@@ -252,3 +252,35 @@ This makes the content tightly linked with its parent module, this is why I've d
 You might also have noticed that there is a link between content and modules, and the user progression. They are, however, not in the same aggregate. It's OK if we don't have consistency here, the main purpose of the user progression is to store how he got his polypoints. Ideally, we do not delete any content or module, and just set the unused or outdated modules as not available for the end user to see.
 
 I've decided that tags should be an entity on its own, and not a value object. At first glance, it looks like a value object, it has no identity and is valuable only thanks to the value it owns. But in reality, tags will be used to categorize modules and to apply filters. This means that tags should be unique, and by extension identifiable, else we will have cohesion problems and redundancy in our databases. This is more of a technical decisions, but it is emanating from functional realities.
+
+== Microservices ==
+This is the last stretch ! We have now defined a domain model for each of our bounded contexts, and have a clear understanding of where our boundaries are. We now need to translate these more or less abstract concepts into microservices.
+
+=== From domain model to microservices ===
+This section is heavily inspired of https://learn.microsoft.com/en-us/azure/architecture/microservices/model/microservice-boundaries?source=recommendations[Microsoft's documentation on the subject].
+
+The last step is to transition from our domain model to our application designs. During this process, don't be afraid to go back and revisit the previous steps, as you might see some problems emerge, that can be caused by a faulty domain model or bounded contexts.
+
+The main criteria your microservices should respect are:
+
+* Each microservice has a single responsibility
+* Microservices should not be too chatty
+* A microservice should not be too big for a small team
+* No hard dependencies on one another. A microservice does not rely on another to be deployed and to work effectively.
+* They can evolve independently
+* You respect data consistency when there is a need for one
+
+A microservice should not spread over your bounded contexts. If it does, you probably have a problem within your bounded contexts. As you might have realized, some of those criteria are closed to what an aggregate is trying to solve. This means that aggregates are often good starting points as microservices. When in doubt, you should always start with a bigger service, since it is easier to trim it down than to glue up multiple microservices together.
+
+=== Polycode ===
+Let's apply the previous criteria to our Polycode application. I will be starting by going over each bounded contexts, and we will talk about inter-contexts communication later.
+
+==== Account domain model ====
+Let's discuss how I mapped out my user microservice:
+
+image::10_Domains/TAD_10_Account_Microservice.png[]
+
+It is very simple and straightforward as you can see, since the domain model is very simple too. There are still some decisions that are not that obvious that were taken:
+
+* The communication between the User service and the Mail service is synchronous, and so is the broadcasting of the EmailStatus Event. This is due to the constraint of not being able to use message queues, but this, to me, would be an obvious fit for a message queue, since we just want our mails to be eventually sent, and this can be done in a totally asynchronous manner.
+* I've not divided the email entity within its own service. I think the cost of managing consistency between the two services overwhelms the benefits of splitting it in to microservices. The user microservice still has a single responsibility, which is to manage the users. Emails are part of this responsibility. The microservice is still sufficiently small to be handled by a small team.
