@@ -89,3 +89,44 @@ While we are not allowed to use them in our solutions, asynchronous communicatio
 Another big advantage of message queues is that they offer a total decoupling of microservices. A service does not need to know who will handle the event. This comes with the side effect of a great resiliency and fault tolerance, since the events are stored, even if the micro service consuming them is down, so when it will eventually gets started back up, it can consume the requests it missed and have the operations brought back to normal, during a totally transparent process to all the others microservices.
 However, messages queues should not be used for critical and synchronous operations, such as a transactions, as it is often tedious to have feedback when your request has been processed, and you can not afford putting a whole transaction in standby waiting for something to eventually be processed. You want a fast, synchronous response, that fails if the service that is handling one of your requests fails to respond correctly.
 If I was allowed to use them in my architecture, I would use them for most of my domain events, such as sending emails for example.
+
+=== REST API ===
+REST, or Representational State Transfer, is a popular architectural style for building web-based APIs (Application Programming Interfaces). One of the main advantages of using REST for inter-microservice communication is that it is a widely adopted standard, which means that there are many tools and libraries available for building and consuming REST APIs. This can make it easier to integrate with third-party services and to build scalable, reliable systems.
+
+Another advantage of REST is that it is based on the HTTP protocol, which is a well-established and widely supported protocol for communication on the web. This means that REST APIs can be easily accessed from any platform or language that supports HTTP, which is basically everything. Additionally, HTTP has a number of built-in features, such as caching, security, and error handling, which can be leveraged when building REST APIs.
+
+However, there are also some disadvantages to using REST for inter-microservice communication. One potential issue is that REST relies on a stateless request-response model, which means that each request must contain all of the necessary information for the server to understand and fulfill the request. This can make it difficult to maintain context or state between multiple requests, which can be an issue if your microservices need to communicate complex data or maintain a stateful connection. This, however, might be seen as a blessing in disguise. Having a protocol that doesn't allow for stateful connection, forces the hand of developers to create stateless systems, that are easily scaled up, but also easily scaled down. Both of those problems are difficult to tackle in stateful environments, and this is why you often see a push towards making stateless application.
+
+Another disadvantage of REST is that it can be difficult to ensure that the API is being used correctly, as there are no strict rules governing how the API should be implemented. This can lead to issues with compatibility and maintainability, as different teams or developers may implement the API in different ways. Additionally, REST APIs can be difficult to version and maintain over time, as changes to the API may break existing client implementations.
+
+==== Pull vs Push model ====
+Another thing to consider, is the flow of your data within your system. This is the push vs pull model:
+
+In the push model, the server pushes data to the client as it becomes available. This is typically achieved using a technique called long polling, in which the client sends a request to the server and the server holds the request open until it has new data to send to the client. The client can then receive the data and send another request to the server to get more data as needed.
+
+The pull model, on the other hand, involves the client pulling data from the server as needed. In this model, the client sends a request to the server to retrieve a specific piece of data, and the server responds with the requested data. The client is responsible for initiating each request and can decide when and how often to request data from the server.
+
+Both the push and pull models have their own advantages and disadvantages. The push model is useful for scenarios where the server needs to send data to the client in real-time, as it allows the server to proactively push data to the client as soon as it becomes available. However, it can also be resource-intensive for the server, as it requires maintaining open connections with multiple clients.
+
+The pull model, on the other hand, is more efficient for the server, as it only needs to respond to requests from the client as they are made. However, it requires the client to actively request data from the server, which can make it less suitable for scenarios where real-time data updates are required.
+
+Ultimately, the choice between the push and pull model will depend on the specific needs of your application and the data exchange patterns between the client and server. However, implementing a push model with a REST API is cumbersome, and long polling is a hacky way of using HTTP requests to reverse the flow of data. If your use case is within this use case, or if you need duplex, using REST might not be the right choice.
+
+==== Performance ====
+There are several factors to take into consideration when talking about REST and performance. First, let's talk about multiplexing:
+
+Multiplexing in REST is typically achieved using a technique called HTTP/2 multiplexing, which is supported by the HTTP/2 protocol. HTTP/2 multiplexing allows multiple requests and responses to be sent over a single connection in parallel, rather than having to wait for each request to complete before sending the next one. This can help to improve the performance of a REST API by reducing the overhead associated with establishing and tearing down separate connections for each request.
+
+To use multiplexing in a REST API, the client and server must both support HTTP/2 and the client must initiate the connection using the HTTP/2 protocol. The client can then send multiple requests over the same connection, and the server can respond to each request as it is received.
+
+Multiplexing in HTTP/2 comes with several features to improve performance, such as solving Head Of Line Blocking at the HTTP Level, but the problem still persists at the TCP Level. This is why HTTP/3 is taking a whole new approach, but this is out of the scope of this section. I would highly suggest to communicate through HTTP/2 for all of your REST communication, especially when you have high traffic between your microservices.
+
+A second factor to take into account when talking about performance and REST, is that REST API needs to serialize and deserialize payloads in self-describing formats, typically JSON. I will assume the use of JSON for the rest of this paragraph.
+
+Both JSON serialization and deserialization can add overhead to the performance of a REST API, as they require additional processing to convert the data between different formats. This overhead can be particularly noticeable for large payloads or for scenarios where high volumes of data are being transferred.
+
+One way to reduce the overhead of JSON serialization and deserialization in a REST API is to optimize the design of the API to minimize the amount of data that needs to be transferred with each request and response. This can involve using compact data structures and minimizing the number of unnecessary fields or metadata included in the payload.
+
+In comparison, gRPC (Google Remote Procedure Call) uses a binary encoding for data transfer, which can be more efficient than the text-based encoding used by JSON. This can make gRPC more performant than REST, particularly for scenarios where high volumes of data need to be transferred or when low latencies are important. However, it is important to note that the performance of any specific implementation of REST or gRPC will depend on a number of factors, including the hardware and software infrastructure used to host the API, the design of the API itself, and the volume and complexity of the requests being made. We will talk more about gRPC in the next part.
+
+Overall, REST is a powerful and widely used tool for building APIs and facilitating inter-microservice communication, but it is important to carefully consider the potential disadvantages and limitations when deciding whether to use it in your specific use case.
