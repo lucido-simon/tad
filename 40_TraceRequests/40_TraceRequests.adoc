@@ -3,11 +3,9 @@
 == Introduction ==
 Managing a distributed system like a microservices architecture can introduce new challenges, particularly when it comes to monitoring and debugging. When a request is made to a microservices system, it may involve multiple services working together to fulfill the request. This can make it difficult to understand exactly what happened to the request as it made its way through the system.
 
-Tracing requests is a technique that can help with this problem by providing a way to follow the path of a request through the system and understand how each service interacted with it. Tracing works by assigning a unique identifier to a request and propagating that identifier throughout the system as the request is processed. This allows you to see the complete lifecycle of a request and understand how it flowed through the system.
+Monitoring a distributed system is key to understand where you system is weak. Without monitoring, you have no idea of the state of your system, where are the errors coming from, why some requests may fail, and what needs to be done to fix this.
 
-More broadly, monitoring a distributed system is key to understand where you system is weak. Without monitoring, you have no idea of the state of your system, where are the errors coming from, why some requests may fail, and what needs to be done to fix this.
-
-There are three pillars that are essential for effective monitoring of a microservice system: traces, logs, and metrics.
+There are three pillars that are essential for effective monitoring of a microservice system: traces, logs, and metrics. Those three pillars are also referred as telemetry.
 
 * Traces provide a detailed view of the path of a request through the system, showing the sequence of events that occurred and how long each step took. They can also carry data added at each step, to have a further understanding of the request.
 * Logs provide a record of what happened within each service, including any errors or issues that may have occurred. Logging is going to provide actual errors and this is usually where you can really understand what is going on in your system.
@@ -16,3 +14,28 @@ There are three pillars that are essential for effective monitoring of a microse
 By combining these three pillars of monitoring, you can gain a comprehensive understanding of your microservices system and how it is functioning. This can be crucial for identifying and resolving issues, optimizing performance, and ensuring the overall reliability and stability of your system.
 
 Let's dive deeper into two of those: traces and logs, and see how we can implement a good solution into our Polycode system.
+
+== Tracing ==
+Tracing is a technique that helps you understand the path of a request as it flows through a distributed system, such as a microservices architecture. It involves assigning a unique identifier to a request and propagating that identifier throughout the system as the request is processed. This allows you to see the complete lifecycle of a request and understand how it flowed through the system.
+
+It helps tracking Service Level Indicators (SLI) of your system, with the helps of metrics, depending on the specific SLI. A SLI represents an information about your system, such as the time your page takes to load. SLIs are often linked to Service Level Objectives (SLO), which are a targeted objective that a service tries to provide. This all links to Service Level Agreements (SLA), which defines the standard a customer can expect from a provider. We might guarantee 99.9% uptime to our customers, that is our SLA, with a SLO that is 99.99% uptime for critical microservices, and we track this data using SLIs.
+
+The terminology I will use is the following:
+
+* Span is a unit of work within a trace. It typically corresponds to a single service operation or network request. Spans are typically identified by a unique span ID. Spans can also include metadata, such as timestamps and tags, which provide additional information about the span and how it fits into the overall trace. A new span is usually created for every microservice the request hop through.
+* Trace is a series of spans that represent the path of a request through a distributed system. Each span in the trace is connected to the one before it by a parent-child relationship, which shows how the request flowed through the system. Traces are typically identified by a unique trace ID.
+* Baggage is a term used in distributed tracing to refer to a piece of data that is carried along with a trace or span as it flows through a system. Baggage is often used to include contextual information about a trace or span that may be useful for debugging or analysis. For example, you might use baggage to include information about the user who made a request, the environment the request was made in, or the application version that was in use when the request was made.
+
+Tracing can be a powerful tool for finding and debugging problems in a microservices system. By being able to see the complete lifecycle of a request and how it flowed through the system, you can identify bottlenecks, errors, and other issues that may be affecting the performance or reliability of your system. Tracing can also help you understand the impact of changes to your system, such as when you deploy a new version of a service or make changes to the system's architecture.
+
+== Logging ==
+Logging is the process of recording events and messages that occur within a system. In a microservices architecture, logging is an important tool for understanding what is happening within each service and how the services are interacting with each other. By capturing log messages at various points in the system, you can gain insight into the behavior and performance of your system and identify any issues or problems that may be occurring.
+
+There are a few key concepts to understand when it comes to logging in a microservices system:
+
+* Log message: A log message is a record of an event or message that occurs within a system. Log messages typically include a timestamp, a severity level, and a message string that describes the event.
+* Log level: A log level is a way to classify log messages based on their importance or severity. Commonly used log levels are "debug", "info", "warning", and "error".
+* Log sink: A log sink is a destination for log messages. Log sinks can be local files, databases, cloud storage, or any other location where log messages can be stored and accessed.
+* Log aggregation: Log aggregation is the process of collecting log messages from multiple sources and storing them in a central location. This can be useful for making it easier to search and analyze log messages from across the system.
+
+By carefully designing and implementing your logging strategy, you can use log messages to understand what is happening within your microservices system and identify issues and problems as they occur. This can be crucial for ensuring the reliability and stability of your system and for quickly identifying and resolving any issues that may arise.
