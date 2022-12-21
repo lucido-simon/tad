@@ -218,3 +218,35 @@ In the Email entity, I'm also storing the destination email. By doing so, we mak
 I've defined the Email Status value object, which represents the status of an email. The email status of an email should only be modified via the aggregate. 
 
 Finally, I've also defined the Email Status domain event, which will notify the domain whenever a email changes status. This event should be sent when a email is created, when it has successfully been sent, or when it failed.
+
+=== The practice context ===
+Let's take a look at my take on the domain model for the practice bounded context:
+
+Entities and value objects:
+
+image::10_Domains/TAD_10_Practice_Entities_VOs_DDD.png[]
+
+Aggregates:
+
+image::10_Domains/TAD_10_Practice_Aggregates_DDD.png[]
+
+As you can see, I've defined the User entity, which is a different entity than the one in the Account context. However, the field `accountId` makes the link between the two. There is additional information that is relevant only within the practice context, and that's why there is a separate entity in it.
+User is also an aggregate, composed of the User as the root entity. It is linked to UserProgression, Team and Purchase, since I have identified a need for transactional consistency. In the case of Purchase, there is a need for consistency when the user buys an item. We need to make sure that he has enough polypoints, and the transaction should fail if there is an error in either updating its polypoints, or an error when registering the Purchase.
+There is a similar need for the user progression. Registering user progress and adding the corresponding rewards to its polypoints should be done in one transaction.
+
+This is a great example of what aggregates are for. You don't want to be able to update Purchase without having the correlated side-effects. This is usually taken care of your database in a monolith application, where everything is done within one transaction. However, in a microservice architecture, it's the job of the application layer to have this responsibility.
+
+This is the same case for a Team. When updating or adding a new User to a team, we have consistency to be checked. The user must not be part of another Team for example. And when deleting a user, we have to make sure to stay consistent in the related entities, such as the Team the user might have been a part of. If the user was the captain, we need to elect a new captain for the team.
+
+However, this kind of consistency check is not needed when we are not mutating the data. This is where patterns like CQRS shines, and allows for a better segmentation of your data access, and allow a much needed optimization in the case where your requirements for the command model and the query model are significantly different. We are not allowed to use CQRS in this paper, so I will not dive further into it.
+
+I've defined Item as an entity, which is also an aggregate with only itself as a child. This means, however, that there is no guaranteed consistency when updating or deleting an item and its reference in the Purchase entity. If an item is deleted, purchases will have ghost references, just like there was with email and users in the account context.
+However, I don't have the same reasoning here. As a domain expert, I would argue that an Item can never be deleted. Once you've proposed to your users an item, this item is here to stay. Its price can be updated, it can be purchasable or not, but once it is out, there is no going back. This constraint will need to be respected, because the User aggregate, and more specifically the Purchase entity, will make the assumption that an Item is never deleted.
+
+I would now like to bring your focus to the Content entity. As we will discuss later, a Content is a totally different thing in the content context (content means a lot of different thing here, I'll try to make it clear). But in the practice context, we don't care about what is a content in a content context. We just now that OUR content has a name, description and a reward.
+An important realization to have, is that the content entities in the two contexts will not even be tied 1 to 1. Indeed, a content in the practice context is unique for each module. This allows us to re-use contents from the content context, while being able to have different names and description, with different rewards, depending on how it is used in the module.
+This makes the content tightly linked with its parent module, this is why I've defined the module aggregate, with the module entity as the root and the contents as child entities. We need to maintain consistency here, when a module is updated or deleted, we need to make sure to propagate the needed actions to the contents.
+
+You might also have noticed that there is a link between content and modules, and the user progression. They are, however, not in the same aggregate. I'm actually applying the same logic that with the user/email case from the account context earlier. It's OK if we don't have consistency here, the main purpose of the user progression is to store how he got his polypoints. Ideally, we do not delete any content or module, and just set the unused or outdated modules as not available for the end user to see.
+
+I've decided that tags should be an entity on its own, and not a value object. At first glance, it looks like a value object, it has no identity and is valuable only thanks to the value it owns. But in reality, tags will be used to categorize modules and to apply filters. This means that tags should be unique, and by extension identifiable, else we will have cohesion problems and redundancy in our databases. This is more of a technical decisions, but it is emanating from functional realities.
