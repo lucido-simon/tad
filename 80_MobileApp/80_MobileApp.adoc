@@ -116,5 +116,5 @@ We need to find a way to make sure the user needs to log in only once.
 ==== Not storing the password ====
 With that being said, one big requirement we need to respect is not to store the user's password at all. Doing so is a big security risk if their device were to be compromised, albeit by a malicious actor or by someone gaining physical access to the device. This is harmful to the user, since he might be reusing this password elsewhere, but also for us, since the attacker have access to the whole account, not only the session in the application. 
 
-== How to do it ? ==
-== Sequence diagram ==
+=== How to do it ? ===
+=== Sequence diagram ===
