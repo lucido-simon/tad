@@ -85,10 +85,16 @@ On the same model as the daily coding lessons, daily coding quizzes would be a s
 The quiz should be downloaded when the device retrieves connectivity, ideally at the same time as the lesson.
 
 === Find the bug ===
+The daily contents are a great feature and idea for our mobile app, but we also need contents that is available whenever the user wants to use the app, and not to be limited to the daily content. For a start, we could provide a way to go back in time and catch up the lessons and quizzes missed. But I would also propose a small game, where you are provided a code that is not working and you have to figure out what is the problem.
+
+The idea is simple: show a small sample of code, give some context about what is should be achieving, explain unwanted outcome of the sample of code, and let the user figure out what is wrong.
 
 ==== Click on the wrong line ====
+The user will try to read the code, and when identifying the faulty line of code that's causing the problem, clicks on it. The user is given 3 tries before losing the game. If the user manages to find the faulty line, a small MCQ appears.
 
 ==== Explaining the problem ====
+To make sure the user actually understood the problem, he will have to select between 4 explanations of what the faulty line is doing wrong. They will be given one chance to answer correctly, and if they does, they are granted a reward. More in-depth features can be explored, such as using Polypoints to have hints. 
+Since the progression is tracked per-user, we can introduce more and more difficult bugs, starting with simple iteration loop, to buffer overflows and dandling pointers.
 
 === Application flow ===
 ==== General layout ====
