@@ -290,6 +290,34 @@ image::10_Domains/TAD_10_Assessment_Aggregates_DDD.png[]
 
 I've defined only one aggregate, the campaign aggregate. As discuss previously, everything in the assessment bounded context is tied to a campaign, with a need for transactional consistency between all of them. The campaign entity will act like the gateway for all the children entities, making sure to take appropriate actions for each modifications and rolling back failed actions. This is a big aggregate and we will see how to deal with it later on. This is not a problem though, you have to accept that some transactional boundaries spans around a lot in your context. You might want to identify which of your dependencies forces you into this situation, and if there is something to be rethought, but for our assessment context, it's fine, not that big, and I don't think I misidentified links between my entities.
 
+=== The content context ===
+Finally, our final context. We have taken a look at all our bounded contexts but one: the content context. Let's dive right into it.
+
+Entities, values objects and domain services:
+
+image::10_Domains/TAD_10_Content_Entities_DomainServices_DDD.png[]
+
+I've defined 4 different entities. Let's start by talking about content.
+
+Content is an entity we found links to both in the practice context (with its own content entity) and in the assessment context (the question entity). However, we've seen a sharp difference between those two already. In this context, content does not mean the same thing as in the previous two contexts. Here, we care about how it works, how it is going to be displayed, and we don't care about the name it or the type it is given in other contexts.
+
+As you can see, a content is actually made of a root component, which itself might be composed of other component, or some text, or an editor. There is always a lot of possibilities, and these possibilities are not fixed in time. This is why we need to have a very flexible way of modeling things, even if we lose in rigidness and gain complexity. This is why most of the entities have fields of value `object`. This means that we don't know the actual data structure it may holds. This can be inferred via the type for example. Or it might be some edge cases where data that is totally unrelated to our context that other context might want to save, if they can't store it in their own context.
+
+This is the same thing with validator. We don't know how exactly we are going to validate each components, it depends of its type and the data structure might evolve over time. We find the same thing with submission. Submission holds a reference to an account, but this is not an entity by itself. A user is just a uuid to somewhere else for us, we have no business with its email or its name. We just need to have a unique identifier for a unique user, so we are going to use the GUID of our users in our systems, the one emanating from the account context. Note that we are not even going to communication with the account context, since in practice, this will be given to us at the moment of a submission.
+
+Having all those objects within our contexts is fine, since all the business logic related to it is kept inside our bounded contexts. Our "external API" should not change, and that's what the other bounded contexts really care about. As discussed previously, they don't need neither want to know how our content will be displayed.
+
+I've defined a domain service: runner. It will be responsible for taking executable code, and running it, returning the results. It does not do any validation, it just executes code. Since this is at the core of the Polycode application, and a topic on its own, I will not dive into details about its implementation and inner-working here.
+
+Let's now look at the aggregates I identified:
+
+image::10_Domains/TAD_10_Content_Aggregates_DDD.png[]
+
+I've defined two aggregates:
+
+* The submission aggregate, which has the submission entity at its root. It is linked to a component, but it is not in the same aggregate as components. This is because, as seen before, we don't need consistency here, and we don't even want it. If the component were to be deleted, we want to keep track of all submissions that were linked to it, since users actually submitted something. Deleting a component doesn't delete what the user did. However, this means that we have no guarantee of the existence of the component when parsing submissions, neither do we know if the component was updated since the submission.
+* The content aggregate. Here, we need consistency. Indeed, when modifying or deleting a component, we want to update all contents and components accordingly. We don't want to have contents with ghost components, and we must ensure this is not the case. Same things we components and validators. Validators are inherently linked to a component, and we need strong consistency, and check for business logic. An exercise must always have a validator linked to it, but a lesson should not. This consistency needs to be respected.
+
 == Microservices ==
 This is the last stretch ! We have now defined a domain model for each of our bounded contexts, and have a clear understanding of where our boundaries are. We now need to translate these more or less abstract concepts into microservices.
 
