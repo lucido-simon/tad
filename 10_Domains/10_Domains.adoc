@@ -278,10 +278,10 @@ We also have a set of tags associated to the campaign. The assessor can manage t
 
 We don't want the assessor to manually type in a tag for each of the questions, as it would introduce inconsistency, under-performing queries and most importantly, a bad user experience.
 
+Just like with the content type withing the practice context, we also have a "helper" field to better identify what type of question it is, in the form of the value object QuestionType.
 Lastly for the value objects, I've defined Candidate Progression, which holds the current progression of a candidate. It has no identity by itself, and is here to define the current progression of a candidate within the campaign's test.
 
 I have identified one domain service: reports. This service will be responsible for generating the data for each campaign. It might be interesting to create some already computed statistics about a campaign once it is finished, and store it in an entity, but given the most likely low volume of candidates and campaigns, I think it is better for now to just compute the data every time.
-
 
 
 Aggregates:
