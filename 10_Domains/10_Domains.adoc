@@ -253,6 +253,43 @@ You might also have noticed that there is a link between content and modules, an
 
 I've decided that tags should be an entity on its own, and not a value object. At first glance, it looks like a value object, it has no identity and is valuable only thanks to the value it owns. But in reality, tags will be used to categorize modules and to apply filters. This means that tags should be unique, and by extension identifiable, else we will have cohesion problems and redundancy in our databases. This is more of a technical decisions, but it is emanating from functional realities.
 
+=== The assessment context ===
+I've identified the following entities, services, value objects and aggregates for the assessment context:
+
+Entities, value objects and domain services:
+
+image::10_Domains/TAD_10_Assessment_Entities_DomainServices_DDD.png[]
+
+There is quite a lot to unpack here. Let's take it step by step, beginning with entities.
+We have two types of users in our assessment context: assessors and candidates. Both are tied to a campaign, meaning that a candidate is not a candidate anymore if the campaign doesn't exist. Same thing with an assessor. This is quite logical, you're not an employee if your company doesn't exist anymore, this is the same logic. This also means there is a different dynamic of dependencies and transactional boundaries than in the practice context. This is a hint meaning that we probably divided these two bounded contexts in a sensible manner.
+Candidates have a status, which is an enumeration of value it can have. This has no identity, this is why CandidateStatus is a value object.
+As seen in the user stories, we need to send quite a lot of mails to our candidates. Even if this is a domain functionality, we delegated this part to our account context, which is why you don't see it appearing here. This will be an area of inter-domain communication.
+
+Each campaign has a single test, which is an array of questions with an overall maximum duration. Since each test is tied to only one campaign, this looks like a 1 to 1 relationship, which is commonly simplified by putting the fields of Test inside Campaign. I've decided against it, to better encapsulate behaviors, and to give room for expansion of functionalities in the future of the application.
+A question, is a specialized type of content. This works just like the content from the practice context, with the main difference being the fields describing it. We no longer have rewards but points, we have both a name and an internal name, we have a maximum duration, etc..
+Just like in the practice context, we don't really care about what actually is inside our content, how it is going to be validated and displayed. We care about the points it gives. However, unlike specified, we don't have a way do have a fine-grained points distribution. We will look at how we can solve this problem in the content context, where the validation is actually done.
+
+We also have a set of tags associated to the campaign. The assessor can manage this tags and set them to candidates and questions. It is important to have them identified, since we want to apply filters on them, and to find them easily. The business flow would look like this:
+
+* Assessor creates or updates a tag
+* Assessor adds a question to a test
+* Assessor adds the tag previously created to the question
+* Assessor updates the tag of a candidate with the previously created tag
+
+We don't want the assessor to manually type in a tag for each of the questions, as it would introduce inconsistency, under-performing queries and most importantly, a bad user experience.
+
+Lastly for the value objects, I've defined Candidate Progression, which holds the current progression of a candidate. It has no identity by itself, and is here to define the current progression of a candidate within the campaign's test.
+
+I have identified one domain service: reports. This service will be responsible for generating the data for each campaign. It might be interesting to create some already computed statistics about a campaign once it is finished, and store it in an entity, but given the most likely low volume of candidates and campaigns, I think it is better for now to just compute the data every time.
+
+
+
+Aggregates:
+
+image::10_Domains/TAD_10_Assessment_Aggregates_DDD.png[]
+
+I've defined only one aggregate, the campaign aggregate. As discuss previously, everything in the assessment bounded context is tied to a campaign, with a need for transactional consistency between all of them. The campaign entity will act like the gateway for all the children entities, making sure to take appropriate actions for each modifications and rolling back failed actions. This is a big aggregate and we will see how to deal with it later on. This is not a problem though, you have to accept that some transactional boundaries spans around a lot in your context. You might want to identify which of your dependencies forces you into this situation, and if there is something to be rethought, but for our assessment context, it's fine, not that big, and I don't think I misidentified links between my entities.
+
 == Microservices ==
 This is the last stretch ! We have now defined a domain model for each of our bounded contexts, and have a clear understanding of where our boundaries are. We now need to translate these more or less abstract concepts into microservices.
 
