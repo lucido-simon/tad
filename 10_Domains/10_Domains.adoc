@@ -391,3 +391,13 @@ We are left with the candidates and the test entities. Both are great candidates
 image::10_Domains/TAD_10_Assessment_Microservice.png[]
 
 We also added our reports domain service as a microservice. It will be responsible for generating reports linked to a campaign. We are left with microservices that are small enough in size, but not too small. They are not too chatty, are not tightly coupled and can evolve independently.
+
+==== Content microservices ====
+Following the same logic as with the previous domains, we start from aggregates and we trim down each one of them, following some common sense and technical and business requirements:
+
+image::10_Domains/TAD_10_Content_Microservice.png[]
+
+We can not divide our submission aggregate since it only has itself as entity. However, the content aggregate has component as a child entity, which itself has the validator entity as a child. I've decided to keep the content and component entity together, since they are very closely related, and content is nothing more than a composition of component, at least in this domain. They are very chatty, since every mutation and reads on a content will most likely trigger a similar event for one or multiple components. Keeping them together makes for a microservice of a reasonable size, that can be worked on by a small team, within the same logic.
+We can, and should, create a separate microservice for the validators. Validators might look like a simple CRUD at first glance, but actually is way more complicated than that, since it can take multiple shapes depending of the type of component being validated. I would argue that most of the complexity in this aggregate is within this entity. It is also separated enough for another team to work on, although a good communication between the teams responsible of creating the content microservice and validator microservice will be required.
+
+Just like before, we must not forget our runner domain service, which will become a microservice by itself. I'm not going into any details here, since the runner part of the system will have its own separate section.
