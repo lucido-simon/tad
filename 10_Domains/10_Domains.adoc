@@ -401,3 +401,9 @@ We can not divide our submission aggregate since it only has itself as entity. H
 We can, and should, create a separate microservice for the validators. Validators might look like a simple CRUD at first glance, but actually is way more complicated than that, since it can take multiple shapes depending of the type of component being validated. I would argue that most of the complexity in this aggregate is within this entity. It is also separated enough for another team to work on, although a good communication between the teams responsible of creating the content microservice and validator microservice will be required.
 
 Just like before, we must not forget our runner domain service, which will become a microservice by itself. I'm not going into any details here, since the runner part of the system will have its own separate section.
+
+==== Putting it all together ====
+Now that we have defined all our microservices within each of our bounded contexts, let's take a look at the greater picture of our architecture:
+
+image::10_Domains/10_Complete_Architecture.png[]
+
