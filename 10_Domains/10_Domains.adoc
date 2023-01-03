@@ -340,8 +340,8 @@ A microservice should not spread over your bounded contexts. If it does, you pro
 === Polycode ===
 Let's apply the previous criteria to our Polycode application. I will be starting by going over each bounded contexts, and we will talk about inter-contexts communication later.
 
-==== Account domain model ====
-Let's discuss how I mapped out my user microservice:
+==== Account microservices ====
+Let's discuss how I mapped out my account microservices:
 
 image::10_Domains/TAD_10_Account_Microservice.png[]
 
@@ -349,3 +349,34 @@ It is very simple and straightforward as you can see, since the domain model is 
 
 * The communication between the User service and the Mail service is synchronous, and so is the broadcasting of the EmailStatus Event. This is due to the constraint of not being able to use message queues, but this, to me, would be an obvious fit for a message queue, since we just want our mails to be eventually sent, and this can be done in a totally asynchronous manner.
 * I've not divided the email entity within its own service. I think the cost of managing consistency between the two services overwhelms the benefits of splitting it in to microservices. The user microservice still has a single responsibility, which is to manage the users. Emails are part of this responsibility. The microservice is still sufficiently small to be handled by a small team.
+
+As discussed previously, it is better to start with bigger microservices and trim them down later on, rather than refactoring them into one bigger microservice. If the needs arise, we should be able to create a new microservice for handling emails pretty easily.
+
+==== Practice microservices ====
+We identified 3 aggregates within our practice microservices: the user aggregate, the module aggregate and the item aggregate. I started by mapping each of them to one microservice, since this is where our transactional boundaries were identified. For the module and item microservices, I've estimated that they are small enough, and that they doesn't need to be divided. However, for our user microservice, which handled the user aggregates, encompassing user progression, teams and purchases entities, I think it is wiser to delegate some of the functionalities to some other microservices.
+Indeed, most of those entities are actually quite independent from each other, but also conveys a lot of business logic and intricacies with them.
+
+Let's think about what are the trade-offs we make if we divides each of the sub-entities of the user aggregate in their own domain-driven microservices:
+
+* Purchase entity:
+  - Business logic closely related to the user entity, creating a new microservice for it might carry a burden of maintenance and communication across multiple teams.
+  - Technically simple (more or less just a CRUD). This makes it hard to justify spinning up a new runtime and new containers for this little of code. This might make more sense if we are edging towards serverless computing, but this is not our case neither within the scope of this paper.
+  - Needs very strong consistency with the user entity when updated.
+  - Not chatty at all with the user entity. Making a purchase is a rare event. The purchase microservice would not rely on the user microservice for any of its operations. The user microservice would rely on the purchase microservice only when mutating purchases of an user.
+* Team entity:
+  - Business logic related but not entirely tied to the user entity. 
+  - Technically pretty straight-forward, but has a significant amount of business logic to implement, with a growing list of features.
+  - Not too chatty with the user entity. Mutating a team is a relatively rare event.
+* User-progression entity
+  - Business logic closely related to the user entity, creating a new microservice for it might carry a burden of maintenance and communication across multiple teams.
+  - Technically simple (more or less just a CRUD)
+  - Needs strong consistency. We don't want the user to complete something without crediting the correct number of polypoints to its account.
+  - Not too chatty. Only chats when an user finished a content, which is not a rare event by itself, but I would argue it is still not on an order of magnitude high enough to become worrisome.
+
+I didn't choose the purchase entity because I think it's too small and its logic integrates well enough with the user's business logic to go into the same microservice. The same thing goes for the user-progression entity.
+
+However, I think creating a microservice responsible for handling team's business logic makes much more sense: it is quite unrelated from the user entity from a business logic point of view, while not being too chatty. Both of the microservices will grow independently and can be worked on by different teams. This will also shrink down the size of the user's microservice by a significant amount, making it easily manageable by a small team, while still integrating the features of the user-progression and the purchase entity.
+
+Here's the final diagram for our practice context:
+
+image::10_Domains/TAD_10_Practice_Microservice.png[]
