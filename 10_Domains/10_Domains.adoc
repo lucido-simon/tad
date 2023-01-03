@@ -380,3 +380,14 @@ However, I think creating a microservice responsible for handling team's busines
 Here's the final diagram for our practice context:
 
 image::10_Domains/TAD_10_Practice_Microservice.png[]
+
+==== Assessment microservices ====
+As always, let's start with the aggregates identified in our domain model. In the assessment context, we found only one aggregate, the campaign aggregate, which encapsulates all our entities within our domain. As you might have realized, this is way to big for a small team to handle, and we need to identify where we can divide our microservice.
+
+I'm going to keep the assessor and the tags entity within the campaign microservice, simple because they are way too small to be separated in their own service. They are both very simple in nature, with close to no business logic. They are not valid candidates for a microservice on their own. I'm applying the same line of thoughts as for the practice microservices.
+
+We are left with the candidates and the test entities. Both are great candidates, since they handle logic that are quite decoupled from the campaign itself. This is why I've decided to create a microservice for both of them. Here's the diagram:
+
+image::10_Domains/TAD_10_Assessment_Microservice.png[]
+
+We also added our reports domain service as a microservice. It will be responsible for generating reports linked to a campaign. We are left with microservices that are small enough in size, but not too small. They are not too chatty, are not tightly coupled and can evolve independently.
