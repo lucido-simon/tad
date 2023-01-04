@@ -407,3 +407,8 @@ Now that we have defined all our microservices within each of our bounded contex
 
 image::10_Domains/10_Complete_Architecture.png[]
 
+I would argue that a system-wide event related to major user mutation emerging from the account domain, such as a user being deleted for example, is needed for the other domains to act within their boundaries to take the actions it deems needed. However, since we can't use message queues, I will not dive further into this idea, since it is the most sensible way to implement this idea.
+
+We also need communication between the submission microservice and the candidates and user microservices, since submission are linked to the user and candidate progression. To do so, I would also propose the use of message queues, where the submission service would publish messages whenever a new submission has been mutated, as it allows for a total decoupling of domains, and improve reliability since messages can be published even when they are no consumer able to handle the messages. It is the only way to do so without breaking boundaries. Any synchronous communication protocol would not fit this use case, so I will implement a message queue here, even if we are not allowed to do so. It makes too much sense to not use it. We will discuss this matter later in this paper.
+
+There are multiple oversight, such as the runner service which is not as simple as it might look on the diagram, or how to handle user's authentication and authorization. Now that we have defined our contexts, domains and our microservices, let's tackle one of the problem we just mentioned: authentication and authorization.
