@@ -20,6 +20,7 @@ Tracing is a technique that helps you understand the path of a request as it flo
 
 It helps tracking Service Level Indicators (SLI) of your system, with the helps of metrics, depending on the specific SLI. A SLI represents an information about your system, such as the time your page takes to load. SLIs are often linked to Service Level Objectives (SLO), which are a targeted objective that a service tries to provide. This all links to Service Level Agreements (SLA), which defines the standard a customer can expect from a provider. We might guarantee 99.9% uptime to our customers, that is our SLA, with a SLO that is 99.99% uptime for critical microservices, and we track this data using SLIs.
 
+[#40Terminology]
 The terminology I will use is the following:
 
 * Span is a unit of work within a trace. It typically corresponds to a single service operation or network request. Spans are typically identified by a unique span ID. Spans can also include metadata, such as timestamps and tags, which provide additional information about the span and how it fits into the overall trace. A new span is usually created for every microservice the request hop through.
@@ -39,3 +40,63 @@ There are a few key concepts to understand when it comes to logging in a microse
 * Log aggregation: Log aggregation is the process of collecting log messages from multiple sources and storing them in a central location. This can be useful for making it easier to search and analyze log messages from across the system.
 
 By carefully designing and implementing your logging strategy, you can use log messages to understand what is happening within your microservices system and identify issues and problems as they occur. This can be crucial for ensuring the reliability and stability of your system and for quickly identifying and resolving any issues that may arise.
+
+== OpenTelemetry ==
+During this section, we will focus on solutions based on OpenTelemetry (which I will refer as OTEL). OpenTelemetry is an open source observability framework created to help developers instrument, generate, collect, and export telemetry data (such as metrics, traces, and logs) for their applications. It aims to provide a vendor-neutral and consistent way of generating, collecting, and exporting telemetry data across a variety of programming languages, platforms, and clouds.
+
+OpenTelemetry was created through the merger of two open source projects: OpenCensus and OpenTracing. OpenCensus was initially developed by Google in 2016 as a way to standardize the collection of telemetry data across Google's services. OpenTracing, on the other hand, was developed by a group of companies in 2015 as a specification for distributed tracing of applications.
+
+In May 2019, the OpenCensus and OpenTracing communities decided to merge their efforts and create a new project called OpenTelemetry. The goal of the merger was to combine the strengths of both projects and provide a single, unified observability framework that could be used by developers across a variety of platforms and languages.
+
+Since its creation, OpenTelemetry has gained widespread adoption and is now supported by many cloud providers and open source projects. It has also become the de facto standard for observability in cloud-native applications.
+
+You will most likely encounter proprietary solutions in the wild, but this tends to phase out to the eagerly-adopted OTEL solution. OpenTelemetry offers a standardized protocol for metrics, traces but also logs to collect data and centralize them, and the industry has recognized the power of having an open-source standard. More and more solutions (even proprietary one) are moving to using this standard. 
+Before OpenTelemetry, there were a number of different tools and approaches for collecting and exporting telemetry data from applications. Many companies and organizations developed their own proprietary solutions for this purpose, and there was no widely accepted standard for how to do it.
+
+Since OpenTelemetry looks to be dominating the market and is pushing to be the one and only standard new applications and system are willing to use, I suggest to use it for all new applications that requires tracing, logging and metrics, such as Polycode. This is why I will now focus on OpenTelemetry as the de-facto protocol we are going to use.
+
+=== Vocabulary ===
+Let's define some key vocabulary revolving around OpenTelemetry. This is not a exhaustive list and should be seen as a completion of the xref:40Terminology[vocabulary previously defined].
+
+* Instrumentation: The process of adding code to an application to collect telemetry data. In OpenTelemetry, instrumentation is typically done using SDKs or libraries provided by the project.
+* Exporters: Components that receive telemetry data from an application and send it to a specific destination, such as a monitoring service or a log aggregator.
+* Collection: The process of gathering telemetry data from an application and sending it to a destination for storage or analysis.
+* Sampling: The process of selecting a subset of telemetry data to be collected and exported. Sampling can be used to reduce the volume of data being collected and exported, and can be based on various criteria such as the rate of data being generated or the importance of the data.
+* Context propagation: The process of carrying telemetry data, such as trace and span information, between different components or services in a distributed system. Context propagation is often used to maintain a consistent view of telemetry data as it moves through a system.
+* Correlation: The process of linking together telemetry data from different sources or at different points in time to understand the relationships between them. In OpenTelemetry, this is often done using trace and span IDs.
+* Tagging: The process of adding metadata to telemetry data in the form of key-value pairs. Tagging can be used to add context or additional information to telemetry data, and can be used to filter or group data when analyzing it. This can also be seen as baggages.
+* Exporters: Components that receive telemetry data from an application and send it to a specific destination, such as a monitoring service or a log aggregator. OpenTelemetry provides a variety of exporters for different platforms and destinations.
+* Tracing backend: A service or system that receives trace data from an application and stores it for analysis and visualization. OpenTelemetry supports a variety of tracing backends, including open source and commercial options.
+
+=== Logging with OpenTelemetry ===
+Historically, traces and logs were often treated as separate types of data and had different tools and systems for collecting, storing, and analyzing them. This could make it difficult to understand the relationships between trace data and log data, and to use them together to understand the behavior and performance of a system.
+
+Making logs context and request-scoped would make them much more valuable and would allow for a much easier time to understand where your bottlenecks and errors comes from. This is why OTEL has been pushing solutions to include logs with traces and metrics to better understand and analyze what's going on in your system. We end up with correlated telemetry, which is enriched with data coming from the three pillars of monitoring.
+
+== Tools ==
+=== Visualization tools ===
+One of the important aspect when monitoring the system, is not only to collect valuable information, but also have great tools to visualize and search this data. In this section we will look at the most complete solutions available on the market.
+
+==== The ELK Stack ====
+The Elastic Stack (formerly known as the ELK Stack) is a set of open source tools for collecting, storing, and analyzing logs and other types of data. It is developed by Elastic, a company that provides a range of products and services for search, analytics, and observability.
+
+The Elastic Stack consists of the following components:
+
+* Elasticsearch: A distributed, RESTful search and analytics engine that is used for storing and indexing logs and other types of data.
+* Logstash: A data processing pipeline that can be used to collect, parse, and transform logs and other types of data before storing it in Elasticsearch. Logstash is highly configurable and can be used to process a wide variety of data sources.
+* Kibana: A web-based visualization tool that can be used to analyze and visualize data stored in Elasticsearch. Kibana provides a range of features for searching, filtering, and visualizing data, and can be used to create dashboards and alerts for monitoring and alerting purposes.
+
+The Elastic Stack is widely used for collecting, storing, and analyzing logs and other types of data. It is particularly popular in environments where there is a large volume of data being generated, and is often used in combination with other observability tools such as APM (Application Performance Management) solutions and tracing systems.
+
+In terms of traces, the Elastic Stack can be used to store and visualize trace data in a number of ways. For example, trace data can be collected using an OpenTelemetry exporter and sent to Elasticsearch for storage. Kibana can then be used to visualize and analyze the trace data, using features such as filtering, aggregation, and graphing. The Elastic Stack can also be used in combination with other tracing tools, such as Jaeger or Zipkin, to provide a more comprehensive view of trace data.
+
+==== Jaeger ====
+Jaeger is an open source distributed tracing system developed by the Cloud Native Computing Foundation (CNCF). It is designed to help developers understand the behavior and performance of distributed systems by providing a way to collect and visualize trace data.
+
+In the context of OpenTelemetry, Jaeger can be used as a tracing backend to store and analyze trace data generated by OpenTelemetry-instrumented applications. OpenTelemetry provides a Jaeger exporter that can be used to send trace data from an application to a Jaeger server for storage and analysis.
+
+Jaeger provides a number of features for visualizing and analyzing trace data, including a user-friendly web interface for searching and filtering traces, and a variety of different visualization options for understanding trace data. It also has integrations with a variety of other observability tools, such as Prometheus and Grafana, which can be used to extend its capabilities or to integrate trace data with other types of data.
+
+Jaeger uses a distributed architecture, with a collector component that receives trace data from clients and stores it in a storage backend, and a query component that provides a web interface for searching and visualizing trace data. The collector and query components can be deployed separately, allowing for flexibility in terms of scale and performance.
+
+=== Exporters ===
