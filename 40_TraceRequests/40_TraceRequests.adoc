@@ -102,12 +102,15 @@ Jaeger uses a distributed architecture, with a collector component that receives
 It natively supports two NoSQL databases as trace storage backend : Cassandra, and Elasticsearch. This means you can integrate Jaeger with your ELK stack. It also has backward compatibility with Zipkin (which has historically been the go-to tracing system, but is being more and more replaced by OTEL). It is not relevant to us, in our Polycode application, but it is important to note as it might be something you're looking for.
 
 == Polycode ==
-I've decided to use the ELK stack for the Polycode application. This is because it is a complete solution, that allows for collecting logs, metrics and traces and correlating them together. This is however, a big stack and will consume resources, with the added benefits of being highly scalable. Traces and metrics can easily be exported using adapted OTEL exporters in the code. Logs can be a little bit more cumbersome, since you need to add traces and spans data, but there are libraries that also takes care of this task.
+I've decided to use the ELK stack for the Polycode application. This is because it is a complete solution, that allows for collecting logs, metrics and traces and correlating them together. This is however, a big stack and will consume resources, with the added benefits of being highly scalable. Traces, metrics and logs can easily be exported using adapted OTEL exporters in the code. The elastic ecosystem provides a multitude of tools to handle traces metrics and logs their way, but I've decided to use OTLP for exporting data out of my application. This way, I've not closed the door for other monitoring system if we decided that this stack wasn't suited for us or if we identified some problems with it. We could very easily plug a Jaeger collector instead of the APM Server and have our monitoring stack working again.
+APM has been supporting the OpenTelemetry Protocol for a while now, adding supports for the more recent logging protocol in version 8 of APM.
 
 === Deployment ===
 One important aspect to keep in mind, is that your monitoring system will be at the heart of debugging and discovering problems as soon as possible in your application. This means you need to have it up and running even if you have a major outage in your primary system. This is why I think your whole stack should be separated in an external system. This also ensure that your monitoring and operational system does not impact your application performance.
 
 This is the deployment diagram:
+
 image::40_TraceRequests/40_Deployment_Diagram.png[]
 
 As you can see, the whole monitoring stack is totally separated from the main application cluster, to make sure not to impact it, and to retain observability in the case of a major system failure. I've decided to run the ELK stack on only one ElasticSearch node, mainly to not over-complicate the already complicated architecture. It is certainly regrettable if we were to lose our data, as we would lose the ability to correlate trends in our system over time, but this is data we can rebuild over time.
+
