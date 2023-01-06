@@ -99,4 +99,15 @@ Jaeger provides a number of features for visualizing and analyzing trace data, i
 
 Jaeger uses a distributed architecture, with a collector component that receives trace data from clients and stores it in a storage backend, and a query component that provides a web interface for searching and visualizing trace data. The collector and query components can be deployed separately, allowing for flexibility in terms of scale and performance.
 
-=== Exporters ===
+It natively supports two NoSQL databases as trace storage backend : Cassandra, and Elasticsearch. This means you can integrate Jaeger with your ELK stack. It also has backward compatibility with Zipkin (which has historically been the go-to tracing system, but is being more and more replaced by OTEL). It is not relevant to us, in our Polycode application, but it is important to note as it might be something you're looking for.
+
+== Polycode ==
+I've decided to use the ELK stack for the Polycode application. This is because it is a complete solution, that allows for collecting logs, metrics and traces and correlating them together. This is however, a big stack and will consume resources, with the added benefits of being highly scalable. Traces and metrics can easily be exported using adapted OTEL exporters in the code. Logs can be a little bit more cumbersome, since you need to add traces and spans data, but there are libraries that also takes care of this task.
+
+=== Deployment ===
+One important aspect to keep in mind, is that your monitoring system will be at the heart of debugging and discovering problems as soon as possible in your application. This means you need to have it up and running even if you have a major outage in your primary system. This is why I think your whole stack should be separated in an external system. This also ensure that your monitoring and operational system does not impact your application performance.
+
+This is the deployment diagram:
+image::40_TraceRequests/40_Deployment_Diagram.png[]
+
+As you can see, the whole monitoring stack is totally separated from the main application cluster, to make sure not to impact it, and to retain observability in the case of a major system failure. I've decided to run the ELK stack on only one ElasticSearch node, mainly to not over-complicate the already complicated architecture. It is certainly regrettable if we were to lose our data, as we would lose the ability to correlate trends in our system over time, but this is data we can rebuild over time.
