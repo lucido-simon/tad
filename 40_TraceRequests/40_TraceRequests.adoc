@@ -73,6 +73,17 @@ Historically, traces and logs were often treated as separate types of data and h
 
 Making logs context and request-scoped would make them much more valuable and would allow for a much easier time to understand where your bottlenecks and errors comes from. This is why OTEL has been pushing solutions to include logs with traces and metrics to better understand and analyze what's going on in your system. We end up with correlated telemetry, which is enriched with data coming from the three pillars of monitoring.
 
+=== Overview of a typical OpenTelemetry system ===
+Here's a simplified overview of how a OTEL system typically works:
+
+image::40_TraceRequests/40_OTEL_Overview.png[]
+
+Each of your application usually integrates an OpenTelemetry SDK, allowing to easily integrate the protocol and the necessary processing within your application. For each requests, your application should notify your SDK of a new span, and take the necessary action. Your SDK will emit data to an OTEL Collector, which is a single centralized endpoints for all your application to communicate with. This collector will do some processing, and export its data to the backend of your choice. Once in here, you can access your User Interface and check your traces and logs.
+
+As mentioned above, this is heavily simplified, and depending on the tools and configuration you choose, you can have some of these components coming in a single package. This diagram shows where and how you can choose multiple solutions, which can all work together thanks to the standardized OpenTelemetry Protocol. Usually, your OpenTelemetry SDKs within your application are totally unaware of the collector you're using, except that it understands the OpenTelemetry Protocol.
+
+Your collector can also support other tracing backend, such as the Jaeger or Zipkin protocol for example. With this added layer, you can customize and choose how to handle your data before storing them into your backend. It is common to have OTEL tools that comes with your collector, your backend and your user interface in a single package. It is usually possible to customize and replace each of these bricks in such systems.
+
 == Tools ==
 === Visualization tools ===
 One of the important aspect when monitoring the system, is not only to collect valuable information, but also have great tools to visualize and search this data. In this section we will look at the most complete solutions available on the market.
@@ -103,7 +114,8 @@ It natively supports two NoSQL databases as trace storage backend : Cassandra, a
 
 == Polycode ==
 I've decided to use the ELK stack for the Polycode application. This is because it is a complete solution, that allows for collecting logs, metrics and traces and correlating them together. This is however, a big stack and will consume resources, with the added benefits of being highly scalable. Traces, metrics and logs can easily be exported using adapted OTEL exporters in the code. The elastic ecosystem provides a multitude of tools to handle traces metrics and logs their way, but I've decided to use OTLP for exporting data out of my application. This way, I've not closed the door for other monitoring system if we decided that this stack wasn't suited for us or if we identified some problems with it. We could very easily plug a Jaeger collector instead of the APM Server and have our monitoring stack working again.
-APM has been supporting the OpenTelemetry Protocol for a while now, adding supports for the more recent logging protocol in version 8 of APM.
+APM has been supporting the OpenTelemetry Protocol for a while now, adding supports for the more recent logging protocol in version 8 of APM. Collecting logs this way eliminates the need to have an additional pipeline for logs. If we were to use the recommended elastic's log collection process, we would need to spin up a Filebeats for every application, sending their data to Logstash.
+The main advantage of using this process is that you can also easily export kernel logs from each of the container, but I don't think it is relevant and worth the hassle in Polycode.
 
 === Deployment ===
 One important aspect to keep in mind, is that your monitoring system will be at the heart of debugging and discovering problems as soon as possible in your application. This means you need to have it up and running even if you have a major outage in your primary system. This is why I think your whole stack should be separated in an external system. This also ensure that your monitoring and operational system does not impact your application performance.
