@@ -126,4 +126,21 @@ Now that we have defined what the user should expect, let's talk about how we im
 
 If I was to upgrade to a more robust solution, I would use ElasticSearch over Solr, mainly for its wider ecosystem, growing popularity, support and native SDKs for multiple languages and easy integration with MongoDB.
 
+MongoDB allows for specifying weights on each fields that you index. It is useful in our use case, as matching the requested word have more significance when looking at the title of a content, followed by its description, and the the content itself.
+
 On the application side, I would advise creating a common library for all of your microservices, that abstract the engine-specific operation you might want to do. This is to make sure that we have a clear way of moving around with search engines, since we have identified some limits of our current system that might be reached sooner than expected. Factorizing repeated and technical code is usually a good idea anyway, just like abstracting your code. This also makes debugging easier, since we have only one piece of code that is responsible for interacting with your search engine everywhere in your codebase. If you use different programming language, different framework or have different enough constraint between your microservices, this approach might not be possible.
+
+=== Sequence diagrams ===
+To better illustrate how this system works, we will look at two sequence diagrams: one for the indexation process, and on for a research request.
+Here's the indexation sequence diagram :
+
+image::50_SearchEngine/50_Indexation_Sequence_Diagram.png[]
+
+As you can see, I've taken the creation of a new content by a content creator as our use case, since this is where our indexation will take place. This is where the content we want to index is created, so this is also where we index it. This is a two step process due to our architecture:
+
+* First, the content needs to be created in our content context
+* Then the content can be created in our practice context
+
+If you don't understand why it is like this, please refer to the first chapter of this paper, where we define our domains and contexts.
+
+However, this creates some complexity, since some of our indexed fields are in different contexts. This is not a big deal, and just adds a totally manageable programmatic overhead in our system. At the bottom of this diagram, you can see explained the process of indexation with MongoDB. This is a pretty heavy process, and adds a lot of overhead when creating contents. This is totally fine and acceptable, since there is a low volume of content being created, and it will continue to be like that even if the application grow. This operation also needs to be done when contents are updated, and this process is automated with MongoDB indexes. This does not impact read performances.
