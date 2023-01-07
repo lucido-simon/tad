@@ -1,1 +1,103 @@
-= 5
+= Search Engine =
+
+== Introduction ==
+In this section we will look at how we can integrate a search engine within Polycode. We will explore, why we might want a search engine, what is a search engine, what are the solutions, which one I chose for Polycode, and some examples with diagrams and proposals for the layout of the frontend.
+
+=== What is a search engine ===
+In the context of a web application, a search engine is a piece of software that allows the user to search the application's content for specific terms or phrases. It typically consists of a search interface that allows the user to enter their search query, and a search engine that processes the query and returns a list of results.
+
+A search engine usually works by indexing the content of the web application (in our case, Polycode). When a user performs a search, the search engine searches for matches to the search query and returns a list of results. The search engine may use various algorithms and techniques to determine the relevance of the results, such as analyzing the frequency and proximity of the search terms within the content, the presence of synonyms or related terms, and the quality and authority of the source of the content.
+
+Some search engines also allow users to specify additional parameters or filters to narrow their search, such as date range, language, or location. They may also offer features such as spell check and autocomplete to help users refine their search queries.
+
+In addition to searching the content of a web application, some search engines may also search metadata associated with the content, such as the title, description, or tags. This can be useful for finding content that may not contain the search terms but is still relevant to the search query.
+
+=== Why would we want it in Polycode ===
+Currently, Polycode is populated with not a lot of contents, but it can already be quite hard to find what you are looking for. With the content list growing, and with more and more languages and modules you can learn, having a easy way to find what you are looking for becomes a primordial feature.
+
+A web application user experience is not only defined by the features and design of the site, but also by the ease of browsing the website. If we can't give a easy way for our users to look up specific terms, we are lacking a significant brick of user experience. A search engine can also help users discover new content that they may not have otherwise found. By providing suggestions for related or similar content, a search engine can help users explore the Polycode's offerings and discover new resources that they may find useful. If we open content creation to the regular users, some resources will be buried under the most popular contents and modules on Polycode, even though some niche community-made content might be the most fitting for a user particular need.
+
+By making it easier for users to find the content they need, a search engine can help users feel more satisfied with the web application and encourage them to continue using it. 
+
+== How to implement a search engine ? ==
+We will now look at the most obvious or popular solutions on the market, identifying the pros and cons of each of these solutions. We will use our analysis to make a decision about our implementation in Polycode later on.
+
+=== MongoDB ===
+One of the most obvious solutions we have at our disposal, taking into account our current architecture, is using MongoDB. Indeed, all the data we want to index is stored within our MongoDB cluster, and querying the cluster when a user want to search for content seems logical.
+
+MongoDB offers several tools for performing full text search, including the following:
+
+* Text Indexes: MongoDB supports text indexes, which allow users to search for specific words or phrases within string content. Text indexes can be created on any field that contains string data, and support language-specific text search and stemming (the process of reducing words to their base form).
+* $text Operator: The $text operator allows users to perform a text search on string content in the database. It can be used in a query to return documents that contain the specified search terms, and supports the use of logical operators (such as AND, OR, and NOT) to combine multiple search terms.
+* $search Operator: The $search operator allows users to perform a full text search on string content in the database, using a search syntax similar to that of a search engine. It can be used in a query to return documents that match the specified search query, and supports the use of logical operators and parentheses to group search terms.
+
+There are a few limitations to consider when using these tools for full text search in MongoDB:
+
+* Text indexes can only be created on string fields, so they are not suitable for searching numerical or other non-string data.
+* Text indexes do not support partial matching or wildcards, so they can only search for exact word or phrase matches.
+* Text search is case-insensitive, so it will treat "apple" and "Apple" as the same word.
+* Text search is limited to words and phrases that are at least three characters in length.
+
+To use full-text search, you will also need to enable it and index the appropriate fields.
+
+The performance of MongoDB's full text search feature will depend on several factors, including the size and complexity of the dataset being searched and the specific search terms and queries being used. In general, MongoDB's text search is designed to be fast and efficient, and is able to handle large volumes of data and concurrent search requests.
+
+That being said, the performance of MongoDB's full text search may not be as fast as some other specialized search solutions, such as Elasticsearch or Apache Solr. These solutions are specifically designed for full text search and use advanced algorithms and techniques to optimize search performance. They may be more suitable for very large datasets or applications with extremely high search volume.
+
+It is worth noting that MongoDB's full text search is generally easier to set up and use than these specialized search solutions, and may be sufficient for many use cases. It is always a good idea to consider the specific requirements and performance needs of your application when deciding which search solution to use.
+
+=== ElasticSearch ===
+Elasticsearch is a powerful, open-source search and analytics engine that is widely used for full-text search, structured search, and analytics. Elasticsearch is commonly used for a variety of applications, including enterprise search, log analysis, website search, and real-time analytics. It can be integrated with other tools and systems, such as databases, data lakes, and application servers, to provide a powerful and flexible search and analytics platform.. We have already discussed a little bit about ElasticSearch, in the previous chapter about tracing and logging. We ended up using the ELK stack, which internally use ElasticSearch to store and search traces, logs and metrics.
+
+Pros:
+
+* Elasticsearch is highly scalable and can handle very large volumes of data and search requests.
+* It offers a wide range of search and analytics capabilities, including full-text search, structured search, geospatial search, and aggregations.
+* Elasticsearch has a flexible and powerful query language, which allows you to specify complex search criteria and fine-tune the ranking and scoring of the results.
+* It supports distributed architecture, which allows you to scale out your search engine horizontally across multiple servers.
+* Elasticsearch has a rich set of APIs and client libraries, which make it easy to integrate with your application.
+
+Cons:
+
+* Elasticsearch can be complex to set up and manage, especially for large or distributed deployments.
+* It requires some knowledge of search concepts and terminology, such as indices, shards, and replicas, which may be unfamiliar to some users.
+* Elasticsearch does not offer as many features and integrations as some other specialized search solutions, such as Solr.
+* It may not be suitable for applications with very specific or custom search requirements, as it may not offer the necessary level of control or customization.
+
+Like with MongoDB, we already have a ElasticSearch up and running in our infrastructure, for storing logs, traces and metrics. However, I would argue that it is not a good idea to use the same cluster for storing application data. Centralizing monitoring infrastructure and business logic infrastructure opens up a world of problems, where we are mixing up our concerns. We don't want a bad actor or bad system provisioning from bringing down our monitoring system because users are overloading it, or vice-versa.
+
+We would need to create a new ElasticSearch cluster, preferably deployed in another system than our current ElasticSearch cluster, within our Polycode application system.
+
+However, the ElasticSearch ecosystem provides easy way to integrate with MongoDB using a connector such a MongoDB River, which allows you to index and search your MongoDB data in ElasticSearch. Separating the your data store and your search engine give you more granularity and control about your resources, and help making sure that your data is always accessible, even if you can't browse it due to your ElasticSearch cluster being overloaded or in a failure state.
+
+Overall, ElasticSearch is a great solution if you have a heavy dataset, and a high traffic of searches.
+
+=== Apache Solr ===
+Apache Solr is an open-source search platform that is built on top of the Apache Lucene library (just like ElasticSearch). It was developed by the Apache Software Foundation and is released under the Apache License. It was originally developed by CNET Networks in 2004 as an in-house search platform. It was later open-sourced and became a top-level project at the Apache Software Foundation in 2006. Since then, it has gained a large and active community of users and developers, who have contributed to the development of the software and provided support and resources for users. Solr is now widely used for a variety of search and analytics applications, and has been adopted by many major companies and organizations.
+
+Solr is designed to be highly scalable and efficient, and is used for a wide range of search and analytics applications, including enterprise search, e-commerce search, and log analysis. It offers a wide range of search and analytics capabilities, such as full-text search, faceted search, geospatial search, and aggregations.
+
+Solr is based on the Apache Lucene library, which provides the core search and indexing functionality. Solr adds additional features and functionality on top of Lucene, such as distributed search, a rich query language, and a REST-like API.
+
+Pros:
+
+* Solr is highly scalable and can handle very large volumes of data and search requests.
+* It offers a wide range of search and analytics capabilities, including full-text search, structured search, geospatial search, and aggregations.
+* Solr has a rich and powerful query language, which allows you to specify complex search criteria and fine-tune the ranking and scoring of the results.
+* It supports distributed architecture, which allows you to scale out your search engine horizontally across multiple servers.
+* Solr has a REST-like API and a wide range of client libraries, which make it easy to integrate with other systems and applications.
+
+Cons:
+
+* Solr can be complex to set up and manage, especially for large or distributed deployments.
+* It requires some knowledge of search concepts and terminology, such as indices, shards, and replicas, which may be unfamiliar to some users.
+* Solr may not be suitable for applications with very specific or custom search requirements, as it may not offer the necessary level of control or customization.
+
+It can look very similar to ElasticSearch, and it is to an extent. Here are some key differences between Solr and Elasticsearch:
+
+* Architecture: Solr is based on a traditional master-slave architecture, where a central server manages indexing and search requests are sent to a group of slave servers. Elasticsearch, on the other hand, uses a distributed architecture, where each server is a standalone node that can handle both indexing and search requests.
+* Query language: Solr uses a rich and powerful query language called Lucene Query Syntax, which allows you to specify complex search criteria and fine-tune the ranking and scoring of the results. Elasticsearch has a more flexible and expressive query language called the Query DSL, which is based on JSON and allows you to create more sophisticated search queries.
+* API: Solr has a REST-like API that allows you to interact with the search engine using HTTP requests. Elasticsearch has a more comprehensive API that includes both REST and native APIs, and also supports real-time search and analytics.
+* Ecosystem: Solr has a smaller and more specialized ecosystem of tools and integrations compared to Elasticsearch. Elasticsearch has a larger and more diverse ecosystem, and is supported by a wider range of companies and organizations.
+
+In terms of popularity and adoption, Elasticsearch is currently more widely used than Solr and may be the default choice for many development teams. However, Solr is also a well-established and widely used search platform, and may be a good choice for certain use cases or applications.
