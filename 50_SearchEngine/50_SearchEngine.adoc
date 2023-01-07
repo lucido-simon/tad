@@ -101,3 +101,29 @@ It can look very similar to ElasticSearch, and it is to an extent. Here are some
 * Ecosystem: Solr has a smaller and more specialized ecosystem of tools and integrations compared to Elasticsearch. Elasticsearch has a larger and more diverse ecosystem, and is supported by a wider range of companies and organizations.
 
 In terms of popularity and adoption, Elasticsearch is currently more widely used than Solr and may be the default choice for many development teams. However, Solr is also a well-established and widely used search platform, and may be a good choice for certain use cases or applications.
+
+== Polycode ==
+Now that we have explored the available solutions on the market, we will now focus on Polycode and how we can integrate a search engine in the application. We will by showing how the user should interact with the search engine on the web page, talk about the solutions that I've retained, an we will finish by looking at some sequence diagrams that shows the process of indexing and searching.
+
+=== UI Mockups ===
+
+I have defined simple UI mockups for the search bar and search functionalities. Here are the mockups from the search bar when it is closed and when the user make a search :
+
+image::50_SearchEngine/50_SearchBar_Closed.png[]
+image::50_SearchEngine/50_SearchBar_Open.png[]
+
+The search box is located in the navigation bar, always shown to the user. This makes it easily accessible and allows for a faster browsing of the site. A magnifying glass icon is situated to the right to hint the user into figuring out this is a search bar, supported by the "Search for contents" placeholder text.
+
+When clicked on, the user can type in keywords of what he is looking for. In order to not overload the search engine, we need to debounce and add delay to the search requests. The exact delay should be shorter than 1 second if possible, depending on the hit on the system performance it has. There is no "Search" button, but the user can press enter to send a request immediately.
+
+As results, we include the title, description and image of the resource found, but also its type. This is a simple search box where the user can only type in text. It is very simple by design, I think we don't want to overload the search box with additional filters and the simple query system should be sufficient as is. I've not designed a search page, because I don't think it is relevant, and the search box should be enough. We can however create a page responsible of making advanced search for the user later on if we identify the need after user feedback and evolution of the system, without modifying the underlying search engine.
+
+=== The stack ===
+Now that we have defined what the user should expect, let's talk about how we implement it. I think it makes more sense to use MongoDB full search text feature. Here are the key points that tipped me in favor of this solution:
+
+* We are dealing with a relatively small order of magnitude of data here. Even if all contents on the platform might sounds like much, it is still in the range of what we can expect MongoDB to handle pretty easily, given the right indexation. We should not be searching over the 1000-10,000 contents range, which I think is when we will start to hit the limit of MongoDB. The text to search through is pretty heavy though, which might have a bigger impact that what I'm expecting. Actually implementing the solution and testing it to production scale will be necessary, to make sure that the current user load and content offering is not too much for MongoDB, but also to have a better understanding of where the limit of this system is, in order to take action before this limit is reached.
+* The implementation is really straight-forward. Enable full-text search in MongoDB, index the fields you want to be able to search on, and add a few routes that make use of this capability in your microservices.
+
+If I was to upgrade to a more robust solution, I would use ElasticSearch over Solr, mainly for its wider ecosystem, growing popularity, support and native SDKs for multiple languages and easy integration with MongoDB.
+
+On the application side, I would advise creating a common library for all of your microservices, that abstract the engine-specific operation you might want to do. This is to make sure that we have a clear way of moving around with search engines, since we have identified some limits of our current system that might be reached sooner than expected. Factorizing repeated and technical code is usually a good idea anyway, just like abstracting your code. This also makes debugging easier, since we have only one piece of code that is responsible for interacting with your search engine everywhere in your codebase. If you use different programming language, different framework or have different enough constraint between your microservices, this approach might not be possible.
