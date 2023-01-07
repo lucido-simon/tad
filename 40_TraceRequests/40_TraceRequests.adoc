@@ -126,3 +126,32 @@ image::40_TraceRequests/40_Deployment_Diagram.png[]
 
 As you can see, the whole monitoring stack is totally separated from the main application cluster, to make sure not to impact it, and to retain observability in the case of a major system failure. I've decided to run the ELK stack on only one ElasticSearch node, mainly to not over-complicate the already complicated architecture. It is certainly regrettable if we were to lose our data, as we would lose the ability to correlate trends in our system over time, but this is data we can rebuild over time.
 
+=== Sequence diagram ===
+To better understand the flow of the system, I've decided to show you a sequence diagram of the action of accepting a team invite by a user. Please bare in mind that I've not shown any error case in this sequence diagram, but any error should be also traced and sent to the APM Server. Here's the diagram:
+
+image::40_TraceRequests/40_Sequence_Diagram.png[]
+
+We find all our application components that are actors in this requests:
+
+* The application frontend, which will take users action and send appropriate requests to the gateway.
+* The API gateway, which is responsible for taking the HTTP Request of the frontend, authenticating the user if needed via its authentication cookie, and redirecting the request to the correct microservice as a gRPC request.
+* The User microservice (practice context, not account context), which is our transactional boundaries for all operations done on an user in the practice context. To mutate a user and a team state, we must go through this aggregate. If it is not clear, or if you don't recall why, I suggest you refer to the first part of this paper and we go in details in the hows and whys of this architecture.
+* The team microservice, which is responsible for handling the business logic of our team in our system.
+* The APM Server, which in our stack corresponds to the OTEL Collector, and is in direct communication with elasticsearch to process and store the traces.
+
+All communications with the APM Server is done with the OpenTelemetry Protocol (OTLP).
+
+Once the requests reaches our backend, and more specifically our API Gateway, a new trace is created. The gateway creates its span, which will be the root span of the request, and since it is able to resolve the user with its authentication cookie, it will include its information as baggage in our trace. It then forwards the request to the user microservice, which will create a new span within the trace. Each hop on a microservice will create a new span. This is important to understand the flow of the request through the system. This principle trickles down to the Team microservice, with each corresponding spans being closed when the response is sent back.
+
+As mentioned above, if an error where to occur, it is important to bubble up the error to our trace, and a correct implementation of our tracing system in each of our microservice is crucial to achieve this goal. You usually want to consult traces when you have errors on your system, and if you can't find them or if they are incomplete, you are probably not using your SDKs properly.
+
+If any logs were to be printed during this process and within the scope of this trace, the Trace ID and the Span ID would be included and sent to the OTEL collector to its log endpoint. This way, we can easily correlates logs with traces.
+
+Not shown in this diagram is the subsequent processing of the request, how it is stored, indexed, filtered, etc.. This is specific to each implementation, and configuration of your solution. It doesn't matter here, since the overall sequence would be the same. In fact, you can replace our APM Server by any OTLP-Compliant collector and you will still have a working system.
+
+If a system administrator wants to look at details of this request, it can log into Kibana, search for this specific request with appropriate filters, and see how long each spans took, the logs related to it, which user initiated the request, the eventual errors and other related information.
+
+== Conclusion ==
+Observability is a key component in a distributed system, it is a crucial component to have insights about what is happening in your system. The more complex your system grow, the more you will be in the dark about how it behaves without implementing the necessary observability toolkit. I've decided to go towards the OTEL Standard in Polycode, for its standardized instrumentation, wide range of library, and for being open source and vendor neutral, despite the increased complexity of the system and its relatively recent ecosystem, although its production ready and pretty mature. As actual tools and implementation, I've decided to go with the ELK stack (without Logstash, since we're using OTLP log support for logs), for its matureness, robustness, scalability, despite the paid features and the heaviness of the stack.
+
+
