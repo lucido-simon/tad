@@ -1,1 +1,21 @@
-= 6
+= Runner architecture =
+
+== Introduction ==
+Throughout this paper, I've glossed over a very important part of Polycode: the runners. I've told you multiple times that I wasn't diving in deeper the subject because there was going to be a section dedicated to it; here we are. In this section, I'm going to talk about what are runners, what are the constraints we need to respect, how can we create a system that scales in a secure and efficient manner and we will finish, as always, by taking a look at some diagrams to better understand the decisions I've made for Polycode.
+
+Runners are the backbone of our application. This is what drives the interactivity and the engagement, since it is at the core of every piece of code that is executed on the website. For the user, it looks seamless, but there is a great deal of complexity and thoughts that must be put into it.
+
+=== What are runners ===
+We need to define what runners are and what they aren't. As you might have figured, runner run code. More specifically, they run the code fed by the user when they resolve an exercise. The code the user wrote is then being fed by the input of each validators that might exist for the exercise, and the standard output and standard error streams are returned.
+
+There are a few key points that needs to be made clear. First off, runners are more or less agnostic from the underlying (or overlying, depending on how you see it) application. It does not now what validators are, or what contents are, they just take pieces of code and run it against some input. It could very well be used for some online Rust playground with some very minor tweaks. Although we must be conscious about the Polycode's requirements and constraints, we are far enough from the core business logic that most of the decisions will be made on a technical and human standpoint.
+
+Furthermore, since the runners execute user input that can't be trusted, since anybody can use our platform, we need some strong security and isolation mechanism in place to make sure that:
+
+* A user can't disrupt the stability of the platform
+* A bad actor can't escape the isolation and access the system
+
+As of right now, we need our runners to be able to run code written in Javascript, Rust, Java and Python, with project composed of one or multiple files. This means that our runner architecture needs to be able to compile Rust code, and our actual runtime needs to have the appropriate tools and interpreters to execute the code that is being given to them.
+
+Program input is a string, that can include newlines. This is a pretty simple input system, and there is no way to influence the input based on the output of the running program. This means validators must be deterministic.
+
