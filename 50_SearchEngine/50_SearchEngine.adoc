@@ -128,6 +128,8 @@ If I was to upgrade to a more robust solution, I would use ElasticSearch over So
 
 MongoDB allows for specifying weights on each fields that you index. It is useful in our use case, as matching the requested word have more significance when looking at the title of a content, followed by its description, and the the content itself.
 
+This approach, however, locks us into searching only data stored in MongoDB, and if we wanted to search through data in our Postgres, we would need to add some other Postgres specific code. This is not the case as of right now, and I don't see a use case where we would need this in the near future.
+
 On the application side, I would advise creating a common library for all of your microservices, that abstract the engine-specific operation you might want to do. This is to make sure that we have a clear way of moving around with search engines, since we have identified some limits of our current system that might be reached sooner than expected. Factorizing repeated and technical code is usually a good idea anyway, just like abstracting your code. This also makes debugging easier, since we have only one piece of code that is responsible for interacting with your search engine everywhere in your codebase. If you use different programming language, different framework or have different enough constraint between your microservices, this approach might not be possible.
 
 === Sequence diagrams ===
@@ -144,3 +146,13 @@ As you can see, I've taken the creation of a new content by a content creator as
 If you don't understand why it is like this, please refer to the first chapter of this paper, where we define our domains and contexts.
 
 However, this creates some complexity, since some of our indexed fields are in different contexts. This is not a big deal, and just adds a totally manageable programmatic overhead in our system. At the bottom of this diagram, you can see explained the process of indexation with MongoDB. This is a pretty heavy process, and adds a lot of overhead when creating contents. This is totally fine and acceptable, since there is a low volume of content being created, and it will continue to be like that even if the application grow. This operation also needs to be done when contents are updated, and this process is automated with MongoDB indexes. This does not impact read performances.
+
+Let's now look at the sequence diagram when the user search for contents:
+
+image::50_SearchEngine/50_Research_Sequence_Diagram.png[]
+
+This looks like the indexation sequence diagram, with the main difference being that it is the content microservice, in the content context, responsible for asking the content service in the content context. This is done because we need to aggregates the results of both research, and to link content from the practice context with the results of the content context. This is logic related to the practice context. We end up with two requests to our MongoDB cluster, one for searching its index in the title and description, and one for the data inside the content.
+The data returned to the frontend should be formatted in a way that no further processing is needed to be done by the frontend. Abstracting away how our search engine works from the frontend is important. This allows us to play and tweaks with the configuration of our search engine without needing to change our frontend everytime. The stack used in the backend should not matter to the frontend.
+
+== Conclusion ==
+I think we should use MongoDB capabilities of full-text search and indexation, as it is adapted to the volume of data and the traffic we have. We should implement this in a way that allows us to easily migrate towards another solution, since MongoDB has limits that might be reached. However, this approach does not require a lot of work, since we are working with a stack that is already deployed and available to us.
