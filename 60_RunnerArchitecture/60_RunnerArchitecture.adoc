@@ -148,7 +148,7 @@ Another caveat to consider, is when validators are updated. Indeed, as of right 
 * Notifying the controller, so that it invalidates the cache. This has immediate effect and we can also cleanup the old cache that we don't need anymore, but we need to add additional routes and communication within our content context.
 * Caching using the inputs in the key instead of the validator. This has immediate effect, require no additional routes or code. But we aren't notified when a validator has changed, meaning that we don't have a way to cleanup the cache.
 
-I would argue that the last option, caching using inputs in the key, is our best solution here. It requires no effort and is very effective. We do need to have a way to cleanup data though, but I don't have enough knowledge and experience to have an idea at how fast we would fill up the Redis cluster. I would test it in some production environment, to have a better understanding about how it behaves over time and make a decision based on that. Our key format would now be `{contentId}:{hashedValidatorInput}:{language}:{hashedInput}`. 
+I would argue that the last option, caching using inputs in the key, is our best solution here. It requires no effort and is very effective. We do need to have a way to cleanup data though, but I don't have enough knowledge and experience to have an idea at how fast we would fill up the Redis cluster. I would test it in some production environment, to have a better understanding about how it behaves over time and make a decision based on that. Our key format would now be `{contentId}:{hashedValidatorInput}:{language}:{hashedInput}`. This option also has the added benefits of totally decoupling the notion of validators from the runner. We just take some input as parameters, we don't have to know from which validator it is from. This is probably what we want, and I would argue that the job of getting the validator's input should be done prior reaching the runner system.
 
 Caching is something that should not be prioritized too much. As of right now, having a functional runner system is the priority. We don't have enough user to justify putting this much effort in a caching system.
 
@@ -161,3 +161,31 @@ Once again, this is not an absolute priority. This feature should be added incre
 
 === The complete picture ===
 For the runner architecture, I suggest using a controller/worker architecture, where workers are effectively in a pool of machines that controllers can choose to use for running workloads. This model allows us to scale efficiently, with a system where we prioritized workers where there is heated up executors, then workers where there is none, but with resources available and finally a system that sends the code on the cloud in a serverless environment, to be executed. To have a better-optimized and sustainable system, we would cache every requests and their output, and then try to read the cache to not execute code that has already been executed on subsequent request.
+
+== Polycode ==
+Now that we have defined what are the constraints for our runner architecture, let's take a broader view and take a step back to completely integrate our architecture into Polycode. In this chapter, I will draw some diagrams showing how the architecture operates on a broader scale.
+
+=== Architecture diagram ===
+To start off, let's take a look at our complete architecture :
+
+image::60_RunnerArchitecture/60_Architecture_Diagram.png[]
+
+This is the complete diagram, with all the suggested features from above. I've chose AWS as our cloud provider, but this is not a definitive choice. It is here for example purposes, but we can chose any cloud providers that offers serverless services. I've made the decision that fetching the validators input should be done within the submission microservice. In fact, with this diagram, the question of "Should the runner have been its own bounded context ?" arise.
+
+Looking at the diagram, it also becomes apparent that the runner microservice is clearly a controller (or a supervisor), talking to its worker to get execute the workloads. We can see that the worker spawns VMs, but we also see that the runner microservice communicates with Lambda if the on-premise workers becomes overloaded.
+
+=== Registering workers, sequence diagram ===
+One thing that doesn't show in the architecture diagram is that workers can be added and removed dynamically from the system. To better illustrate that, I came up with a sequence diagram, of a new worker registering into the system:
+
+image::60_RunnerArchitecture/60_Sequence_Diagram.png[]
+
+They are a few key points to extract from this diagram, let's talk about them one by one.
+
+Firstly, we can see that we have some kind of encryption at play when making a register request. As mentioned previously, we don't want anybody who finds out the IP address of our controller to register their worker, as this would open security risks, and it would mean that the bad actor could forge false responses to the code ran. To protect against that, I suggest using simple asymmetric keys. Workers would need this key to sign their request, and the controller would use the public key to verify the signature. This way, unless the key leaks, we can be sure that the worker is coming from an authorized party. The underlying protocol should be encrypted as well, with something that prevents replay attack. Is the request is sent in clear-text, an attacker could grab the request and to a replay attack. Same thing if the underlying protocol doesn't prevent replay attacks. We can also imagine that the controller sends a nonce when sending the configuration negotiation, and the worker sending it back, signing the response to prevent such attacks.
+
+Secondly, it is the controller that requests configuration to the worker, not the worker sending it to the controller when trying to register. This is done in order to make sure that the controller can get all the information it needs, and reject workers that do not comply with either the configuration structure or the configuration itself. This is also where the controller should check the nonce and signature that we just talked about.
+
+Once the negotiation is finished, the controller adds the corresponding information in Redis, effectively marking it as ready. If everything's good, the registration is finished and accepted.
+
+== Conclusion ==
+The runner architecture, as you just saw, is a topic on its own. It needs thinking to come up with solution that are secure, in its way it runs code, but also in the way the system interacts, as well as being able to scale properly, whatever the traffic is. I suggest using a mix of a controller/worker architecture, on-premise workers and public cloud's serverless features to scale properly. Our on-premise workers should create VMs to ensure the execution is isolated to the best we can. To manage state, I would use Redis as a data store for the controllers. This Redis cluster can also be used for caching, to deduplicate requests and make sure that we keep the number of costly execution as low as possible, hand-in-hand with prioritizing on-premise workers before using serverless.
