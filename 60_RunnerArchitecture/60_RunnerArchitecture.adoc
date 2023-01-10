@@ -71,3 +71,93 @@ If we forget the fact that we have a base infrastructure already at our disposal
 With serverless, you pay for execution time. This means that if you have a low volume of user using your service, you might need to execute code during 1 hour in the day. With serverless, you would pay the rate for code execution of 1 hour. If you have a server is idling, waiting to spawn VMs, this server will run during 24 hours, and you will be charged for this period. Even if you can get much more with your money with VMs, if you don't have the usage to justify it, it is not cost-effective, and you might rather take the decision to use serverless services. Moreover, serverless is scalable basically infinitely, since you rely on your cloud providers resources. This comes with other benefits cloud providers typically gives you, such as a near-always uptime, hardware, hypervisors and operating system maintenance for this kind of highly-abstracted services, flexibility, global availability, etc..
 
 The right balance, firmly on a cost of operation effectiveness standpoint is most likely somewhere in the middle. We will talk about it more later in this section.
+
+== Running code in a scalable way ==
+One of the other challenge of our architecture, albeit for the runner of for the entire system, is to create a system that can scale seamlessly, whatever the count of users are on our platform. In this chapter, I want to take a look at how we can accomplish that, from a system architecture standpoint mostly, with some discussions about technological choices. We need to be confident in our runners, and their ability to handle all the work we throw at them.
+
+We want to be able to scale horizontally, meaning we want to be able to spawn new runners into the system when the traffic surges. This also means we need to have a way to control this behavior, as well as having an entry point to this sub-system of our architecture. Concretely, we need a service that takes user code and input to be run against, schedules a machine to run the user's code, with the input, get the results once the machine has finished executing, returning it to the caller.
+
+There are a lot of implications in this architecture, let's try to tackle them one by one.
+
+=== Controller / worker architecture ===
+What I've just described looks awfully similar to a controller worker architecture, where we have our scheduling/supervising microservice (let's call it the controller from now on), that gives directives to worker machines, about what to execute and how to execute it. However, there is a significant caveat that is usually not found in this type of architecture: we can have (and will have) multiple controllers. Controllers also needs to be scalable, we can't trust the resiliency and scalability of an architecture with a single point of failure. This means we need to coordinate somewhere, since we don't want our controllers giving two directives at the same time. 
+
+This would cause, depending on the implementation:
+
+* Risking exceeding the worker machine resources, if we spawn one too many workload due to improper communication between controllers and the worker machine
+* Having a failed execution request to one of the controller, if the worker simply refuse to run one of the requests
+
+In either way, this is some unwanted behavior. How can we resolve that ? There is probably a piece of a solution that can be found with message queues, where the controller would send their requests to a message queue, and available runners would pick them up as long as they have available resources. This would mean that it is the runner's job to manage its resource, which totally makes sense, since he is the one that knows its available resources in real time. This creates a new problem though: how to retrieve the execution results ? Another message queue ? But since the request to the controller was made synchronously, we need the correct controller to pick back the answer. And in a timely manner.
+
+All of this adds a lot of complexity, even if we would end up with a more robust system. For now, I would argue that the best solution is to simply have no synchronization, but make sure that the workers rejects one of the controllers request if it received two requests at the same time. The controller needs to have logic to handle this possibility, and reschedule a new runner immediately.
+
+At our scale, and up until a hundred concurrent user on the platform, we probably won't even run in this scenario. I think this system would work well enough to handle thousands of concurrent user pretty easily. Let's not forget that most runners most likely will have enough resources to run multiple machines at the same time, lowering the occurrences of this problem even more.
+
+But is there a simpler solution ? Yes, and much more elegant. Instead of looking at the problem as worker picking up work when they can, what about simply coordinating controllers ? We have state that must be shared across all instances of our controllers, the overall status of the runner infrastructure. Let's use this state in a way that disallows having inconsistent data. I think a great candidate for the job is Redis. It is fast, we don't have concurrent access concerns since it is one threaded, we don't care if we lose data if it shuts down, since we have lost our infrastructure anyway and need to reset everything back to zero. The data we need to store can easily be stored with Redis' datatypes. We do add another piece of software in our system, but I think this is justified.
+
+So to sum up this architecture: we have a controller microservice, that is responsible of receiving execution requests. It then looks at its available pool of machine, and choose one that is available. It forwards the request, and the worker execute the code, returning its output. The controller then returns the output back to the request emitter.
+
+=== Machine pool ===
+Another implication of this architecture, that I've touched just before, is the fact that we need to manage a pool of workers. These workers can spawn machines that executes the user code with some specified input. It means we need a way to control this pool, manage its state, adding new workers when needed, removing others when we don't need them, and detecting faulty ones.
+
+We want to be able to dynamically register new machines to our system, without disrupting the service. This can be done pretty easily, since we are using Redis as a shared state. All we need to do is to hit up a controller with a "register new worker" request, and it adds it to the pool. However, we want to have some security mechanism in place. We want to add only trusted workers into our system. A basic authentication challenge should be enough, such as a certificate or a key.
+
+Another key point, is to detect faulty workers. A worker can be faulty in a myriad of ways. For example, it might appears available, but there is a power outage, a network disruption or other external factors that made the worker not operational. If we don't have a way to detect these cases, we will end up with dead workers. There is also the possibility that the worker is available, that it can be contacted but for some reasons, all the requests ends up with errors. Something might be wrong on the machine.
+
+I want to discuss how we can prevent and remediate this kind of failures. For the case of the whole worker machine going down, or being available, I think a good solution is to periodically send liveness requests to this worker. This would mean that, every x seconds, a simple request is send, with the expectation of having a response. If we have no response, this means that the worker is not operational anymore, and should be removed from the worker pool. This is similar to the https://martinfowler.com/articles/patterns-of-distributed-systems/heartbeat.html[heartbeat pattern]. This would ensure we have a clean pool of machine to work with, at a low cost, since sending such simple requests is not resource-heavy at all, and even if we have multiple thousands workers, if we send a heartbeat request every 30 seconds, over multiple controller replicas, it computes down to a negligible number of requests for modern systems.
+As for the implementation, I would make use of Redis' sorted set datatype, using the elapsed time since last heartbeat as our scoring system. With that, controllers could periodically check for the workers that are over this threshold quickly, and then send our heartbeat packets.
+
+This, however, does not resolve the problem of faulty worker that fails to run workload that we throw at them. Resolving that is not as trivial, but the use of the https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker[circuit breaker pattern] might be a great way to start tackling this problem. When an abnormal numbers of errors are detected on one runner, we would mark this worker as faulty, effectively disabling it for x amount of time. After this time has passed, we try to slowly send back requests to this worker again, and if it is still malfunctioning, we tripped the circuit again, for a longer period this time. This should be synced with other controllers, via redis once again.
+
+There should be a strong monitoring and alerting system in place when a circuit breaker trips, so that system administrators are notified something's wrong with one of the worker, and to let them investigate if it is a false positive, or if there is actually a problem.
+
+Circuit breakers are a great tool, but it might add a lot of work to implement it. I don't think it is a good idea to implement it right now in Polycode. However, this option should be kept in mind if we encounter this kind of problems as the application grows.
+
+=== Scaling (kind of) infinitely ===
+One major problem with our infrastructure as it is, is that we are limited by the number of workers that are available. If the traffic was to exceed our workers' capacities, it would mean that our user would not be able to run code in quickly, or even at all. To circumvent this problem, we need a system in place that automatically finds new way and resources to run user's code.
+
+Thankfully, cloud providers gives us a way to get access to machines quickly. We can use this strength at our advantage. I see two main way of using cloud providers:
+
+* We have a system in place that creates and destroys workers on the cloud depending on the traffic
+* We use the serverless offerings of those cloud providers
+
+Both approaches have pros and cons, but let's talk about the similarity of both approaches. As we have discussed before, renting machines or execution time on the cloud is costly. We need to prioritize our own infra as much as possible. We have bare-metal servers available to us, we need to use their resource to the fullest before turning towards cloud-providers. This means we always make profitable our hardware investments, which is already paid for, before adding exploitation charges, in the form of services rental in the cloud. However, to handle peak traffic, it might not make much sense to invest in more on-premise servers, as it would be idling most of the time. This is where the usage of the cloud really shines in Polycode's case.
+
+Let's talk about renting a whole machine on the cloud. The biggest issue we have here, is that we can't use VM-based isolation, since nested virtualization is not feasible on the cloud. We would need to rent bare-metal machines, which is definitely a doable and valid solution (c5.metal x86_64 machines go for ~4$/hour on AWS, pretty expensive, but can run a lot of workload concurrently). We can also go the docker route. However, as discussed previously, a dockerized environment is perhaps not safe enough for running untrusted code.
+
+The other option is to run code via serverless services of cloud providers. As we have discussed previously, running via serverless functions can be somewhat tricky. Running the code itself is not very complicated, it's isolating it that is harder. But as mentioned, previously, do we really need isolation in a serverless environment ? As long as the serverless instance doesn't have any access to our AWS account (in the case of AWS), we should be safe enough. I think exploring the serverless solution is the best of the two.
+
+So to sum up, we would use our on-premise infrastructure to its fullest. If traffic surges above our capacities, we offload some of the work to serverless services in the cloud.
+
+=== Caching ===
+Another technique commonly used to improve response time and reduce system load is caching. It is most effective when accessing a rarely mutating resource, with high volumes of read and the data resides in a foreign data store or involves heavy computation. At first glance, it is not really applicable to our use case here. However, I would argue we can try to find some way to cache requests, since the cost of running the user's code is very high, and also time consuming. I don't expect to catch a lot of similar requests between users, however, there are edge cases where we will significantly reduce the load on workers, such as users trying to run the base code that is given to them, or them rerunning validations out of frustration, for example. For simple exercises, having a cache system makes even more sense, since we can expect users to come up with the exact same code. Our goal is to cache code execution results for a specific combination of user input, validator and content.
+
+Since we already have a Redis cluster at our disposal, why not use it as our data store for our caching ? Redis is often used for caching as it is fast, and provides efficient way to store simple data, which is exactly what we need. Our cache would be shared between all our controllers, which is what we want.
+
+I propose the following as a first draft as how to cache data:
+
+We take the user input, stripping it of all newlines and spaces. We then hash it, using a fast algorithm such as md5. This will be used in our key in Redis. I suggest a key in this format : `{contentId}:{validatorId}:{language}:{hashedInput}`.
+
+This way, we have a simple a deterministic way to lookup our cache. If there is a cache miss, we send the execution request to the runner. We get back the outputs, add them to the key we defined above.
+
+There are different caveats that we need to think about and avoid. Firstly, the results might vary execution to execution, even if it is the same code. For example, if the user uses randoms or time in his code, every execution will yield different results. However, since this kind of behavior is not something validators can predict, it means that no validator will rely on this type of code. I think it is reasonable to ignore this edge case, since the user will never be pushed towards using those variable functions, and if they do, it will have minor impact on their experience.
+
+Another caveat to consider, is when validators are updated. Indeed, as of right now, we cache via the validator's ID, and not its input. This means that someone can update a validator, updating its input, but since the ID is the same, we don't see the change and our cache is invalid. This would mean that we would continue to return old values. I see three main way to solve that:
+
+* Setting a low Time-To-Leave for our cache inputs. This is the easiest, but it means our cache becomes weaker, and we still have the problem, just for not too long.
+* Notifying the controller, so that it invalidates the cache. This has immediate effect and we can also cleanup the old cache that we don't need anymore, but we need to add additional routes and communication within our content context.
+* Caching using the inputs in the key instead of the validator. This has immediate effect, require no additional routes or code. But we aren't notified when a validator has changed, meaning that we don't have a way to cleanup the cache.
+
+I would argue that the last option, caching using inputs in the key, is our best solution here. It requires no effort and is very effective. We do need to have a way to cleanup data though, but I don't have enough knowledge and experience to have an idea at how fast we would fill up the Redis cluster. I would test it in some production environment, to have a better understanding about how it behaves over time and make a decision based on that. Our key format would now be `{contentId}:{hashedValidatorInput}:{language}:{hashedInput}`. 
+
+Caching is something that should not be prioritized too much. As of right now, having a functional runner system is the priority. We don't have enough user to justify putting this much effort in a caching system.
+
+=== Heating up VMs ===
+The last point I would like to touch on in this chapter, is the process of heating up VMs. What I mean by heating up VMs, is starting execution VMs before needed, in order to reduce the response time by moving the VMs startup time before a request comes in. This will improve the user experience, by reducing the processing time significantly, but also improve our capacity, since we make some work done during off-time. This means we are able to better handle surges in traffic.
+
+Workers could be configured to heat up some of their VMs. When they are ready, they would notify controller. When controllers receives runner requests, they would prioritize any already heat up VM for the execution. This also means that it is an implicit way to prioritize workers, since we can configure some that have limited resources or that we want to use only when absolutely needed to not heat up VMs, since we don't want to minimize the resource usage anyway.
+
+Once again, this is not an absolute priority. This feature should be added incrementally, whenever we have time and resources to spare, just like caching requests.
+
+=== The complete picture ===
+For the runner architecture, I suggest using a controller/worker architecture, where workers are effectively in a pool of machines that controllers can choose to use for running workloads. This model allows us to scale efficiently, with a system where we prioritized workers where there is heated up executors, then workers where there is none, but with resources available and finally a system that sends the code on the cloud in a serverless environment, to be executed. To have a better-optimized and sustainable system, we would cache every requests and their output, and then try to read the cache to not execute code that has already been executed on subsequent request.
