@@ -97,8 +97,27 @@ To make sure the user actually understood the problem, he will have to select be
 Since the progression is tracked per-user, we can introduce more and more difficult bugs, starting with simple iteration loop, to buffer overflows and dandling pointers.
 
 === Application flow ===
+To better illustrate the ideas I've just talked about, and the overall feel of the application, I've made mockups of the application UI. This is in no way a definitive design, and please forgive me for the not so aesthetic layouts, I'm not a designer. However, it conveys the flow and the feel of the app, and that's what I'm interested about.
+
 ==== General layout ====
-==== Browsing leader boards ====
+Before diving into the aforementioned features, we are going to look at what the user is greeted with the first time he opens the application, the connection page:
+
+image::80_MobileApp/80_Layout_Connection.png[]
+
+As you can see, I kept the overall theme and components of the https://polycode.do-2021.fr[web application]. This is great for multiple reasons:
+
+* We keep our overall brand identity
+* It makes it easier for users to navigate to and from the web app to the mobile app
+* The user will feel less frustration, since it recognizes some images, logos and themes. It will increase conversion rate for users who are already using another platform.
+* Less design to do, we only need to adapt existing layout and themes to match the mobile version.
+
+image::80_MobileApp/80_Layout_Daily_Lesson.png[]
+image::80_MobileApp/80_Layout_Daily_Quiz.png[]
+image::80_MobileApp/80_Layout_FTB_1.png[]
+image::80_MobileApp/80_Layout_FTB_2.png[]
+image::80_MobileApp/80_Layout_Home.png[]
+
+
 ==== Each idea figmas ====
 
 === API ===
