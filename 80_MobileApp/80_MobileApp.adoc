@@ -111,15 +111,64 @@ As you can see, I kept the overall theme and components of the https://polycode.
 * The user will feel less frustration, since it recognizes some images, logos and themes. It will increase conversion rate for users who are already using another platform.
 * Less design to do, we only need to adapt existing layout and themes to match the mobile version.
 
-image::80_MobileApp/80_Layout_Daily_Lesson.png[]
-image::80_MobileApp/80_Layout_Daily_Quiz.png[]
-image::80_MobileApp/80_Layout_FTB_1.png[]
-image::80_MobileApp/80_Layout_FTB_2.png[]
+I think that, with some little adjustments, the actual design and graphic identity of Polycode is suited to a mobile app. I think this is further demonstrated by the example of an home page that I've made:
+
 image::80_MobileApp/80_Layout_Home.png[]
 
+At the top, we find a header that will be present all throughout the app. We will see later that, when navigating to the different features, this banner changes to display the part where the user currently is. This helps we navigating the application, even though its very rudimentary. On the main page, we find displayed all of our main features. I've included the mobile-only features that I've mentioned and explained above, as well as a leader board. For the daily lesson, the title of the current one is displayed. For every "daily" features, a tick is shown if the user has finished today's content (like on the daily lesson). A small text is displayed to inform the user about its streak, the text being adapted on whether or not the user has done the content. Find the bug and the leader board are static texts. The main page is very simple, with only the four aforementioned tiles that the user can interact with. As the application grows and more featured are being added, we might want to revisit this display to have a better arrangement, but also include some general information, news, notifications or whatever would make sense on the main page.
 
-==== Each idea figmas ====
+We find our purple-accented theme in titles and logos. The logos shown here should be worked on, as they don't feel quite right but they still give a great preview of the objective. 
 
+At the bottom, we find a navigation bar, that, just like the header, will also be displayed all throughout the application. This navbar allows the user to navigate to the main page, the 3 mobile features and also its profile. Those are effectively tabs, that you could switch from one another by tapping icons or by swiping left or right. This is a usual flow in modern portrait application that have different features, such as Snapchat or Instagram, that the user should already be familiar with.
+
+Now that we have seen the general layout, let's take a look at all our mobile features !
+
+==== Daily lessons ====
+Introducing to you, our daily lessons user interface:
+
+image::80_MobileApp/80_Layout_Daily_Lesson.png[]
+
+As you can see, it's actually pretty simple. The main goal here is to display text properly for a phone format. This is just a scrollable article, that can integrate small pieces of code, but the gist of it will be text organized with parts. We need to define a layout and style consistent across all our daily lessons, to give a easier reading experience for the user on the long-term.
+
+* The title of the lesson is at the top, centered, in a bigger font size.
+* The title of a section is displayed in Polycode's purple, also centered.
+* Paragraph is written in black. Important word are in bold.
+* Code can be formatted within paragraph, the styling must be consistent.
+* The font should always be the same (the same that everywhere on the app).
+* References to other lessons (or external sources) should simply be underlined.
+
+A discrete scrollbar is present on the right, and is persistent. Making it persistent allows the user to be able to judge where in the lesson he currently is, without much inconveniences.
+
+Once again, this is a pretty simple page. Let's move on to the next feature.
+
+==== Daily quiz ====
+In a logical manner, I will now show you and discuss what my mockup for the daily quizzes is:
+
+image::80_MobileApp/80_Layout_Daily_Quiz.png[]
+
+As explained before, we find our navigation bar at the bottom and our header stating that we are in the daily quiz at the top. The main content is divided in two parts: the question and the answers. For this quiz, the question includes a code sample. The user is asked to explain what will be printed to the console.
+The code needs to be big enough that its comfortable to read on a phone, and the size used here is big enough, since it is about the same font size as the main font size in the application. I used rounded corners for a better feel for both the code window and the answers, to make the application feel less boxy.
+The answers needs to be separated from one another to leave as little room as possible for user accidental pressing on the wrong answer. This is why I've used all the space possible in the window. 
+We must not forget that the quiz does not necessarily include a code sample, but since the daily lessons and daily quizzes are related, this quiz made sense, and allows me to show you what code samples would look like. The overall layout should be following the same rules as for the daily lessons, but can be tailored to fit a particular use case. 
+
+Don't forget that what I show you are suggestions. I'm not a designer and the final layout and styling could be different. With that said, let's move on to our last mobile feature.
+
+==== Find the bug ====
+As explained previously, find the bug is a small integrated game where the user is explained a problem with a piece of code. They then click on the faulty line, where a question about what the problem actually is is shown, where they have to demonstrate their understanding of the problem. Here's a mockup for the first part: 
+
+image::80_MobileApp/80_Layout_FTB_1.png[]
+
+It is also a pretty simple page. There is a description of the problem at the top. In this case, we have a segmentation fault somewhere in our code. Right below it, is the piece of code that is responsible of the problem. It is displayed in a similar way that what we say in the daily quiz, except that the line spacing is way larger. This is due to the fact that the user needs to click on the line. It means we need to format the code in a way that make it adapted for this use case. With the spacing shown in this example, the user should have no problem touching the line he wants to touch, without worrying about pressing the wrong line by accident.
+
+Once the user clicks on the faulty line, the user is taken to the next step, displayed on a new page:
+
+image::80_MobileApp/80_Layout_FTB_2.png[]
+
+At the top of the main content, we have a reminder of what the user clicked on. The user can validate that it is indeed the line he thought he clicked. But more importantly, we need to show it here so he can better inspect the faulty line. Some feedback would be needed to see if users feel like they need to have the whole code sample to better contextualize the faulty line. For now, I've decided it was not needed.
+
+Just below, we find the question that verifies that the user understood why it was faulty. It is in the same form, with the same layout and the same styling as with the daily quiz.
+
+Let's now look at the endpoints that needs to be implemented in the backend for our features to work.
 === API ===
 
 == Authentication ==
