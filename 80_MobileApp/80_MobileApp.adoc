@@ -191,7 +191,7 @@ Let's look at the schemas for the daily resources:
 
 image::80_MobileApp/80_Daily_Schema.png[]
 
-There is only one for both of those resources. Indeed, they need to store the same kind of information. The `contentId` field, which directs to a content that will be responsible of showing the actual content, `openDate` and `closeDate`, that deals with having timestamp of when the daily challenge opens and close (this should be a 24-hour window, but I decided to include both to have more flexibility). If something's has failed when getting the notification to the application about the next dailies, the application can fallback to using the "current" endpoint to get the currently running daily. The last fields `type` and `status`, are responsible for identifying the resource, and its state, respectively. They are a bit of redundant information, but I figured it would make the life of developers easier. Once again, keep in mind that this is a draft and further discussion with the team is required, for this kind of specifics.
+There is only one for both of those resources. Indeed, they need to store the same kind of information. The `contentId` field, which directs to a content that will be responsible of showing the actual content, `openDate` and `closeDate`, that deals with having timestamp of when the daily challenge opens and close (this should be a 24-hour window, but I decided to include both to have more flexibility). If something's has failed when getting the notification to the application about the next dailies, the application can fallback to using the "current" endpoint to get the currently running daily. The last fields `type` and `status`, are responsible for identifying the resource, and its state, respectively. They are a bit of redundant information, but I figured it would make the life of developers easier. Once again, keep in 11900mind that this is a draft and further discussion with the team is required, for this kind of specifics.
 
 As for all the endpoints defined in this OpenAPI design, they are protected with our authentication cookie. This is mostly for rate limiting and consumers of our API.
 
@@ -235,3 +235,8 @@ Here's a reminder on the authentication and authorization process:
 image::80_MobileApp/80_Authentication_Sequence_Diagram.png[]
 
 It is the same as in section 2, except that the user interacts with the application and not the web frontend. For more details, I suggest checking the section 2 where we go in depth on the whole process.
+
+== Conclusion ==
+This section showed you the importance of identifying that mobile application doesn't have the same requirements and usage as a website. We need to identify what the use case is for our app, and how to correctly respond to that. You also need to recognize that you can't always expect the user experience to be the same on your mobile app and on your website, and you need to pick features or create new one accordingly. 
+
+For Polycode, I decided to target the mobile application towards a repetitive but short usage by the user, during break time or commutes for examples. With that in mind, and the fact that coding on a phone is not enjoyable, I've defined some features that are designed with the previous constraints in mind. We saw how we can implement them at a higher level, by defining the contract that will be used to communicate with our backend, via an API definition, as well as our authentication flow, respecting today's expectations for mobile applications.
