@@ -21,6 +21,7 @@ You can implement data isolation by having each microservice use its own databas
 ==== Data consistency ====
 Data consistency in a microservices architecture refers to the state of data across multiple microservices and data stores. In a microservices architecture, data is often distributed across multiple services, which can make it difficult to maintain consistency. When data is updated in one service, it may take some time for that change to propagate to other services and data stores, leading to inconsistencies.
 
+[#consistencies]
 There are different consistency models that can be used to maintain consistency in a microservices architecture:
 
 * Strong consistency: With strong consistency, all services and data stores always have the same version of the data. This ensures that data is always consistent, but it can be difficult to achieve in a distributed system and leads to reduced performance.
@@ -98,3 +99,60 @@ However, in-memory databases also have some limitations to consider. They are ty
 Overall, in-memory databases are a good choice for applications that require low-latency, high-performance data access and can afford the higher cost of memory. They are often used as a caching layer or a primary data store for write-heavy workloads. However, it's important to carefully consider the specific needs of the application before choosing an in-memory database as the main data storage solution. We do not use any in-memory database in the current state of Polycode. However, we have seen that we might have interest in using one in the runner architecture, and would make sense in other places, that we will discuss later.
 
 Every types of databases have their strength and weaknesses, exacerbated by the fact that we are running in a microservice architecture. We are now going to explore what are the constraints that this brings onto our data architecture concerns.
+
+== Availability and performance ==
+When designing your data architecture, whatever the database type or solutions that you use, you need to think about the implications it will have on your overall system. In a microservice architecture, we want to scale, to be resilient and to be elastic. Performance is also a factor. Your data architecture needs to answer these constraints, else it will become a bottleneck in your system, since microservice are typically stateless, meaning that they can't function properly in any case if the underlying data layer is not operational.
+
+In this chapter, I want to focus on some solutions that are available in most widely adopted systems, who helps solving these problems, as well as some patterns you can implement yourself for improving performance, reduce system load and overall improve your resiliency.
+
+=== Data replication ===
+Data replication is the process of copying data from one database to one or more other databases, to ensure that the data is available in multiple locations. Data replication is a key aspect of data architecture in microservices, as it can be used to improve the availability and performance of the system.
+
+There are several types of data replication, each with its own set of advantages and use cases:
+
+* Master-slave replication: In master-slave replication, one database server acts as the master and one or more other servers act as slaves. The master server receives write requests and updates the data, while the slaves replicate the data from the master and can be used to handle read requests. This type of replication is useful for improving read performance, as well as providing a backup in case the master server fails.
+* Multi-master replication: In multi-master replication, multiple servers can act as both master and slave. This type of replication allows for multiple servers to handle write requests, which can improve write performance and provide a higher level of availability. However, it can also lead to conflicts when multiple servers try to update the same data at the same time.
+* Global distributed replication: This type of replication is used to replicate data across multiple data centers in different geographic locations, which can improve performance by reducing the distance data has to travel, and also increase availability by providing a backup in case of a regional failure.
+
+When choosing a data replication strategy, it's important to consider factors such as the consistency model, the network latency, the security of the data and the business continuity requirements. Additionally, it's important to consider the trade-offs between availability and consistency, as well as the cost of the replication solution. Different solutions might not provides all of these replication types, but you usually can find solutions in every type of database that fits your needs.
+
+Overall, data replication is a powerful technique for improving the availability and performance of a microservices-based system. By replicating data across multiple locations, it can help to ensure that data is always available and can provide a backup in case of a failure.
+
+=== Data sharding ===
+Data sharding is a technique used to horizontally partition a large dataset and spread it across multiple servers, or shards. The goal of data sharding is to improve the performance, scalability, and availability of a system by distributing the data across multiple machines.
+
+When a dataset becomes too large to fit on a single server, data sharding can be used to split the data into smaller, more manageable chunks called shards. Each shard is stored on a separate machine, and the data is distributed among them.
+
+There are several strategies for data sharding:
+
+* Range-based sharding: With range-based sharding, the data is partitioned based on a range of values, such as a date range or a numerical range. For example, all data with an ID between 1 and 10,000 could be stored on one shard, while data with an ID between 10,001 and 20,000 could be stored on another shard.
+* Hash-based sharding: With hash-based sharding, a hash function is used to determine which shard a piece of data belongs to. The function takes a piece of data, such as a user ID, and maps it to a specific shard.
+* Directory-based sharding: With directory-based sharding, a separate shard is designated as the directory and responsible for routing requests to the appropriate shard.
+* Sharding by functionality: With sharding by functionality, data is partitioned based on the functionality of the application. For example, all data related to user accounts could be stored on one shard, while data related to product information could be stored on another shard.
+
+Data sharding improves the performance, scalability and availability of a system by distributing the data across multiple machines, but it also comes with its own set of challenges. One of the main challenges is to ensure data consistency across the shards. This can be achieved by implementing a distributed transactional system, or by using a consistency model such as xref:consistencies[Base consistency or Eventual consistency].
+
+Another challenge is to ensure that the sharding strategy is flexible enough to handle changes to the data, such as the addition or removal of shards.
+
+In summary, data sharding is a powerful technique that can help to improve the performance, scalability, and availability of a system by distributing the data across multiple machines. However, it's important to carefully consider the specific needs of the application and to plan for the challenges that come with data sharding. Sharding is usually used in Document databases such as SQL, where the eventual consistency model is used. You can also find it in Redis.
+
+=== Data caching ===
+Data caching is a technique used to temporarily store frequently accessed data in a fast-access memory store, such as RAM, in order to speed up data retrieval and reduce the load on the underlying data store. Data caching is a key aspect of data architecture in microservices, as it can be used to improve the performance and scalability of the system.
+
+There are several types of data caching:
+
+* In-memory caching: This type of caching stores data in the main memory (RAM) of a machine. In-memory caching is the fastest type of caching, as data can be accessed and updated without the need for disk I/O. However, it is also the most expensive type of caching, as it requires more memory.
+* Disk-based caching: This type of caching stores data on disk, typically in a file system or a specialized data store such as SQLite. Disk-based caching is slower than in-memory caching, but it is also less expensive, as it requires less memory.
+* Distributed caching: This type of caching stores data across multiple machines, using a distributed cache management system such as Memcached or Redis. Distributed caching can improve scalability and availability, but it also requires more complex configuration and management.
+
+When designing a caching strategy, it's important to consider factors such as the size of the cache, the expected cache hit rate, the eviction policy, and the cache invalidation strategy.
+
+Cache eviction policy is a technique to decide which item should be removed from the cache when it is full and new items need to be added. Popular eviction policies include Least Recently Used (LRU), Least Frequently Used (LFU) and random eviction.
+
+Cache invalidation strategy is a technique to decide when and how the cache should be updated. Popular invalidation strategies include time-based invalidation, where items are removed from the cache after a certain period of time, and event-based invalidation, where items are removed from the cache when certain events occur.
+
+Another important consideration is the consistency model of the cache. A read-through cache will always read the data from the underlying data store and update the cache, while a write-through cache will always write the data to the underlying data store and the cache.
+
+To my knowledge, there is no self-hosted solutions that provides a package that wraps both a document or relational database with a strong caching system in front. Introducing a cache layer in your system requires careful considerations about where you use this layer and when you fetch or mutate your data directly with the database. It also requires writing application specific code to handle cache misses and the caching process.
+
+Overall, data caching is a powerful technique for improving the performance and scalability of a microservices-based system. By temporarily storing frequently accessed data in a fast-access memory store, it can help to reduce the load on the underlying data store and improve data retrieval times. However, it's important to carefully consider the specific needs of the application and plan for the challenges that come with data caching such as cache eviction and invalidation strategy, consistency model and the size of the cache.
