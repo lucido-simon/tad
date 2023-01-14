@@ -185,4 +185,13 @@ We need to find a way to make sure the user needs to log in only once.
 With that being said, one big requirement we need to respect is not to store the user's password at all. Doing so is a big security risk if their device were to be compromised, albeit by a malicious actor or by someone gaining physical access to the device. This is harmful to the user, since he might be reusing this password elsewhere, but also for us, since the attacker have access to the whole account, not only the session in the application. 
 
 === How to do it ? ===
+With the main requirements laid out, we can now design a system that respects them. Thankfully, our current authentication system allows us to do that with close to no changes ! Indeed, the mobile app should just consume the authentication endpoint, getting back their session cookie that we can store and use everytime the user opens the app.
+
+To better identify where the connection is coming from on the backend, I suggest using a custom user-agent that would identify the connection as coming from the application. This would let us add some custom code in order to have some differences in behavior between the two ways of connecting, if needed.
+
 === Sequence diagram ===
+Here's a reminder on the authentication and authorization process:
+
+image::80_MobileApp/80_Authentication_Sequence_Diagram.png[]
+
+It is the same as in section 2, except that the user interacts with the application and not the web frontend. For more details, I suggest checking the section 2 where we go in depth on the whole process.
