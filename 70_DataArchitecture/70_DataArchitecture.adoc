@@ -1,1 +1,56 @@
-= 7
+= Data architecture =
+
+== Introduction ==
+One of the key components of a successful microservices implementation is a well-designed data architecture. This section of this paper will provide an in-depth examination of the various data architecture considerations that must be taken into account when designing and implementing microservices. We will begin by discussing the importance of data isolation and data consistency in a microservices environment. We will then explore different data storage options, such as relational databases, NoSQL databases, and in-memory databases, and their suitability for different types of microservices. We will also delve into the use of data caches, data replication, and data sharding to improve performance and availability. Finally, we will discuss how we can put into practice the theory we talked about by making a target architecture for our Polycode application. By the end of this section, readers should have a good understanding of the key data architecture considerations that must be taken into account when designing and implementing microservices, and be equipped with the knowledge to make informed decisions about data architecture in their own microservices projects, as well as a better understanding of my suggestions for Polycode.
+
+=== Data architecture in microservices ===
+They are some important concepts to understand when talking about data within a microservice architecture. We are going to go over them here, in order to lay some groundwork that we can then use to build suggestions and make informed decisions and criticisms of the solutions and patterns that we are going to explore during this section.
+
+==== Data Isolation ====
+Data isolation in a microservices architecture refers to the separation of data storage and access for each microservice. Each microservice should have its own data store, separate from other microservices, to make sure that changes made by one microservice do not affect the data of another microservice. This is important for several reasons:
+
+* Decoupling: By isolating data, microservices can be developed and deployed independently, without the need for coordination with other microservices. This allows for more flexibility and faster development cycles.
+* Scalability: Data isolation allows for each microservice to scale independently, without being constrained by the data storage requirements of other microservices.
+* Security: Isolating data allows for better control over access to sensitive information.
+* Data governance: Isolating data allows for better management and governance of data, as it is easier to understand and manage data when it is separated by service.
+
+However, it is important to recognize that isolating data can make it more difficult to share data between microservices, and may require additional effort to maintain consistency across multiple data stores. As we are going to see later on, you may chose sacrifice your data isolation, as a trade-off for ease of access and consistency.
+
+You can implement data isolation by having each microservice use its own database, or by partitioning a single database by service. This can be done by using database views, schema or by using different database technologies for different services. It's also important to consider eventual consistency when designing the data isolation.
+
+==== Data consistency ====
+Data consistency in a microservices architecture refers to the state of data across multiple microservices and data stores. In a microservices architecture, data is often distributed across multiple services, which can make it difficult to maintain consistency. When data is updated in one service, it may take some time for that change to propagate to other services and data stores, leading to inconsistencies.
+
+There are different consistency models that can be used to maintain consistency in a microservices architecture:
+
+* Strong consistency: With strong consistency, all services and data stores always have the same version of the data. This ensures that data is always consistent, but it can be difficult to achieve in a distributed system and leads to reduced performance.
+* Eventual consistency: With eventual consistency, data is eventually consistent, meaning that it may take some time for all services and data stores to have the same version of the data. This model is more practical for distributed systems and can lead to better performance, but requires additional effort to handle conflicts and ensure that data is eventually consistent.
+* Base consistency: With base consistency, data is consistent only at certain points in time, such as when a transaction is committed. This model can lead to reduced performance but can be easier to implement and may be sufficient for certain types of data.
+
+Different microservices may require different consistency models. For example, a service handling financial transactions may require strong consistency, while a service handling user-generated content is usually able to use eventual consistency.
+
+When designing a microservices architecture, consider the data consistency requirements of each service, and choose the appropriate consistency model for each service. It is also important to implement mechanisms such as distributed locks and versioning to handle conflicts and ensure consistency.
+
+==== The CAP Theorem ====
+The CAP theorem is a concept in distributed systems that states that it is impossible for a distributed system to simultaneously provide all three of the following guarantees:
+
+* Consistency: All nodes in the system have the same data.
+* Availability: Every request to the system receives a response, without guarantee that it contains the most recent version of the data.
+* Partition tolerance: The system continues to function despite arbitrary partitioning due to network failures.
+
+The CAP theorem states that a distributed system can only provide two of these guarantees at the same time. For example, a system that prioritizes consistency and availability can't tolerate network partitions, while a system that prioritizes availability and partition tolerance can't guarantee consistency.
+
+image::70_DataArchitecture/70_CAP_Theorem.png[]
+
+The CAP theorem is not a hard rule, but more of a guideline to help understand trade-offs of distributed systems. The theorem is a way to think about the different requirements of a system, and how the choices made for one aspect of the system may impact the others. 
+
+When designing a distributed system, it's important to understand the requirements of the system and the trade-offs that must be made in terms of consistency, availability, and partition tolerance. This can help to make informed decisions about the architecture and technologies used in the system, and ensure that the system is able to meet the needs of the organization. 
+
+The CAP Theorem is often used as a way to categorize databases solutions, and can play a role in choosing which database one will use. However, it is also useful when designing your data architecture system to better identify which of the previous characteristics you want to prioritize, and make the according decisions.
+
+=== Relation with the microservice architecture ===
+As you may have noticed, we already talked quite a lot about how we were going to architect our data within our system, during the first section of this paper, where we talked about how we can define our domains and microservices, with Polycode as support. We defined boundaries using both domain concerns, but also with transaction and consistency concerns.
+
+Indeed, the data architecture for a microservices system should support the goals of the microservices architecture and vice-versa. We identified this relation, and made sure to create a microservice architecture that were driven by those concerns. We should have an easier time defining our data architecture, and actually already have a microservice architecture that allows some wiggle room to use different solutions in our Polycode system.
+
+Before diving deeper in how we can architect our data within our system, I want to make a step back and firstly look at the databases technologies available on the market today, and where their use case makes sense.
