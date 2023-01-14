@@ -156,3 +156,45 @@ Another important consideration is the consistency model of the cache. A read-th
 To my knowledge, there is no self-hosted solutions that provides a package that wraps both a document or relational database with a strong caching system in front. Introducing a cache layer in your system requires careful considerations about where you use this layer and when you fetch or mutate your data directly with the database. It also requires writing application specific code to handle cache misses and the caching process.
 
 Overall, data caching is a powerful technique for improving the performance and scalability of a microservices-based system. By temporarily storing frequently accessed data in a fast-access memory store, it can help to reduce the load on the underlying data store and improve data retrieval times. However, it's important to carefully consider the specific needs of the application and plan for the challenges that come with data caching such as cache eviction and invalidation strategy, consistency model and the size of the cache.
+
+== Architecture patterns ==
+To better architect and standardized language between engineers, the system design community has defined multiple patterns that helps describing architectures, and how to solve certain problems. In this chapter, we will look at a few of them, with the advantages and drawbacks that comes with them.
+
+=== Shared database pattern ===
+The first pattern we are going to look at is the shared database pattern. As the name suggests, the shared database pattern is a microservices architecture pattern where multiple microservices share a single database. This pattern is useful when multiple microservices need to access the same data, and there is a need for consistency and transactional integrity across the data.
+
+In this pattern, all microservices that need to access the same data are connected to the same database. Each microservice has its own schema, and the data is partitioned across different tables and rows. This allows each microservice to have its own set of tables, with its own data model, while still being able to access the shared data as needed.
+
+One of the main advantages of the shared database pattern is that it allows for easy sharing of data across multiple microservices. It also allows for consistency and transactional integrity across the data, as all microservices are accessing the same database instance.
+
+However, the shared database pattern also has some drawbacks to consider. One of the main drawbacks is that it leads to tight coupling between microservices, which make it difficult to change or evolve the system. Additionally, it can also lead to contention for resources and reduced scalability, as all microservices are accessing the same database instance.
+
+To mitigate these risks, it's important to use a database that can handle the high read and write loads, and it's also important to plan for failover and replication. It's also important to carefully manage the data model and to use a database that supports data migrations. Lastly, it's important to monitor the database performance and to have a plan in place for dealing with bottlenecks or failures.
+
+Another drawback is that it can lead to increased complexity in data management and data governance, as the shared data may be subject to multiple data models and data access patterns across different microservices, which may lead to conflicts and inconsistencies.
+
+Overall, the shared database pattern is a useful pattern for microservices architecture when multiple microservices need to access the same data, and there is a need for consistency and transactional integrity across the data. However, it's important to carefully consider the specific needs of the application and to plan for the challenges that come with the shared database pattern. You might want to consider other approaches and resolve data consistency at the application level, rather than on the database level.
+
+=== Database per Service pattern ===
+The database per service pattern is a variation of the microservices architecture, where each service has its own dedicated database. Each service is responsible for its own data, and there is no sharing of data between services. This pattern can be useful when services have different data models and different performance requirements, and when data consistency across services is not a concern, or handled properly at the application layer.
+
+One of the main advantages of the database per service pattern is that it allows for a high degree of autonomy and flexibility for each service. Each service can use a database that is best suited to its specific needs, and can evolve its data model independently of other services. Additionally, since each service has its own database, a failure or bottleneck in one service's database will not impact other services, which can improve availability and performance.
+
+However, the database per service pattern also has some drawbacks. Since each service has its own database, there is no centralized query engine, which can make it more difficult to perform complex queries across services. Additionally, since each service has its own database, there is no centralized data management, which can make it more difficult to manage data consistency across services.
+
+To mitigate this problems, creating a strong API systems between your microservices is important to be able to do advanced queries when required. Using a messaging system can be a powerful when you need to propagate events on your resources, so that services can notify each other of data changes and keep their databases in sync. It's also important to have a plan in place for dealing with data migrations and to monitor the performance of each service's database.
+
+==== The saga pattern ====
+I want to stop in this explanation of the database per service pattern to describe a pattern that helps resolving the data consistency problem: the saga pattern. The saga pattern is a way to handle long-running, complex transactions that involve multiple microservices in a distributed system. It is a way to ensure that a series of steps that need to be executed in a certain order are completed, even when individual steps fail.
+
+The saga pattern is based on the idea that a long-running transaction can be broken down into a series of smaller, independent transactions, called sagas. Each saga represents a step in the overall process and is executed by a separate microservice. The sagas are orchestrated by a saga manager, which is responsible for coordinating the execution of the sagas, and for ensuring that the overall process is completed successfully, or that it is compensated in case of failure.
+
+When a saga is executed, it may update the state of one or more services, and it may also publish events that are listened by other sagas. The events are used to trigger the next step in the process, or to trigger a compensation step in case of failure.
+
+The saga pattern can be used to handle a wide variety of use cases, such as order processing, customer registration, and account management. It is used to make the state of the system always consistent, even in the presence of failures, and it can also be used to ensure that the system can be easily recovered in case of failures.
+
+The saga pattern also has drawbacks, mostly in the form of complexity, especially when dealing with large and complex transactions. Additionally, it is difficult to test and debug, since it involves multiple microservices and a complex coordination mechanism. It also requires the implementation of a saga manager and a mechanism for storing and managing saga state.
+
+In summary, the saga pattern is a way to handle long-running, complex transactions that involve multiple microservices in a distributed system. It is based on the idea of breaking a long-running transaction into smaller, independent transactions that are orchestrated by a saga manager. It can ensure that the state of the system is always consistent, even in the presence of failures, but it also has some drawbacks such as complexity to implement, test, and debug, and increase in system complexity. Let's now wrap up this chapter about the database per service pattern:
+
+To sum up, the database per service pattern is a variation of the microservices architecture, where each service has its own dedicated database. It can be useful when services have different data models and different performance requirements, and when data consistency across services is not a concern. However, it also has some drawbacks, such as the difficulty of performing complex queries across services and the difficulty of managing data consistency across services. Careful planning and management are required to mitigate these risks.
