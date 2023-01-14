@@ -54,3 +54,47 @@ As you may have noticed, we already talked quite a lot about how we were going t
 Indeed, the data architecture for a microservices system should support the goals of the microservices architecture and vice-versa. We identified this relation, and made sure to create a microservice architecture that were driven by those concerns. We should have an easier time defining our data architecture, and actually already have a microservice architecture that allows some wiggle room to use different solutions in our Polycode system.
 
 Before diving deeper in how we can architect our data within our system, I want to make a step back and firstly look at the databases technologies available on the market today, and where their use case makes sense.
+
+== Different databases for different needs ==
+In a microservices architecture, different microservices may have different data storage needs. Each type of database has its own set of strengths and weaknesses, and is better suited for certain types of data and workloads. In this chapter, I will explore the use cases, pros and cons of three types of databases: relational databases, document databases and in-memory databases. Each type of database has its own set of advantages and disadvantages. For example, document databases are good at handling flexible data models but doesn't provide the same level of performance as an in-memory database. On the other hand, relational databases provide robust querying capabilities but are not as well-suited for handling large amounts of unstructured data.
+
+=== Relational databases ===
+Relational databases are a type of database management system that store data in a structured format, using tables, rows, and columns. The most popular relational databases include MySQL, PostgreSQL, and Microsoft SQL Server.
+
+Relational databases are based on the relational model, which is a mathematical model for representing data in a table-like format. Each table represents a specific entity, such as a user or a team, and each row represents an instance of that entity. The columns represent the attributes of the entity, such as the user's name or the team's captain. The relationships between entities are represented using foreign keys, which link rows in different tables together.
+
+This type of databases are well-suited for applications that require complex querying and data relationships. The use of a relational model also allows for data validation and integrity constraints, which helps to ensure that the data stored in the database is correct and consistent.
+
+Relational databases is usually queried using SQL, which is used to insert, update, retrieve and delete data from the database. SQL is a standard language that can be used across multiple relational databases.
+
+However, relational databases are not always the best choice for every use case. They may not be as efficient as other types of databases at handling large amounts of unstructured data, and may not be able to scale as easily as some other types of databases, although we have some robust solutions nowadays. Additionally, the use of a fixed schema can make it more difficult to handle changes to the data model, and may require more effort to maintain backwards compatibility.
+
+Overall, relational databases are a powerful and widely-used type of database management system, and are well-suited for applications that require complex querying and data relationships. However, it's important to carefully consider the specific needs of the application before choosing a relational database as the main data storage solution. In today's Polycode, we use relational database for storing users, teams, campaigns or transactions, since the schemas for those is well-defined, well-structured and present a strong relationship with other schemas in the database. We use PostgreSQL as our database solution.
+
+=== Document databases ===
+A document database is a type of NoSQL database that stores data in the form of documents, rather than tables and rows like in relational databases. The most popular document databases include MongoDB, Couchbase, and RavenDB.
+
+Each document in a document database represents a single entity, such as a content or a module. The document can contain multiple fields, similar to columns in a relational database, to represent the attributes of the entity. Documents are stored in collections, similar to tables in a relational database. The collections can be searched and queried using a query language specific to the document database.
+
+One of the main advantages of document databases is their ability to handle semi-structured or unstructured data. In contrast, relational databases rely on a fixed schema, which can make it difficult to handle changes to the data model. A document database can handle data fields that are missing or have different data types, and are more flexible when it comes to adding new fields or changing the structure of the data.
+
+Another advantage of document databases is their ability to scale horizontally. They can handle high write loads and can easily scale by adding more machines to the cluster. This makes them a good choice for applications that have high write loads, need to handle large amounts of unstructured data, or need to scale quickly.
+
+However, document databases have some trade-offs to consider as well. They doesn't provide the same level of performance as an in-memory database, and are not a good solution for handling complex data relationships as a relational database. Additionally, they doesn't provide the same level of data validation and integrity constraints as a relational database, which can lead to data inconsistencies.
+
+In summary, document databases are a good choice for applications that require flexible data models, need to handle large amounts of unstructured data, or need to scale quickly. However, it's important to carefully consider the specific needs of the application before choosing a document database as the main data storage solution. We do use document database in the current state of Polycode, for storing contents, modules, submissions and validators for example. We use MongoDB as our document database solution.
+
+=== In-memory databases ===
+An in-memory database is a type of database management system that stores data in the main memory (RAM) of a computer, rather than on disk like traditional databases. This can make in-memory databases much faster than traditional databases, as data can be accessed and updated without the need for disk I/O. The most popular in-memory databases include Redis and Memcached.
+
+In-memory databases are particularly well-suited for applications that require low-latency, high-performance data access. They are often used in applications such as real-time analytics, gaming, financial trading systems, and e-commerce platforms. For example, an in-memory database can be used to store real-time stock prices and perform real-time calculations on the data, or to store session data for a web application and quickly retrieve it for a user.
+
+In-memory databases can be used as a caching layer between the application and a traditional database, to improve the performance of read-heavy workloads. They can also be used as a primary data store for write-heavy workloads, where data needs to be quickly accessed and updated.
+
+In-memory databases usually provide a key-value data model, which allows for fast and efficient data access. They can also provide a data structure such as a hash table, list, or set, to support more advanced data manipulation.
+
+However, in-memory databases also have some limitations to consider. They are typically more expensive than traditional disk-based databases, as they require more memory. Additionally, they are limited by the amount of memory available on a single machine, which can make it more difficult to scale the system horizontally. In-memory databases also typically do not provide the same level of durability as traditional databases, as data is lost when the system is powered off or crashes, even if modern in-memory that focuses on storing application data as a primary database, such as Redis, provides way to periodically flush its memory to the disk.
+
+Overall, in-memory databases are a good choice for applications that require low-latency, high-performance data access and can afford the higher cost of memory. They are often used as a caching layer or a primary data store for write-heavy workloads. However, it's important to carefully consider the specific needs of the application before choosing an in-memory database as the main data storage solution. We do not use any in-memory database in the current state of Polycode. However, we have seen that we might have interest in using one in the runner architecture, and would make sense in other places, that we will discuss later.
+
+Every types of databases have their strength and weaknesses, exacerbated by the fact that we are running in a microservice architecture. We are now going to explore what are the constraints that this brings onto our data architecture concerns.
