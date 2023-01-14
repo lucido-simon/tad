@@ -1,0 +1,208 @@
+openapi: 3.0.3
+info:
+  title: Polycode - User API
+  description: |-
+    This is a draft of Polycode's mobile API endpoints. 
+    This is to show the general structure of the API and how it will be used. 
+    This is not a final version and is subject to change. 
+    It doesn't describe administration endpoints.
+  version: "1.0.0"
+tags:
+  - name: dailyLessons
+    description: Endpoints related to daily lessons
+  - name: dailyQuiz
+    description: Endpoints related to daily quizzes
+  - name: findTheBug
+    description: Endpoints related to "find the bug"
+paths:
+  /daily/lessons/{lessonId}:
+    get:
+      tags:
+        - dailyLessons
+      summary: Get a daily lesson
+      description: Get a daily lesson
+      operationId: getDailyLesson
+      parameters:
+        - name: lessonId
+          in: path
+          description: ID of the lesson to get
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Daily'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Daily lesson not found
+  /daily/lessons/current:
+    get:
+      tags:
+        - dailyLessons
+      summary: Get the current daily lesson
+      description: Get the current daily lesson
+      operationId: getCurrentDailyLesson
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Daily'
+  /daily/quiz/{quizId}:
+    get:
+      tags:
+        - dailyQuiz
+      summary: Get a daily quiz
+      description: Get a daily quiz
+      operationId: getDailyQuiz
+      parameters:
+        - name: quizId
+          in: path
+          description: ID of the quiz to get
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Daily'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Daily quiz not found
+  /daily/quiz/current:
+    get:
+      tags:
+        - dailyQuiz
+      summary: Get the current daily quiz
+      description: Get the current daily quiz
+      operationId: getCurrentDailyQuiz
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Daily'
+  /findTheBug/{bugId}:
+    get:
+      tags:
+        - findTheBug
+      summary: Get a "find the bug" challenge
+      description: Get a "find the bug" challenge
+      operationId: getFindTheBug
+      parameters:
+        - name: bugId
+          in: path
+          description: ID of the bug to get
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindTheBug'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: "Find the bug challenge not found"
+  /findTheBug/next:
+    get:
+      tags:
+        - findTheBug
+      summary: Get the "find the bug" challenge the user should do next
+      description: Get the "find the bug" challenge the user should do next
+      operationId: getNextFindTheBug
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindTheBug'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: "Find the bug challenge not found"
+components:
+  schemas:
+    Daily:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentId:
+          type: integer
+          format: uuid
+        openDate:
+          type: string
+          format: date
+        closeDate:
+          type: string
+          format: date
+        type:
+          type: string
+          description: Daily Type
+          enum:
+            - Lesson
+            - Quiz
+        status:
+          type: string
+          description: Daily Status
+          enum:
+            - Planned
+            - Opened
+            - Closed
+    FindTheBug:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentId:
+          type: integer
+          format: uuid
+        level:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Level of the challenge. 1 to 100
+  securitySchemes:
+    polycodeAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://keycloak.poly-code.com/realms/polycode/protocol/openid-connect/auth
+          tokenUrl: https://keycloak.poly-code.com/realms/polycode/protocol/openid-connect/token
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: POLYCODECOOKIEID

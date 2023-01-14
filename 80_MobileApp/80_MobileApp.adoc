@@ -169,7 +169,47 @@ At the top of the main content, we have a reminder of what the user clicked on. 
 Just below, we find the question that verifies that the user understood why it was faulty. It is in the same form, with the same layout and the same styling as with the daily quiz.
 
 Let's now look at the endpoints that needs to be implemented in the backend for our features to work.
+
 === API ===
+Designing an API properly is a task that is often overlooked. Your API defines the way your developers (or external developers) interact with and access the functionality provided by the underlying Polycode service, in our case. A well-designed API saves developers time and effort by providing clear and simple interfaces for performing common tasks, and can also promote the adoption of the service or application by making it more accessible to a wider range of users.
+
+The main goals of API design are to make the API easy to use and understand, efficient, flexible, and stable. A good API should be easy to learn and use, with clear and concise documentation and error messages. It should be efficient, with minimal overhead and fast response times. It should be flexible, allowing for a wide range of use cases and integration with other systems, and it should be stable, with minimal changes or breaking changes over time.
+
+I'm going to present the necessary endpoints I've identified for our mobile features. Those will be the one the application will interact with, and not the administrative one (such as creating a new find the bug challenge, for example). All the already existing API that the mobile app will need to consume are not described here, such as authentication endpoints or contents endpoints. Keep in mind that this is a draft, and discussion with domain experts,technical leaders and overall, the Polycode team will be needed to refine this proposal.
+
+The API will be described in the https://swagger.io/specification/[Open API format]. The file is available xref:80_MobileApp/80_api.yaml[here]. I will provide related images of the endpoint or OpenAPI resource that I'm talking about during this section for readability purposes.
+
+This API is divided in 3 different resources: daily lessons, daily quizzes and find the bug. Those are our 3 mobile features, and they are conceptually also 3 different resources. Let's first take a look at our daily resources first:
+
+image::80_MobileApp/80_Dailies_API.png[]
+
+We have only defined two endpoints for each of them ! It might be surprising, but we will also consume existing endpoints when submitting answers or fetching contents, for example. For both of our dailies, the endpoints are actually very similar. One allow for accessing one of these resources by ID, and the other is there to get the currently running daily lesson or daily quiz.
+
+The mobile app will get resources' IDs when receiving notification from our backend. With this ID, it can then fetch contents when it the application thinks its suitable.
+
+Let's look at the schemas for the daily resources:
+
+image::80_MobileApp/80_Daily_Schema.png[]
+
+There is only one for both of those resources. Indeed, they need to store the same kind of information. The `contentId` field, which directs to a content that will be responsible of showing the actual content, `openDate` and `closeDate`, that deals with having timestamp of when the daily challenge opens and close (this should be a 24-hour window, but I decided to include both to have more flexibility). If something's has failed when getting the notification to the application about the next dailies, the application can fallback to using the "current" endpoint to get the currently running daily. The last fields `type` and `status`, are responsible for identifying the resource, and its state, respectively. They are a bit of redundant information, but I figured it would make the life of developers easier. Once again, keep in mind that this is a draft and further discussion with the team is required, for this kind of specifics.
+
+As for all the endpoints defined in this OpenAPI design, they are protected with our authentication cookie. This is mostly for rate limiting and consumers of our API.
+
+Let's look at our last two endpoints, related to the "find the bug" feature: 
+
+image::80_MobileApp/80_FTB_API.png[]
+
+As with the dailies feature, we have an endpoint for fetching a specific find the bug resource by ID. But I want to focus on the other endpoint, the "next" endpoint. Unlike with dailies, each user has its own progression, meaning that we can introduce harder and harder challenges. This responsibility should be handled by the backend, and is abstracted away in this single endpoint, that returns the resource it identified as the best for the user to do next, taking in variables such as already completed challenges of the user. 
+
+Here's the schema for the find the bug resource:
+
+image::80_MobileApp/80_FTB_Schema.png[]
+
+It is very simple. Just like with dailies, we have a unique identifier and `contentId` that is responsible of storing which content is actually holding the content of this resource. We have an additional field, `level`, which indicates how hard this challenge is, on a scale from 1 to 100.
+
+I'll repeat myself here, but I want this to be clear: this is a suggestion, a draft that needs to be worked on, and requires collaboration with the whole team. This can serve as groundwork for further refinement.
+
+Now that we have defined the needed endpoints for our mobile features, let's look at how we can handle authentication within our mobile app.
 
 == Authentication ==
 === Requirements ===
