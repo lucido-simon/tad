@@ -198,3 +198,41 @@ The saga pattern also has drawbacks, mostly in the form of complexity, especiall
 In summary, the saga pattern is a way to handle long-running, complex transactions that involve multiple microservices in a distributed system. It is based on the idea of breaking a long-running transaction into smaller, independent transactions that are orchestrated by a saga manager. It can ensure that the state of the system is always consistent, even in the presence of failures, but it also has some drawbacks such as complexity to implement, test, and debug, and increase in system complexity. Let's now wrap up this chapter about the database per service pattern:
 
 To sum up, the database per service pattern is a variation of the microservices architecture, where each service has its own dedicated database. It can be useful when services have different data models and different performance requirements, and when data consistency across services is not a concern. However, it also has some drawbacks, such as the difficulty of performing complex queries across services and the difficulty of managing data consistency across services. Careful planning and management are required to mitigate these risks.
+
+== Polycode ==
+Let's get back to Polycode and apply what we learnt to our system. In this chapter, we are going to look at the current data architecture, try to pinpoint the current flaws, as well as understanding why the data architecture was made like this in the first place. Then, we are going to see what would fit with our new microservice architecture, and with our increased knowledge in how to make a data architecture that respects the requirements and constraints I have described previously.
+
+=== Current data architecture ===
+Here's the current data architecture:
+
+image::70_DataArchitecture/70_Current_Architecture.png[]
+
+As you can see, it's a very rudimentary architecture. We have two databases, a relational one (PostgreSQL) and a document one (MongoDB). Let's talk about these choices.
+
+We picked a relational database for all the data that are inherently relational, with a well-defined structure. This includes users and teams for example, where we know all the fields, and we have a structure that is not changing over time, or at least have not yet changed. As we saw previously, this is the kind of data where relational databases really shines, as well as providing us with a strong consistency that we can rely on for delicate operations, such as making a purchase, for example.
+
+On the other hand, with have a document database (MongoDB), where we store all not so well defined data, such as validators, that can take different structure depending on the context or the type of content that is being validated. This is something that is cumbersome to do in a relational database. We still have some kind of relations between our collections, for example modules are composed of contents. MongoDB allows us to map this relationship between our collections. We don't have a strong consistency like we do with PostgreSQL, since MongoDB operates with on an eventual consistency model.
+
+Currently, both our PostgreSQL and MongoDB cluster does not have any kind of replication, sharding or caching mechanism in place. This is primarily due to time constraint. With our current user base and volume of data, this has not been a problem, neither in term of performance or availability. However, this is still a huge point of improvement for our future system.
+
+=== Target data architecture ===
+Now that we have seen currently running data architecture and system, let's take a look at my suggestion for our target data architecture :
+
+image::70_DataArchitecture/70_Target_Architecture.png[]
+
+As you can see, there's a lot to unpack here. Let's start by the pattern I chose to use. I you look closely, you can see that the numbers of databases (not cluster), almost match the number of microservices I've defined. Indeed, I've chose the Database per Service pattern. Let's start by addressing the main drawbacks of this pattern, and how I suggest to overcome them.
+
+This pattern means that data consistency is not handled always by the database itself. However, using a proper division of our microservices, and with propers pattern in our application code, such as the saga pattern, we can ensure transactional boundaries at the application level. Accessing data from other microservices become a costly operations. We could replicate our data in other databases, using message queues, but since we are not allowed to use message queues in our answers, I've discarded this option since it is not hindering the operation of the system too much. However, we still have to design a strong API system, and rely on caching techniques to accelerate access and ease the load on databases, more on that later.
+
+By using this pattern, we gain the benefits of being able to evolve our microservices independently, decoupling them as much as possible, and we can make changes to the underlying data without breaking other systems as long as we don't change our API (which we should avoid).
+
+I've decided that, although each microservice has its own database, to put all these databases in the same cluster for each database engine. This has the drawback of sharing resources and reducing performances, and decreasing the overall availability of the system. However, this is mitigated by running this cluster on replication and sharding models. All masters, replicas and shards runs on Polytech's server, since they have no cost for us. This is a problem in the case of a regional outage, but as an educational project and with the current reach of the website, this is acceptable.
+
+The benefits of running in the same cluster, is an easier data management, since we actually run only 3 clusters, one for each type of database.
+
+Overall, I've not made any changes about the data structure, and on what type of database data is stored. I think the current system will work fine as it is, although it is difficult to predict the ramification of switching to a microservice architecture. If we identify a major technical debt coming from this, we need to react quickly before building more features on the application, which will make it more and more difficult to solve the problem at the root instead of applying band-aid solutions that comes with a major burden on maintainability or performance.
+
+I've also added a Redis server, which is not replicated neither sharded. Data store on this cluster are the runner state and caches for other databases. None of them are persistent data, and should be invalidated in case of a system failure anyway. It does not make any sense to replicate it. I think running a single node cluster will provide performance that are well over our needs as of right now.
+
+== Conclusion ==
+We have seen the major concepts related to data architecture in a microservice system, identifying the accompanying problems and requirements. We have defined patterns that helps solve some of our problems, themselves coming with their trade-offs (as with everything in a microservice architecture). We migrated our current Polycode architecture to work with these constraints, coming up with a suggestion about how we can structure Polycode data architecture. As with all suggestions for Polycode in this paper, further discussing with the Polycode's team is needed before settling on a solution, but this provides groundwork for a possible architecture.
