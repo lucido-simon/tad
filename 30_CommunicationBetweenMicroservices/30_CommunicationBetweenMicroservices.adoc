@@ -130,3 +130,73 @@ One way to reduce the overhead of JSON serialization and deserialization in a RE
 In comparison, gRPC (Google Remote Procedure Call) uses a binary encoding for data transfer, which can be more efficient than the text-based encoding used by JSON. This can make gRPC more performant than REST, particularly for scenarios where high volumes of data need to be transferred or when low latencies are important. However, it is important to note that the performance of any specific implementation of REST or gRPC will depend on a number of factors, including the hardware and software infrastructure used to host the API, the design of the API itself, and the volume and complexity of the requests being made. We will talk more about gRPC in the next part.
 
 Overall, REST is a powerful and widely used tool for building APIs and facilitating inter-microservice communication, but it is important to carefully consider the potential disadvantages and limitations when deciding whether to use it in your specific use case.
+
+=== gRPC ===
+In this part, I'm going to dive into what is gRPC, why is it becoming a more and more popular option for inter-microservice communication and what are the pros and cons of using it. gRPC is a high-performance, open-source framework for building remote procedure call (RPC) APIs. It is based on the Protocol Buffers data serialization format, and uses HTTP/2 for transport. gRPC enables efficient communication between microservices, with support for bi-directional streaming, flow control, and flow-limited concurrency. Additionally, gRPC provides built-in support for load balancing, health checking, and error handling. Overall, gRPC is a powerful tool for building scalable and efficient inter-microservice communication systems.
+
+Unlike REST, which operates in a resource-based manner, gRPC takes more of a function call approach. You define services, that exposes functions that you can call in multiple manners. There are four main ways to define a "function":
+
+* Unary RPC: This is the simplest form of RPC, in which the client sends a single request to the server and the server responds with a single response. This type of RPC is typically used for simple, one-time queries or commands.
+* Server streaming RPC: In this type of RPC, the client sends a single request to the server, and the server responds with a stream of responses. This is useful for situations where the server needs to send a large amount of data to the client, or fetching them on the fly.
+* Client streaming RPC: In this type of RPC, the client sends a stream of requests to the server, and the server responds with a single response. This is useful for situations where the client needs to send a large amount of data to the server.
+* Bidirectional streaming RPC: In this type of RPC, both the client and the server can send and receive streams of data. This is useful for situations where real-time communication is required, or when processing can begin as soon as with get our first piece of a payload.
+
+==== Efficiency ====
+gRPC is known for its high performance and efficiency, which are largely due to the use of Protocol Buffers as the data serialization format and HTTP/2 as the transport protocol.
+
+Protocol Buffers, also known as protobuf, is a binary data serialization format that is smaller and faster than other formats such as JSON or XML. It is designed to be language and platform neutral, allowing for easy cross-language communication between microservices.
+
+HTTP/2 is a binary protocol that is designed to be faster and more efficient than HTTP/1.1, the previous version of the protocol. It allows for multiplexing multiple requests over a single connection, reducing the overhead of opening and closing connections for each request. HTTP/2 also supports server push, which allows the server to proactively send data to the client without a request, further reducing round-trip time.
+
+Furthermore, gRPC provides more advanced features that helps improving the overall performance of the system, if well-used, such as request cancellation, health checking, error handling or load balancing.
+
+Overall, the use of Protocol Buffers and HTTP/2, along with the features provided by gRPC, makes it a highly efficient and effective tool for building high-performance inter-microservices communication systems.
+
+==== Multiplexing ====
+Multiplexing is a technique used to send multiple requests and responses over a single connection. 
+
+In gRPC, multiplexing is achieved by using a single HTTP/2 connection to send multiple requests and responses. Each request and response is identified by a unique stream ID, which allows the server to distinguish between different requests and responses. This opens the door for multiple requests and responses to be sent over a single connection at the same time, reducing the overhead of opening and closing connections for each request.
+
+This feature of multiplexing in HTTP/2, and thus gRPC, improves the efficiency of communication between microservices as it allows multiple requests and responses to be sent over a single connection, reducing the overhead of opening and closing connections for each request. It also allows for bi-directional streaming, which enables real-time communication between the client and server.
+
+Additionally, the use of flow control (which is defined in the https://httpwg.org/specs/rfc7540.html#FlowControl[HTTP/2 RFC]) in gRPC ensures that the server does not become overloaded with too many requests, thus improving the overall performance of the communication. This is done by limiting the number of requests that can be sent over a single connection, and by controlling the rate at which data can be sent for each flow (stream, request) to the connection.
+HTTP/2 also defines the concept of stream priority, meaning we can prioritize certain gRPC calls, if the need arise.
+
+There are others very interesting features that HTTP/2 defines that allows for even better performance, such as stream dependencies or reprioritization. Since gRPC was conceived with HTTP/2 in mind, a lot of these features can be leveraged. I recommend reading the https://httpwg.org/specs/rfc7540.html[specifications] for more details.
+
+This ensures that resources are used efficiently and that the server is not overwhelmed.
+
+==== Protobuf ====
+Protocol Buffers (protobuf) is a data serialization format developed by Google. It is designed to be small, fast, and efficient, and is used to transmit data between different systems and programming languages.
+
+Protobuf uses a language and platform-neutral binary format to serialize data, making it smaller and usually faster to serialize/deserialize than JSON. Additionally, protobuf includes a code generation tool that generates data access classes for various programming languages, making it easy to work with protobuf data in those languages.
+
+One of the key advantages of using protobuf over other binary serialization format is its ability to evolve over time. When a field is added or removed from the data structure, older clients can still correctly parse the data they receive, and newer clients can correctly parse the older data. This allows for a more gradual rollout of updates, and reduces the risk of breaking existing clients.
+
+Protobuf also supports the definition of message types, services, and enums, which can be used to define the structure of the data and the methods that are available to interact with it. This makes it easy to understand the structure of the data, and how it should be used.
+
+Protobuf is not self-describing, meaning that you can't discover how a message should be parsed when receiving it. This means you need to know that beforehand, that's why you need your protobuf definition for both your client and server. This comes with its advantages and disadvantages, primarily having a well-defined contract for your inter-microservice communication (reducing the risk of misunderstanding and informal coordination between teams), at the cost of a more rigid develop constraints. This makes it robust and improves the trust you can have in your production environments, but make it more cumbersome to develop with. Changing your APIs becomes hard, and payloads are binary-encoded, which make it harder for prototyping and debugging. It's a tradeoff that more and more organizations are willing to make.
+
+Overall, protobuf is a powerful and efficient data serialization format that is used for a wide range of applications. It is widely used in high-performance systems, including distributed systems and microservices. gRPC uses protobuf as the data serialization format, which makes it efficient for communication between microservices.
+
+==== xDS Support ====
+Cementing gRPC relationship in inter-microservice communication, it is gradually implementing the xDS protocol, with a great set a features already production-ready. xDS (Extensible Dynamic Configuration) is a set of APIs and protocols for configuring and managing services in a distributed system. xDS provides a common interface for configuring and managing services, regardless of their underlying technology. It is widely used in service mesh architectures and service discovery mechanisms, and it is the foundation of service management in Envoy (in fact, xDS was created by the Envoy team), a popular open-source and service proxy. To put it more simply, it allows for management of service meshes.
+
+We are going to dive deeper into service meshes later in this section, but for now it is important to point out that, by making gRPC xDS-ready, it is enabling for proxyless gRPC service meshes, which is a huge deal in term of performance, but also security. It means that we don't need to spawn a proxy for each of our microservice to intercept all the communications our microservice does, redirecting them to the correct endpoint. We reduce a lot of performance overhead, both in term of IO throughput and CPU usage (we are reducing the hops between user space and kernel space, although eBPF is starting to help quite a lot here) and memory footprint. We also greatly reduce the complexity of our architecture. This also allows to have a true end-to-end encryption, since TLS termination is done in the application, and not at the proxy.
+
+You can keep track of the current state of xDS in gRPC https://grpc.github.io/grpc/core/md_doc_grpc_xds_features.html[here]. Keep in mind that support might vary depending on the language you are using, since not all libraries are up-to-speed with latest gRPC specifications.
+
+Overall, having the possibility to directly integrate with xDS opens for a world of possibilities, pushing even more the efficiency of this protocol.
+
+==== Gateways ====
+Although not in the scope of this section, I want to talk about one drawbacks that some see with using gRPC - even though it is not really on to me. gRPC can't be used in the browser. This is due to multiple technical factors, mainly around the freedom that web browsers give to their Javascript sandbox around the way they can manipulate raw HTTP packets. To put it simply, they can't. There is no way to force the usage of HTTP/2, and no way to dictate how streams should be handled within an HTTP/2 connection.
+
+gRPC was never meant to be a communication protocol between your frontend and your backend. This is why I'm suggesting that it is not really a problem. However, this implies that you need a layer somewhere, that takes your frontend requests, and "translates" them to appropriate gRPC protocol. The most popular options are to have your microservice serving both a gRPC and a REST API (for internet-facing microservices) or to use gateways. I would recommend using the latest, since they allow you to have a single entry point into your system, although this introduce a single point of failure. You gain the benefits of having centralized control, a easier time introducing routing and load balancing, centralize your authentication and authorization and not have to deal with that in your microservices, caching and an single entry point in your service-mesh, if you have one. This however introduces additional hops to your request, additional overhead to your system and, as mentioned previously, a single point of failure.
+
+It's important to evaluate the tradeoffs and decide wether the benefits outweigh the drawbacks in your use case and their specific requirements, while foreshadowing your architecture evolution, as with everything in this domain.
+
+==== Support ====
+The last thing I want to touch on, which is important factor whatever the solution, is the support and adoption. gRPC has gained significant popularity and community adoption in recent years, which is a trend that is forecasted to continue. It is an actively developed open-source project, with contributions from a large community of developers. It is supported by Google and has a growing ecosystem of third-party libraries and tools. gRPC provides several libraries and tools to help developers work with the gRPC framework, such as the Protocol Buffer Compiler (protoc), the gRPC C++, Java, Go and C# libraries, and the grpc-gateway for building RESTful APIs on top of gRPC services. Protoc can be configured to compile the boilerplate code for a wide variety of languages, while being highly customizable, allowing for different code generation per language, generating for a specific framework, for example.
+
+==== Conclusion ====
+gRPC seems to come with a lot of benefits for few drawbacks when it comes to inter-microservice communication. It is now well-established in robust distributed system and is becoming a de-facto protocol to use as soon as you need to have some kind of performance or costs requirements for medium to large scale systems. It continues to develop on its microservice-oriented features such as xDS, and is now too big to fail in the upcoming years due to its sheer adoption in major companies, like Google, who are the project-owner and active maintainer of it.
