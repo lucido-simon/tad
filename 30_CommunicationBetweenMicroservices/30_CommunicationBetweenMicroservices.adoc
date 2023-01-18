@@ -198,5 +198,49 @@ It's important to evaluate the tradeoffs and decide wether the benefits outweigh
 ==== Support ====
 The last thing I want to touch on, which is important factor whatever the solution, is the support and adoption. gRPC has gained significant popularity and community adoption in recent years, which is a trend that is forecasted to continue. It is an actively developed open-source project, with contributions from a large community of developers. It is supported by Google and has a growing ecosystem of third-party libraries and tools. gRPC provides several libraries and tools to help developers work with the gRPC framework, such as the Protocol Buffer Compiler (protoc), the gRPC C++, Java, Go and C# libraries, and the grpc-gateway for building RESTful APIs on top of gRPC services. Protoc can be configured to compile the boilerplate code for a wide variety of languages, while being highly customizable, allowing for different code generation per language, generating for a specific framework, for example.
 
-==== Conclusion ====
+==== gRPC, wrapped up ====
 gRPC seems to come with a lot of benefits for few drawbacks when it comes to inter-microservice communication. It is now well-established in robust distributed system and is becoming a de-facto protocol to use as soon as you need to have some kind of performance or costs requirements for medium to large scale systems. It continues to develop on its microservice-oriented features such as xDS, and is now too big to fail in the upcoming years due to its sheer adoption in major companies, like Google, who are the project-owner and active maintainer of it.
+
+== The options, operation layer ==
+We've talked about what protocol we could used to communicate between our microservice. However, it is important to remember that our microservices are going to evolve in a distributed system, with most likely a layer below them to manage them, such as Kubernetes. This layer comes with new options on managing your inter-microservice communication, since they abstract away network concerns. We can put systems in place to remove complexity from our application layer, that should focus on business logic, and move it to our operation layer, where we can manage some aspects about how our system is ran.
+
+In this chapter, we are going to explore a few options we have at this layer, diving deeper in concepts we've touch on previously, such as services mesh. I am making the assumptions that we are running our applications in a Kubernetes environments, since it is effectively the only solution you orchestrate your microservices at a large scale nowadays.
+
+=== Kubernetes' service discovery ===
+Kubernetes' service discovery is a feature that allows pods and services to discover and communicate with each other within a Kubernetes cluster. It is an important aspect of service-to-service communication in a microservices architecture.
+
+In Kubernetes, services are used to expose pods to the network and to other pods within the cluster. Each service is assigned a unique IP address and a DNS name, and is exposed on a specific port. Pods can communicate with a service using its IP address and port, and can use the service's DNS name to communicate with it if the DNS service is enabled.
+
+Kubernetes also provides built-in support for service discovery using the Kubernetes DNS service. When the DNS service is enabled, each pod is automatically configured to use the DNS service to resolve service names to IP addresses. This allows pods to communicate with services using their DNS names, rather than having to know their IP addresses and ports.
+
+This means that, instead of having to keep a list of every IPs of your replicas for a particulate microservice, have only a single hostname, which will be resolved to a service that corresponds to an entry point for all of your pods for that microservice. It allows for simple load-balancing, dynamically adding and removing pods (enabling scalability), port-mapping as well as some more advanced features.
+
+Overall, Kubernetes' service discovery is a powerful feature that allows pods and services to discover and communicate with each other within a Kubernetes cluster, it provides a built-in DNS service making it easy for pods and services to communicate with each other in a microservices architecture. It is usually sufficient for basic use-case, although the simplicity in its design makes it unable to have more advanced features that you could enable by introducing additional hops to operational applications, such as proxies. That's where service meshes come in.
+
+=== Service mesh ===
+A service mesh is a dedicated infrastructure layer for service-to-service communication in a microservices architecture. It is designed to manage the complexity of service-to-service communication, and to provide features such as traffic management, service discovery, load balancing, and security.
+
+A service mesh typically consists of a set of proxies, known as "sidecar proxies", that are deployed alongside each service instance. These proxies handle service-to-service communication, and provide features such as traffic management, service discovery, load balancing, and security. The proxies are deployed through Kubernetes configuration, and are managed using a central control plane.
+
+The control plane is responsible for configuring and managing the proxies, and can be used to perform tasks such as traffic management, service discovery, and security. The control plane can also be used to monitor the health and performance of the services and proxies, and to provide detailed visibility into service-to-service communication.
+
+Picture are worth a thousand words, so here is a (very simplified) overview about how service meshes operates in a Kubernetes context:
+
+image::30_CommunicationBetweenMicroservices/30_Service_Mesh_Pictured.png[]
+
+By introducing proxies into the mix, we gain significant control about how to manage our inter-microservice communication. This allows us to introduce encryption for packets transiting through the cluster, usually with mTLS. Traffic on the internet is usually encrypted with TLS, where a site you visit prove their identity by providing a certificate, that you can see like an ID Card. Using this certificate, the client can verify and trust the site, and initiate a negotiation with the server, to secure the communication via encryption. Typically, the user needs to authenticate with a username and password to access protected resources. mTLS keep the core of this process, except that the TLS negotiation is done both ways. This means that both microservices can trust that the other is how they say they are, effectively the authentication process at the TLS level. During this process, they also negotiate a secure way to communicate.
+
+What is very important to identify here, is that the identification is done at the session level, and the communication can be done normally after. There is no need to interfere with layer 7 data, since the authentication and encryption is done at lower level. Layer 7 is the application layer, so you can let your application freely send whatever data they might want to send.
+
+Service meshes also provides way to implements resiliency and fault-tolerance features, such as retries and circuit-breakers. By having a proxy in front of each microservices, you can introduce advanced rules that dictates where packets goes, based on previous information, such as wether previous requests failed or not. Having this state and history, enables automatically sending new requests when previous one failed (retries), and identifying failing microservices and stop sending requests to this microservice for a while (circuit-breakers).
+
+You can also test the robustness of your system, by injecting voluntary faults. This helps identifying bottlenecks and problems, before they actually arise. You basically have freedom about how you route your packets, with different solutions providing more or less features. This also allows real-time and precise observability about the state of your networks and packets traveling through them, once again at the operation layer, with no need to modify your application code.
+
+To sum up, service meshes provide a transparent infrastructure layer for service-to-service communication, which allows developers to focus on building business logic, while the service mesh takes care of managing the complexity of service-to-service communication. The most popular service meshes are Istio, Linkerd and Consul. We are going to explore all three of them.
+
+==== Consul ====
+Consul is a service discovery and configuration tool developed by Hashicorp. It offers several features such as service discovery, health checking, key-value storage, load balancing, DNS interface, ACL system, event system, web UI and API. It is designed to be simple to operate, can be run as a single binary, doesn't require a separate data store, and can be run in a cluster for automatic failover. It is widely adopted and supported by a large community, it is also supported by many cloud providers and can be easily integrated with other Hashicorp tools. Consul Connect is a service mesh feature that allows for secure communication between services without requiring any code changes.
+
+Consul connect uses Envoy under the hood, meaning that it communicates through the aforementioned xDS protocol. Where Consul Connects really shines is its integration with Consul, and the overall Hashicorp ecosystem. Configuration is done through a key-value store, making it easy to modify and configure on the fly. Consul Connect focuses on ease of use, with a nice UI coming bundled up with the solution, allowing you to easily edit your configuration and see the state of you system.
+
+However, it can lack in advanced features and is considered as a solution coming with a lot of resource overhead.
