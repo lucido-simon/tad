@@ -244,3 +244,14 @@ Consul is a service discovery and configuration tool developed by Hashicorp. It 
 Consul connect uses Envoy under the hood, meaning that it communicates through the aforementioned xDS protocol. Where Consul Connects really shines is its integration with Consul, and the overall Hashicorp ecosystem. Configuration is done through a key-value store, making it easy to modify and configure on the fly. Consul Connect focuses on ease of use, with a nice UI coming bundled up with the solution, allowing you to easily edit your configuration and see the state of you system.
 
 However, it can lack in advanced features and is considered as a solution coming with a lot of resource overhead.
+
+==== Istio ====
+Next up, I want to talk about Istio. Istio seems to be the more popular solution in production environment, thanks to its set of features and extensibility. Istio currently provides the biggest toolkit, with circuit breaking, retires and timeouts (both path and method based), fault injection, delay injection, header and path based traffic splits, percentage based traffic splits, mTLS, RBAC and much more. Istio takes a declarative approach, meaning that configuration is done through the editing of Kubernetes' Custom Resource Definitions (CRDs). This has proved to be an easier way to automate deployments and configuration with existing infrastructure-as-code tools like Terraform.
+
+Envoy is also based on Envoy for its proxies, but is currently experimenting (with great results, although not production-ready) proxyless gRPC service mesh, by using the integration of the xDS protocol within gRPC. Istio's control plane can communicate directly with your gRPC application to configure it and route the traffic accordingly. This reduces drastically the performance overhead that comes with spawning an envoy proxy for each of your pods replicas. Istio also supports advanced routing for WebSockets and MongoDB.
+
+Istio also comes with an UI that you can install that provides a very comprehensive real-time monitoring tool for your system. It is open-source and community-driven, integrated with most of the managed cloud ecosystem, and initiated by Google IBM and Lyft.
+
+However, Istio might be the most overwhelming service mesh, making it the most difficult to manage and maintain. It can be challenging for teams that does not have the resources to explore the possibilities and configuration of Istio.
+
+==== LinkerD ====
