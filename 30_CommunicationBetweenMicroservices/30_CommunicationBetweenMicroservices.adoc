@@ -255,3 +255,16 @@ Istio also comes with an UI that you can install that provides a very comprehens
 However, Istio might be the most overwhelming service mesh, making it the most difficult to manage and maintain. It can be challenging for teams that does not have the resources to explore the possibilities and configuration of Istio.
 
 ==== LinkerD ====
+Another service mesh option, that is growing in popularity in recent years is LinkerD. It is fully open source, and a cloud native computing foundation (CNCF) project. LinkerD is designed to be non-invasive and is optimized for performance. It is really easy to adopt, and its sidecars proxies are very light and performant. It is an in-house "micro-proxy" written in Rust, but comes with a complete feature set that you can expect with services meshes, such as metrics, L4 and L7 advanced proxies, mTLS (by default !), retries, timeouts. The list of features is growing, with circuit breakers planned for the near future, for example.
+
+However, I couldn't find a way to add a layer of compatibility with xDS, making it unusable with solutions that are developed around this protocol. This can be a major drawbacks depending on your needs.
+
+==== Cilium ====
+Lastly, I want to talk about cilium, which makes use of an interesting feature of the Linux kernel: eBPF. eBPF is a way to run your own code in a kernel sandbox. You can add and configure kernel features at runtime, allowing for example, to have some advanced routing logic. You can see where this is going, Cilium takes advantage of this feature to configure load balancing, mTLS and other advanced networking implementations at the eBPF layer, effectively never leaving the kernel, and avoiding two contexts switching between kernel space and user space in the process.
+
+eBPF programs are executed in a sandbox, running on a JIT compiler. This performance are great, on the same order of magnitude as the kernel compiled code. More importantly, we have a very minimal memory and processing overhead, really squeezing out all the performance you can get from your resources, while still having service meshes' advantages.
+
+Cilium is known to be quite difficult to configure, with a lot of custom resource definitions to set up for enabling features, such as circuit breaking or retries. It can also lack some features such as fault injection. Cilium can also work with Envoy, but I would argue that if you were to use cilium with envoy, you are better off using another service mesh. I would advise using cilium when you have strong performance requirements.
+
+As always, the best solutions depends on your specific requirements. Heavy performance constraints might directs you towards LinkerD or Cilium, complex and complete observability and configuration features towards Istio and ease of use towards Consul Connect, for example. Now that we have skimmed over the options available, we are going to take a closer look at what would make sense, and what are the tradeoffs we are willing to make for Polycode.
+
