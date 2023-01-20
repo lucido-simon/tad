@@ -290,3 +290,26 @@ There are, however, also drawbacks of using gRPC in our case. I identified 3 of 
 * Lastly, during the migration process, we will be incentivized to copy-paste the old code. This is bound to happen, even if we clearly define it as a bad idea. This will lead to bringing bugs over, but more importantly, it will hinder the change of line of thoughts we need to have. REST APIs and gRPC Services are different concepts, and you don't build them in the same way. Since most of use has only used REST APIs as a way to communicate with other services, the transition is going to be difficult and we are going to be ending up with REST patterns in our gRPC services.
 
 Overall, gRPC makes a lot of sense as our communication protocol and I would advise to use it as our sole synchronous inter-microservice communication protocol, mainly for its efficiency and rigidity, although the migration of the code base will be tedious for the team.
+
+==== Istio ====
+After some careful thinking, I've settled on using Istio at the operational layer. Let's discuss why.
+
+Istio provides the biggest set of features out of all the service meshes solutions. Although we are probably not going to use them all, I think they provide interesting solutions for us to explore in term of load test in resiliency testing. We currently have very little users and it's hard for us to test the scalability and resiliency of our systems. Having artificial failures will help us better understand and identify bottlenecks in our system before they start to happen in real scenarios.
+
+Using service mesh, and so Istio, we can improve the resiliency and fault-tolerance by easily implementing retries, circuit-breakers and timeouts. These patterns are usually requires a lot of technical, non business related code, when implemented at the application layer. We lift a big weight off our shoulder by not having to make a choice between time (in the form of coding) and unreliability.
+
+Istio can be challenging to configure, but the main advantage is that its configuration is built in a declarative manner, using Kubernetes' CRDs. They can be scary to familiarize with, but the huge benefit for us is that it can be templated with Helm. We are using Helm to manage our deployments, and adding new templates to manage Istio resources into them is a matter of minutes. Configuring it is the hard part.
+
+However, let's not forget the context of this project. This is an educational project, and setting some advanced challenges like this is hugely beneficial for us, if we manage to correctly understand what is going on behind the scenes and the concepts that revolves around Istio. Let's not forget that Istio is the most popular service mesh on the market today, and it is likely to stay this way for quite a while. Learning to work with it is a valuable skill, and will be useful for most of us in the future.
+
+We are currently running on bare kubernetes service discovery, with no service mesh in-between. Although it is sufficient for what we are doing, the benefits and reasoning stated above is, for me, enough to justify its usage.
+
+Since I've suggested using gRPC as our inter-microservice communication protocol, both of them blends in nicely with the proxyless features of Istio for gRPC services.
+
+Unlike with gRPC, this suggestion is less about logical reasoning at a technical standpoint, but more about learning and gaining experience on a technology that we are likely to use in our professional careers.
+
+==== Other suggestions ====
+Unrelated to the technological suggestions above, we also need to focus on code quality, by delivering high-quality code, that is compatible with a microservice architecture. Code reviews are going to be important, and listening to everyone's suggestions and feedback will be more important than ever. We need to collaborate and push a environment where we foster upfront thinking about our architecture. We need to listen to everybody's worries and manage learning curves for each technology and the different burden it can have on some people.
+
+== Putting it into practice ==
+
