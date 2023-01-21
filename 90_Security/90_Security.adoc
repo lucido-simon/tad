@@ -75,3 +75,79 @@ To prevent this kind of attacks, you should:
 
 * Use an encrypted communication protocol (HTTPS), making it much more difficult to intercept and read the data in transit.
 * Enable HTTP Strict Transport Security (HSTS): this technique allows a website to tell the browser that it should only be accessed over HTTPS and not HTTP. This prevents an attacker from intercepting a HTTPS connection and downgrading it to HTTP.
+
+== Backend security ==
+Securing your backend is very important, since this is where all sensitive data is handled, and the business logic is executed. Finding a breach in your backend paves the way for an attacker to gain unauthorized access to other users data, for example. In this chapter, we are going to look at the usual vector of attacks and how you can prevent them.
+
+=== Broken access control / broken authentication ===
+Some attacks rely on bypassing or exploiting weaknesses in the authorization process to gain unauthorized access to resources or perform actions that they should not be able to. This can be done by manipulating the authentication process or exploiting vulnerabilities in the application's code. In our case, we are running a Role-Based Access Policies (RBAC) authorization framework.
+
+Authentication and authorization is a very important aspect of security. You should use robust and well-maintained tools to handle that for you, unless you can have a team with the resources necessary to audit and attack your in-house authentication and authorization engine. You should oblige to the least privilege principle, meaning that you give the bare-minimum authorization a user should have access to.
+
+Broken access control is ranked #1 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+
+=== Cryptographic failures ===
+Cryptographic failure refers to the situation when the cryptographic mechanisms used to secure a system fail to provide the level of security that was intended. This can happen due to various reasons such as weak encryption algorithms, poor key management, or implementation errors.
+
+There are several types of cryptographic failures, including:
+
+* Weak encryption: This occurs when the encryption algorithm used is weak and can be easily broken by an attacker.
+* Poor key management: This occurs when the keys used to encrypt and decrypt data are not properly protected and can be easily obtained by an attacker.
+* Implementation errors: This occurs when the cryptographic mechanisms are implemented incorrectly, leading to vulnerabilities that can be exploited by an attacker.
+
+To prevent cryptographic failures, it's important to follow these best practices:
+
+* Use of strong encryption algorithms: Use encryption algorithms that have been thoroughly vetted and are considered to be strong, such as AES, RSA, and ECC.
+* Use of good key management: Use key management systems that provide secure key storage, key rotation, and key destruction.
+* Use of tested and well-vetted cryptographic libraries: Use cryptographic libraries that have been thoroughly vetted and are considered to be secure.
+* Regularly review and update encryption algorithms and key management practices to ensure that they are still considered secure.
+
+Cryptographic failures are ranked #2 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+
+=== Injection ===
+Injection attacks are a type of security vulnerability that occur when an attacker is able to inject malicious code or data into a web application, in order to exploit vulnerabilities in the application's code or in the underlying system. These attacks can be used to steal sensitive information, such as login credentials, and can also be used to inject malware or perform other malicious actions.
+
+There are several types of injection attacks, including:
+
+* SQL injection: This type of attack involves injecting malicious SQL code into a web application to manipulate the database and steal sensitive information. This is by far the most popular type of injection.
+* Command injection: This type of attack involves injecting malicious commands into a web application to execute arbitrary code on the underlying system.
+* File inclusion: This type of attack involves injecting a malicious file path into a web application to include and execute arbitrary code on the underlying system.
+* Header injection: This type of attack involves injecting malicious data into headers of HTTP requests
+
+We are not vulnerable to any kind of these injections. This is due to our usage of specialized libraries (ORMs for database related payloads, which implement prepared statements or parametrized queries), that take care of securing user input.
+
+Injection is ranked #3 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+
+=== Outdated and vulnerable software ===
+Outdated and vulnerable software significantly increases security risks by making it easier for attackers to exploit known vulnerabilities. As software ages, new vulnerabilities are discovered and patches are released to address them. However, if a system is not kept up-to-date with the latest security patches, it may still be vulnerable to these known vulnerabilities. Additionally, older software may not have the same level of security features as newer versions, making it more vulnerable to attacks.
+
+This both a concern in the backend and at the operational level. For the backend, you should:
+
+* Keep libraries up-to-date: Regularly check for and apply the latest security patches to ensure that known vulnerabilities are addressed.
+* Use an automated patch management system: Automated patch management systems can help ensure that all your dependencies are kept up-to-date with the latest security patches.
+* Use a vulnerability scanner: Vulnerability scanners can help identify vulnerabilities in a system and can be used to generate reports that can be used to prioritize which vulnerabilities should be addressed first.
+* Use libraries that are supported and actively maintained by the community to ensure that security patches are released in a timely manner.
+
+Outdated and vulnerable software are ranked #6 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+
+=== Server-side request forgery (SSRF) ===
+Server-side request forgery (SSRF) is a type of security vulnerability that occurs when an attacker is able to send a request to a server from a vulnerable application, in order to access resources or perform actions that the attacker should not be able to access. This type of attack is typically used to gain unauthorized access to internal systems, such as databases or other sensitive resources, by exploiting the trust relationship between the server and the vulnerable application. This is typically done by tricking a server into sending a request to an internal service.
+
+To prevent SSRFs attacks, you should have an overall good and secure system that checks and validates user inputs and that is protected from injections. You can also make use of WAF (Web Application Firewall) to inspect and drop any requests that doesn't match any routes, parameters and HTTP Methods known to the system.
+
+SSRF is ranked #10 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+
+=== Man-in-the-middle attacks ===
+Just like with the frontend, you need to prevent any man-in-the-middle attacks within your backend architecture. You don't know where your containers are going to be ran, meaning it might go through the internet or untrusted networks to communicate. You need to secure your backchannel properly, as it will transport all kind of sensitive information about the system and the business logic. Every request that you make could be sent across a untrusted network. To prevent that, more specifically in a Kubernetes environment, you can:
+
+* Use service meshes that provides mTLS support (such as Istio)
+* Use a 3rd-party network plugin for kubernetes that encrypts traffic between nodes out of the box https://www.weave.works/docs/net/latest/concepts/encryption/(such as WeaveNet)
+
+All your traffic should be encrypted.
+
+=== Input Validation ===
+Input validation are not a kind of attack but more a general good practice that you always need to follow. It refers to the process of ensuring that all user input received by a web application is valid and safe to use. It is a security measure that helps to prevent malicious input from being used to exploit vulnerabilities in the application's code or in the underlying system. User input can't be trusted, and you need to treat it as such. Failing to treat properly user's input can lead to a variety of attacks, such as XSS, CSRF, SSRF or Injections of any kind.
+
+You can validate user's input in multiple ways, depending on the context, such as checking for a valid range, correct date, password strength check and more. Validation should be done in the backend, since you can't trust what's happening in the front-end. The user might try to send a hand-made request, or the user-agent might have been compromised. Frontend validation is great for the user, since it allows to have a immediate feedback if he mistakenly did something wrong. But backend user input validation is where you really need to focus on, because this is where the security measure actually is.
+
+== Operation security ==
