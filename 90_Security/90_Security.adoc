@@ -84,7 +84,7 @@ Some attacks rely on bypassing or exploiting weaknesses in the authorization pro
 
 Authentication and authorization is a very important aspect of security. You should use robust and well-maintained tools to handle that for you, unless you can have a team with the resources necessary to audit and attack your in-house authentication and authorization engine. You should oblige to the least privilege principle, meaning that you give the bare-minimum authorization a user should have access to.
 
-Broken access control is ranked #1 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+Broken access control is ranked #1 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
 === Cryptographic failures ===
 Cryptographic failure refers to the situation when the cryptographic mechanisms used to secure a system fail to provide the level of security that was intended. This can happen due to various reasons such as weak encryption algorithms, poor key management, or implementation errors.
@@ -102,7 +102,7 @@ To prevent cryptographic failures, it's important to follow these best practices
 * Use of tested and well-vetted cryptographic libraries: Use cryptographic libraries that have been thoroughly vetted and are considered to be secure.
 * Regularly review and update encryption algorithms and key management practices to ensure that they are still considered secure.
 
-Cryptographic failures are ranked #2 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+Cryptographic failures are ranked #2 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks]
 
 === Injection ===
 Injection attacks are a type of security vulnerability that occur when an attacker is able to inject malicious code or data into a web application, in order to exploit vulnerabilities in the application's code or in the underlying system. These attacks can be used to steal sensitive information, such as login credentials, and can also be used to inject malware or perform other malicious actions.
@@ -116,7 +116,7 @@ There are several types of injection attacks, including:
 
 We are not vulnerable to any kind of these injections. This is due to our usage of specialized libraries (ORMs for database related payloads, which implement prepared statements or parametrized queries), that take care of securing user input.
 
-Injection is ranked #3 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+Injection is ranked #3 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
 === Outdated and vulnerable software ===
 Outdated and vulnerable software significantly increases security risks by making it easier for attackers to exploit known vulnerabilities. As software ages, new vulnerabilities are discovered and patches are released to address them. However, if a system is not kept up-to-date with the latest security patches, it may still be vulnerable to these known vulnerabilities. Additionally, older software may not have the same level of security features as newer versions, making it more vulnerable to attacks.
@@ -128,20 +128,20 @@ This both a concern in the backend and at the operational level. For the backend
 * Use a vulnerability scanner: Vulnerability scanners can help identify vulnerabilities in a system and can be used to generate reports that can be used to prioritize which vulnerabilities should be addressed first.
 * Use libraries that are supported and actively maintained by the community to ensure that security patches are released in a timely manner.
 
-Outdated and vulnerable software are ranked #6 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+Outdated and vulnerable software are ranked #6 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
 === Server-side request forgery (SSRF) ===
 Server-side request forgery (SSRF) is a type of security vulnerability that occurs when an attacker is able to send a request to a server from a vulnerable application, in order to access resources or perform actions that the attacker should not be able to access. This type of attack is typically used to gain unauthorized access to internal systems, such as databases or other sensitive resources, by exploiting the trust relationship between the server and the vulnerable application. This is typically done by tricking a server into sending a request to an internal service.
 
 To prevent SSRFs attacks, you should have an overall good and secure system that checks and validates user inputs and that is protected from injections. You can also make use of WAF (Web Application Firewall) to inspect and drop any requests that doesn't match any routes, parameters and HTTP Methods known to the system.
 
-SSRF is ranked #10 on https://owasp.org/www-project-top-ten/(OWASP's top ten web application security risks).
+SSRF is ranked #10 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
 === Man-in-the-middle attacks ===
 Just like with the frontend, you need to prevent any man-in-the-middle attacks within your backend architecture. You don't know where your containers are going to be ran, meaning it might go through the internet or untrusted networks to communicate. You need to secure your backchannel properly, as it will transport all kind of sensitive information about the system and the business logic. Every request that you make could be sent across a untrusted network. To prevent that, more specifically in a Kubernetes environment, you can:
 
 * Use service meshes that provides mTLS support (such as Istio)
-* Use a 3rd-party network plugin for kubernetes that encrypts traffic between nodes out of the box https://www.weave.works/docs/net/latest/concepts/encryption/(such as WeaveNet)
+* Use a 3rd-party network plugin for kubernetes that encrypts traffic between nodes out of the box https://www.weave.works/docs/net/latest/concepts/encryption/[such as WeaveNet]
 
 All your traffic should be encrypted.
 
