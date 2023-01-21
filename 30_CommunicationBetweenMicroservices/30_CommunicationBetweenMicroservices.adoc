@@ -325,5 +325,11 @@ We can see all our actors here:
 This sequence diagram shows pretty well the additional hops a request has to go through with a classic service mesh deployment. Each gRPC request/response goes through at least 3 hops when communicating from microservices to microservices: one from microservice A to its proxy, then from proxy A to proxy B, and finally from proxy B to microservice B. This is where the performance overhead of service meshes comes in, and why eBPF-based or proxyless service-mesh are relevant solutions when tight on resources, since they eliminates these additional hops while retaining most of the features.
 
 === Proof of concept ===
+As a way to demonstrate how my technological suggestions would operate, I've made a simple proof of concept (PoC), that deploys 2 microservices and 1 gateway, all within an Istio service mesh in a Kubernetes cluster.
+
+You can find the repo https://github.com/polycode-lucido/microservice-poc(here). You will find further explanation in the readme, as well as how to use it and deploy it on your own.
 
 == Conclusion ==
+Inter-microservice communication is an essential part of designing your system. There are a lot of issues and concerns that arise from building a distributed system, that you don't find, or at least to a much lesser degree in a monolith application. We have identified these concerns, explained why they are important. Using protocols, technologies and patterns, we found ways to solve these problems, and settled on a few options that fulfills the requirements we have with Polycode. Inter-microservice communication is a critical aspect of an infrastructure and needs careful thinking, it is the backbone of your whole system.
+
+Identifying problems and having ways to understand the state of your system goes hand-in-hand with this aspect. How do you know if your system is running as expected ?
