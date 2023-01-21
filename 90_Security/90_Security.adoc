@@ -151,7 +151,7 @@ Input validation are not a kind of attack but more a general good practice that 
 You can validate user's input in multiple ways, depending on the context, such as checking for a valid range, correct date, password strength check and more. Validation should be done in the backend, since you can't trust what's happening in the front-end. The user might try to send a hand-made request, or the user-agent might have been compromised. Frontend validation is great for the user, since it allows to have a immediate feedback if he mistakenly did something wrong. But backend user input validation is where you really need to focus on, because this is where the security measure actually is.
 
 == Operation security ==
-The last level of security I want to talk about is at the operation layer. At this layer, we are going to talk about the way you manage your infrastructure, and not the code that is running within it. This is arguably the most important aspect of your security layer, since gaining access to a host machine usually translates to having full access to its resources and services, and usually allows the attacker to move horizontally in your system.
+The last level of security I want to talk about is at the operation layer. At this layer, we are going to talk about the way you manage your infrastructure, and not the code that is running within it. This is arguably the most important aspect of your security layer, since gaining access to a host machine usually translates to having full access to its resources and services, and usually allows the attacker to move laterally in your system.
 
 === Security misconfiguration ===
 The first kind of security concerns that I want to talk about is general misconfiguration. This usually takes the form of weak passwords, default accounts, open ports, incorrect permissions or letting unnecessary services running. It can lead to unauthorized access, denial of service or privilege escalation, where the attacker gain even more access to your system.
@@ -205,5 +205,30 @@ To prevent security logging and monitoring failures, it's important to follow th
 
 Outdated and vulnerable software are ranked #9s on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
-
 With all these security concerns in mind, let's get back to Polycode.
+
+== Security and migrating Polycode to microservices ==
+In this section, I want to take a closer look at how we can secure our microservice architecture in Polycode. With the security concerns and concepts I just talked about, we have the tools in our hand to build and design our system in a secure manner. I am mainly going to focus on the new aspects of security that we have to manage, caused to the shift towards a distributed system design: inter-microservice communication.
+
+That might ring a bell, since this is what we focused on section 3. Indeed, we talked about communication protocols and the data layer we could put under our microservices to support our internal communication.
+
+When securing inter-microservice communication, the main thing to look at is how our data is transmitted across the wire. To sum up what we learned in section 3 in terms of security: Kubernetes doesn't provide a way to communicate data securely natively in most of the distribution, and to ensure that data is encrypted we must use service meshes or support an encrypted protocol within the application layer. I settled on using Istio, a service mesh that provides a wide range of features, including mTLS support, which make sure that all the data transmitted is authenticated and encrypted.
+
+We also saw that, by using the sidecar patterns that most services meshes use, the encryption is not truly end-to-end. However, I would argue that it is sufficient enough for our use case, since our proxies and applications are running within a single pod, which means that nothing is sent on the wire. Someone who has compromised the machine could sniff those clear-text packet, but if this was the case we would have much bigger security problems anyway (and the attacker could have more invasive a destructive way to interact with our system). We could use the proxyless features of Istio and gRPC, to ensure end-to-end encryption, but I don't think it is worth the hassle.
+
+Here's a brief reminder of what an inter-microservice communication would look like :
+
+image::30_CommunicationBetweenMicroservices/30_Sequence_Diagram.png[]
+
+You can find a proof of concept about this architecture https://github.com/polycode-lucido/microservice-poc[here]. This is the same proof of concept as the section 3.
+
+So, are our inter-microservice communications already secure ? To an extent, yes. We rely on secure protocols and implementations.
+
+Where we should be more cautious and more delicate, is the way we configure our services and applications running on our machines. Thankfully, the network the servers are ran on is very strict to the internet, allowing only 3 ports: 53/UDP, 80/TCP and 443/TCP. This means that we have a pretty low attack surface for outside attacks. But on the inside, some of our machines are running a lot of services, some are not kept up-to-date and some are badly configured.
+
+I would recommend auditing each other's machine, trying to eliminate unnecessary services running on them. I would also push towards using more isolated environments for each of our applications. Most of them are running in containers, but I would argue that, to minimize the risk of poisoning and to prevent attackers from moving laterally in our system, to run our Polycode nodes on a separate VM, that would be running a security optimized, carefully monitored Security-Enhanced Linux.
+
+I would also recommend auditing how our system handle user inputs, if we are vulnerable to CSRF, XSS or SSRF attacks. I am confident that the frameworks that we use are fitted with the necessary protections, but auditing the system would be a good way to identify this kind of attack vectors.
+
+== Conclusion ==
+In this section, we have seen what security is, what are the biggest concerns to have and how we can make all of this relate to Polycode. The main takeaway I want every reader to have is that, security is not about occasionally auditing your system and forget about it afterward. It is a constant mindset to have, whatever the task you are doing. This is the same thing as with coding in a cloud-native manner. When you make your decisions, you need to be able to take into account the security risks associated with them. When implementing or installing something in your system, you need to make sure that you've taken all the steps to properly secure it. Security should be taken very seriously, much more seriously than what is done currently. We let is slide as a educational project, and if it were to get compromised, it would not matter too much. But this is a very dangerous mindset to have, and we must not make an habit out of this project, and instead start thinking with this security mindset now.
