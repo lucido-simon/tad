@@ -327,7 +327,7 @@ This sequence diagram shows pretty well the additional hops a request has to go 
 === Proof of concept ===
 As a way to demonstrate how my technological suggestions would operate, I've made a simple proof of concept (PoC), that deploys 2 microservices and 1 gateway, all within an Istio service mesh in a Kubernetes cluster.
 
-You can find the repo https://github.com/polycode-lucido/microservice-poc(here). You will find further explanation in the readme, as well as how to use it and deploy it on your own.
+You can find the repo https://github.com/polycode-lucido/microservice-poc[here]. You will find further explanation in the readme, as well as how to use it and deploy it on your own.
 
 == Conclusion ==
 Inter-microservice communication is an essential part of designing your system. There are a lot of issues and concerns that arise from building a distributed system, that you don't find, or at least to a much lesser degree in a monolith application. We have identified these concerns, explained why they are important. Using protocols, technologies and patterns, we found ways to solve these problems, and settled on a few options that fulfills the requirements we have with Polycode. Inter-microservice communication is a critical aspect of an infrastructure and needs careful thinking, it is the backbone of your whole system.
