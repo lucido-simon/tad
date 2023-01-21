@@ -1,1 +1,32 @@
-= 9
+= Security =
+
+== Introduction ==
+In the previous sections, we addressed a lot of subjects related to microservices and Polycode. However, there is a very important aspect of all compute systems that we haven't talked about yet (or very little): security. In this section, I'm going to have a deeper look into securing our system, in a world where cyber-security attacks are done at a massive scale, and where malicious users and bad actors are more and more proactive.
+
+=== What even is security ? ===
+Security, in the context of a web application with a microservice backend, refers to a set of practices and technologies that are used to protect the application and its users from unauthorized access, data breaches, and other malicious activities.
+
+Each deployed services has its own set of responsibilities and are ran in its own isolated environment. This architecture requires a different approach to security than a traditional monolithic application, as it requires coordination between multiple teams and a focus on securing individual services rather than the entire system. Security happens at multiple levels in our architecture:
+
+* At the frontend
+* At the backend
+* At the operation level
+* In the communication between all our actors
+
+Security is not as simple as implementing something somewhere, and your system becomes secure. It requires an accurate understanding of how your system interacts. A team with a security mindset leads to a secure system, since every task, implementation, deployment and configuration have security concerns coming with it. Security should be a concern that every member working on a project should have.
+
+There is also no definitive way to have a 100% secure system. 0-risk doesn't exist, and it is important to realize that. With this fact in mind, the general objective changes. It becomes about reducing the surface of attack of your system, careful monitoring and auditing of your system and having well-defined incident response plan in case of an emergency.
+
+=== Why is security important ? ===
+Now that we have a better understanding about what security is, let's talk about why is security important. I'm going to assume that we are a company and not an educational project.
+
+Security is important for several reasons:
+
+* Protection of sensitive data: Security measures protects sensitive information, such as personal data, financial information, and confidential business information, from unauthorized access or breaches.
+* Compliance: Many industries have regulations that require organizations to implement certain security measures to protect sensitive data, such as GDPR. Compliance with these regulations is important to avoid fines and reputational damage.
+* Business continuity: Security measures helps making the organization's operations continuous in the event of a security incident. This includes disaster recovery plans, backups and other mechanisms to ensure the availability of systems and data.
+* Protecting against cyber threats: Security measures help protect against cyber attacks, such as malware, which can cause data loss, system downtime, and more.
+* Trust and reputation: Security is essential to building trust with customers, partners and stakeholders. It's important for organizations to be transparent about their security measures and to demonstrate that they take security seriously.
+* Protecting intellectual property: Security measures help protect an organization's intellectual property, such as trade secrets, patents, trademarks or the codebase from theft or unauthorized use.
+
+Let's get back in the context of Polycode. I'm going to talk about the biggest security concerns that we might encounter, categorized in 3 categories: frontend, backend and operation.
