@@ -2,8 +2,8 @@
 Simon LUCIDO <simon.lucido@etu.umontpellier.fr>
 v0.1, 2022-10-14
 :doctype: book
-
 :toc:
+
 
 include::00_Introduction/00_Introduction.adoc[]
 
