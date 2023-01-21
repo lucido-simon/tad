@@ -164,6 +164,7 @@ Microsoft goes much more into details about where using DDD to define your archi
 Domain Driven Design starts high up, with domain experts, and progressively dive in deeper until we have a clear architecture. But what are domain experts ? What is our domain exactly ? Let's start with the basics.
 Domain experts are the people that are knowledgeable in their field, and provide the necessary expertise to ensure that the software accurately reflects the real-world domain it is intended to model. But what is our domain ? Good thing for us is that we already did all the hard-work. We defined our ubiquitous language around Polycode, and our user-stories to define the functionalities. Talking with domain experts, we can plot all our vocabulary on a diagram to better understand all the parts around Polycode. Here's what I came up with:
 
+.Polycode domains
 image:10_Domains/TAD_10_PolycodeDomain.png[]
 
 This diagram gives an overview of relations between concepts inside our Polycode domain. This is already quite a lot to work with ! It might look frightening at first, manufacturing a great architecture out of these seemingly abstract vocabulary might be concerning. Don't be, DDD will guide us.
@@ -173,6 +174,7 @@ If you've read the Microsoft documentation or if you've had some experience with
 A bounded context is a specific way of defining the boundaries and scope of a domain. It is a way of partitioning the domain into smaller, more manageable pieces that can be developed and understood independently, but still fit within the overall context of the domain. The goal of a bounded context is to create a clear separation between different parts of the domain and to explicitly define the ways in which they interact with one another. 
 We are going to divide our Polycode domain in a subset of contexts, that can be worked on independently. I'll give my take on the Polycode bounded contexts, and explain why each of them makes sense:
 
+.Polycode bounded contexts
 image:10_Domains/TAD_10_BoundedContexts.png[]
 
 As you can see, I've divided the domain in 4 bounded contexts:
@@ -206,6 +208,7 @@ With the terminology set, we now need to analyze each of our bounded contexts, a
 === The user context ===
 Using the terminology above, I've divided the user bounded context and identified the following entities:
 
+.Account entities
 image::10_Domains/TAD_10_Account_DDD.png[]
 
 This is a pretty simple context, not much to define here. Let's go over what I came up with.
@@ -227,10 +230,12 @@ Let's take a look at my take on the domain model for the practice bounded contex
 
 Entities and value objects:
 
+.Practice entities and values objects
 image::10_Domains/TAD_10_Practice_Entities_VOs_DDD.png[]
 
 Aggregates:
 
+.Practice aggregates
 image::10_Domains/TAD_10_Practice_Aggregates_DDD.png[]
 
 As you can see, I've defined the User entity, which is a different entity than the one in the Account context. However, the field `accountId` makes the link between the two. There is additional information that is relevant only within the practice context, and that's why there is a separate entity in it.
@@ -258,6 +263,7 @@ I've identified the following entities, services, value objects and aggregates f
 
 Entities, value objects and domain services:
 
+.Assessment entities
 image::10_Domains/TAD_10_Assessment_Entities_DomainServices_DDD.png[]
 
 There is quite a lot to unpack here. Let's take it step by step, beginning with entities.
@@ -286,6 +292,7 @@ I have identified one domain service: reports. This service will be responsible 
 
 Aggregates:
 
+.Assessment aggregates
 image::10_Domains/TAD_10_Assessment_Aggregates_DDD.png[]
 
 I've defined only one aggregate, the campaign aggregate. As discuss previously, everything in the assessment bounded context is tied to a campaign, with a need for transactional consistency between all of them. The campaign entity will act like the gateway for all the children entities, making sure to take appropriate actions for each modifications and rolling back failed actions. This is a big aggregate and we will see how to deal with it later on. This is not a problem though, you have to accept that some transactional boundaries spans around a lot in your context. You might want to identify which of your dependencies forces you into this situation, and if there is something to be rethought, but for our assessment context, it's fine, not that big, and I don't think I misidentified links between my entities.
@@ -295,6 +302,7 @@ Finally, our final context. We have taken a look at all our bounded contexts but
 
 Entities, values objects and domain services:
 
+.Content entities
 image::10_Domains/TAD_10_Content_Entities_DomainServices_DDD.png[]
 
 I've defined 4 different entities. Let's start by talking about content.
@@ -311,6 +319,7 @@ I've defined a domain service: runner. It will be responsible for taking executa
 
 Let's now look at the aggregates I identified:
 
+.Content aggregates
 image::10_Domains/TAD_10_Content_Aggregates_DDD.png[]
 
 I've defined two aggregates:
@@ -343,6 +352,7 @@ Let's apply the previous criteria to our Polycode application. I will be startin
 ==== Account microservices ====
 Let's discuss how I mapped out my account microservices:
 
+.Account microservices
 image::10_Domains/TAD_10_Account_Microservice.png[]
 
 It is very simple and straightforward as you can see, since the domain model is very simple too. There are still some decisions that are not that obvious that were taken:
@@ -379,6 +389,7 @@ However, I think creating a microservice responsible for handling team's busines
 
 Here's the final diagram for our practice context:
 
+.Practice microservices
 image::10_Domains/TAD_10_Practice_Microservice.png[]
 
 ==== Assessment microservices ====
@@ -388,6 +399,7 @@ I'm going to keep the assessor and the tags entity within the campaign microserv
 
 We are left with the candidates and the test entities. Both are great candidates, since they handle logic that are quite decoupled from the campaign itself. This is why I've decided to create a microservice for both of them. Here's the diagram:
 
+.Assessment microservices
 image::10_Domains/TAD_10_Assessment_Microservice.png[]
 
 We also added our reports domain service as a microservice. It will be responsible for generating reports linked to a campaign. We are left with microservices that are small enough in size, but not too small. They are not too chatty, are not tightly coupled and can evolve independently.
@@ -395,6 +407,7 @@ We also added our reports domain service as a microservice. It will be responsib
 ==== Content microservices ====
 Following the same logic as with the previous domains, we start from aggregates and we trim down each one of them, following some common sense and technical and business requirements:
 
+.Content microservices
 image::10_Domains/TAD_10_Content_Microservice.png[]
 
 We can not divide our submission aggregate since it only has itself as entity. However, the content aggregate has component as a child entity, which itself has the validator entity as a child. I've decided to keep the content and component entity together, since they are very closely related, and content is nothing more than a composition of component, at least in this domain. They are very chatty, since every mutation and reads on a content will most likely trigger a similar event for one or multiple components. Keeping them together makes for a microservice of a reasonable size, that can be worked on by a small team, within the same logic.
@@ -405,6 +418,7 @@ Just like before, we must not forget our runner domain service, which will becom
 ==== Putting it all together ====
 Now that we have defined all our microservices within each of our bounded contexts, let's take a look at the greater picture of our architecture:
 
+.Complete architecture
 image::10_Domains/10_Complete_Architecture.png[]
 
 I would argue that a system-wide event related to major user mutation emerging from the account domain, such as a user being deleted for example, is needed for the other domains to act within their boundaries to take the actions it deems needed. However, since we can't use message queues, I will not dive further into this idea, since it is the most sensible way to implement this idea.

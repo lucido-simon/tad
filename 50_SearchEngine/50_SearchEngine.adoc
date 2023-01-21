@@ -109,7 +109,9 @@ Now that we have explored the available solutions on the market, we will now foc
 
 I have defined simple UI mockups for the search bar and search functionalities. Here are the mockups from the search bar when it is closed and when the user make a search :
 
+.UI Mockup: search bar closed
 image::50_SearchEngine/50_SearchBar_Closed.png[]
+.UI Mockup: search bar opened
 image::50_SearchEngine/50_SearchBar_Open.png[]
 
 The search box is located in the navigation bar, always shown to the user. This makes it easily accessible and allows for a faster browsing of the site. A magnifying glass icon is situated to the right to hint the user into figuring out this is a search bar, supported by the "Search for contents" placeholder text.
@@ -136,6 +138,7 @@ On the application side, I would advise creating a common library for all of you
 To better illustrate how this system works, we will look at two sequence diagrams: one for the indexation process, and on for a research request.
 Here's the indexation sequence diagram :
 
+.Indexation sequence diagram
 image::50_SearchEngine/50_Indexation_Sequence_Diagram.png[]
 
 As you can see, I've taken the creation of a new content by a content creator as our use case, since this is where our indexation will take place. This is where the content we want to index is created, so this is also where we index it. This is a two step process due to our architecture:
@@ -149,6 +152,7 @@ However, this creates some complexity, since some of our indexed fields are in d
 
 Let's now look at the sequence diagram when the user search for contents:
 
+.Research sequence diagram
 image::50_SearchEngine/50_Research_Sequence_Diagram.png[]
 
 This looks like the indexation sequence diagram, with the main difference being that it is the content microservice, in the content context, responsible for asking the content service in the content context. This is done because we need to aggregates the results of both research, and to link content from the practice context with the results of the content context. This is logic related to the practice context. We end up with two requests to our MongoDB cluster, one for searching its index in the title and description, and one for the data inside the content.

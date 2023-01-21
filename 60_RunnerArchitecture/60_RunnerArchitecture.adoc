@@ -168,6 +168,7 @@ Now that we have defined what are the constraints for our runner architecture, l
 === Architecture diagram ===
 To start off, let's take a look at our complete architecture :
 
+.Runner architecture diagram
 image::60_RunnerArchitecture/60_Architecture_Diagram.png[]
 
 This is the complete diagram, with all the suggested features from above. I've chose AWS as our cloud provider, but this is not a definitive choice. It is here for example purposes, but we can chose any cloud providers that offers serverless services. I've made the decision that fetching the validators input should be done within the submission microservice. In fact, with this diagram, the question of "Should the runner have been its own bounded context ?" arise.
@@ -177,6 +178,7 @@ Looking at the diagram, it also becomes apparent that the runner microservice is
 === Registering workers, sequence diagram ===
 One thing that doesn't show in the architecture diagram is that workers can be added and removed dynamically from the system. To better illustrate that, I came up with a sequence diagram, of a new worker registering into the system:
 
+.Registering a new worker, sequence diagram
 image::60_RunnerArchitecture/60_Sequence_Diagram.png[]
 
 They are a few key points to extract from this diagram, let's talk about them one by one.

@@ -226,6 +226,7 @@ The control plane is responsible for configuring and managing the proxies, and c
 
 Picture are worth a thousand words, so here is a (very simplified) overview about how service meshes operates in a Kubernetes context:
 
+.Service mesh, pictured
 image::30_CommunicationBetweenMicroservices/30_Service_Mesh_Pictured.png[]
 
 By introducing proxies into the mix, we gain significant control about how to manage our inter-microservice communication. This allows us to introduce encryption for packets transiting through the cluster, usually with mTLS. Traffic on the internet is usually encrypted with TLS, where a site you visit prove their identity by providing a certificate, that you can see like an ID Card. Using this certificate, the client can verify and trust the site, and initiate a negotiation with the server, to secure the communication via encryption. Typically, the user needs to authenticate with a username and password to access protected resources. mTLS keep the core of this process, except that the TLS negotiation is done both ways. This means that both microservices can trust that the other is how they say they are, effectively the authentication process at the TLS level. During this process, they also negotiate a secure way to communicate.
@@ -314,6 +315,7 @@ Unrelated to the technological suggestions above, we also need to focus on code 
 ==== Sequence diagram ====
 To better illustrate how the flow of a request would be, I've made a sequence diagram highlighting all the hops a request will have to go through in our system. This is simplified and doesn't take into account how the proxies are configured, advanced configuration, and doesn't show the full scope of the request from a business logic standpoint. It focuses on the topic of this section, inter-microservice communication:
 
+.Inter-microservice Sequence Diagram
 image::30_CommunicationBetweenMicroservices/30_Sequence_Diagram.png[]
 
 We can see all our actors here:

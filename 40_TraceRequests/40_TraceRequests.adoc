@@ -76,6 +76,7 @@ Making logs context and request-scoped would make them much more valuable and wo
 === Overview of a typical OpenTelemetry system ===
 Here's a simplified overview of how a OTEL system typically works:
 
+.Overview of typical OpenTelemetry system
 image::40_TraceRequests/40_OTEL_Overview.png[]
 
 Each of your application usually integrates an OpenTelemetry SDK, allowing to easily integrate the protocol and the necessary processing within your application. For each requests, your application should notify your SDK of a new span, and take the necessary action. Your SDK will emit data to an OTEL Collector, which is a single centralized endpoints for all your application to communicate with. This collector will do some processing, and export its data to the backend of your choice. Once in here, you can access your User Interface and check your traces and logs.
@@ -122,6 +123,7 @@ One important aspect to keep in mind, is that your monitoring system will be at 
 
 This is the deployment diagram:
 
+.Deployment diagram of the monitoring system
 image::40_TraceRequests/40_Deployment_Diagram.png[]
 
 As you can see, the whole monitoring stack is totally separated from the main application cluster, to make sure not to impact it, and to retain observability in the case of a major system failure. I've decided to run the ELK stack on only one ElasticSearch node, mainly to not over-complicate the already complicated architecture. It is certainly regrettable if we were to lose our data, as we would lose the ability to correlate trends in our system over time, but this is data we can rebuild over time.
@@ -129,6 +131,7 @@ As you can see, the whole monitoring stack is totally separated from the main ap
 === Sequence diagram ===
 To better understand the flow of the system, I've decided to show you a sequence diagram of the action of accepting a team invite by a user. Please bare in mind that I've not shown any error case in this sequence diagram, but any error should be also traced and sent to the APM Server. Here's the diagram:
 
+.Sequence diagram of a request traced in our system
 image::40_TraceRequests/40_Sequence_Diagram.png[]
 
 We find all our application components that are actors in this requests:

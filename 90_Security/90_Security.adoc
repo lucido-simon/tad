@@ -218,6 +218,7 @@ We also saw that, by using the sidecar patterns that most services meshes use, t
 
 Here's a brief reminder of what an inter-microservice communication would look like :
 
+.Reminder of section 3 __Inter-microservice Sequence Diagram__
 image::30_CommunicationBetweenMicroservices/30_Sequence_Diagram.png[]
 
 You can find a proof of concept about this architecture https://github.com/polycode-lucido/microservice-poc[here]. This is the same proof of concept as the section 3.

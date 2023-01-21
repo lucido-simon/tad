@@ -102,6 +102,7 @@ To better illustrate the ideas I've just talked about, and the overall feel of t
 ==== General layout ====
 Before diving into the aforementioned features, we are going to look at what the user is greeted with the first time he opens the application, the connection page:
 
+.UI Mockup: Connection page
 image::80_MobileApp/80_Layout_Connection.png[]
 
 As you can see, I kept the overall theme and components of the https://polycode.do-2021.fr[web application]. This is great for multiple reasons:
@@ -113,6 +114,7 @@ As you can see, I kept the overall theme and components of the https://polycode.
 
 I think that, with some little adjustments, the actual design and graphic identity of Polycode is suited to a mobile app. I think this is further demonstrated by the example of an home page that I've made:
 
+.UI Mockup: Home page
 image::80_MobileApp/80_Layout_Home.png[]
 
 At the top, we find a header that will be present all throughout the app. We will see later that, when navigating to the different features, this banner changes to display the part where the user currently is. This helps we navigating the application, even though its very rudimentary. On the main page, we find displayed all of our main features. I've included the mobile-only features that I've mentioned and explained above, as well as a leader board. For the daily lesson, the title of the current one is displayed. For every "daily" features, a tick is shown if the user has finished today's content (like on the daily lesson). A small text is displayed to inform the user about its streak, the text being adapted on whether or not the user has done the content. Find the bug and the leader board are static texts. The main page is very simple, with only the four aforementioned tiles that the user can interact with. As the application grows and more featured are being added, we might want to revisit this display to have a better arrangement, but also include some general information, news, notifications or whatever would make sense on the main page.
@@ -126,6 +128,7 @@ Now that we have seen the general layout, let's take a look at all our mobile fe
 ==== Daily lessons ====
 Introducing to you, our daily lessons user interface:
 
+.UI Mockup: Daily lessons
 image::80_MobileApp/80_Layout_Daily_Lesson.png[]
 
 As you can see, it's actually pretty simple. The main goal here is to display text properly for a phone format. This is just a scrollable article, that can integrate small pieces of code, but the gist of it will be text organized with parts. We need to define a layout and style consistent across all our daily lessons, to give a easier reading experience for the user on the long-term.
@@ -144,6 +147,7 @@ Once again, this is a pretty simple page. Let's move on to the next feature.
 ==== Daily quiz ====
 In a logical manner, I will now show you and discuss what my mockup for the daily quizzes is:
 
+.UI Mockup: Daily quiz
 image::80_MobileApp/80_Layout_Daily_Quiz.png[]
 
 As explained before, we find our navigation bar at the bottom and our header stating that we are in the daily quiz at the top. The main content is divided in two parts: the question and the answers. For this quiz, the question includes a code sample. The user is asked to explain what will be printed to the console.
@@ -156,12 +160,14 @@ Don't forget that what I show you are suggestions. I'm not a designer and the fi
 ==== Find the bug ====
 As explained previously, find the bug is a small integrated game where the user is explained a problem with a piece of code. They then click on the faulty line, where a question about what the problem actually is is shown, where they have to demonstrate their understanding of the problem. Here's a mockup for the first part: 
 
+.UI Mockup: Find the bug, first step
 image::80_MobileApp/80_Layout_FTB_1.png[]
 
 It is also a pretty simple page. There is a description of the problem at the top. In this case, we have a segmentation fault somewhere in our code. Right below it, is the piece of code that is responsible of the problem. It is displayed in a similar way that what we say in the daily quiz, except that the line spacing is way larger. This is due to the fact that the user needs to click on the line. It means we need to format the code in a way that make it adapted for this use case. With the spacing shown in this example, the user should have no problem touching the line he wants to touch, without worrying about pressing the wrong line by accident.
 
 Once the user clicks on the faulty line, the user is taken to the next step, displayed on a new page:
 
+.UI Mockup: Find the bug, second step
 image::80_MobileApp/80_Layout_FTB_2.png[]
 
 At the top of the main content, we have a reminder of what the user clicked on. The user can validate that it is indeed the line he thought he clicked. But more importantly, we need to show it here so he can better inspect the faulty line. Some feedback would be needed to see if users feel like they need to have the whole code sample to better contextualize the faulty line. For now, I've decided it was not needed.
@@ -181,6 +187,7 @@ The API will be described in the https://swagger.io/specification/[Open API form
 
 This API is divided in 3 different resources: daily lessons, daily quizzes and find the bug. Those are our 3 mobile features, and they are conceptually also 3 different resources. Let's first take a look at our daily resources first:
 
+.API for daily resources
 image::80_MobileApp/80_Dailies_API.png[]
 
 We have only defined two endpoints for each of them ! It might be surprising, but we will also consume existing endpoints when submitting answers or fetching contents, for example. For both of our dailies, the endpoints are actually very similar. One allow for accessing one of these resources by ID, and the other is there to get the currently running daily lesson or daily quiz.
@@ -189,6 +196,7 @@ The mobile app will get resources' IDs when receiving notification from our back
 
 Let's look at the schemas for the daily resources:
 
+.API schemas for daily resources
 image::80_MobileApp/80_Daily_Schema.png[]
 
 There is only one for both of those resources. Indeed, they need to store the same kind of information. The `contentId` field, which directs to a content that will be responsible of showing the actual content, `openDate` and `closeDate`, that deals with having timestamp of when the daily challenge opens and close (this should be a 24-hour window, but I decided to include both to have more flexibility). If something's has failed when getting the notification to the application about the next dailies, the application can fallback to using the "current" endpoint to get the currently running daily. The last fields `type` and `status`, are responsible for identifying the resource, and its state, respectively. They are a bit of redundant information, but I figured it would make the life of developers easier. Once again, keep in 11900mind that this is a draft and further discussion with the team is required, for this kind of specifics.
@@ -197,12 +205,14 @@ As for all the endpoints defined in this OpenAPI design, they are protected with
 
 Let's look at our last two endpoints, related to the "find the bug" feature: 
 
+.API for find the bug
 image::80_MobileApp/80_FTB_API.png[]
 
 As with the dailies feature, we have an endpoint for fetching a specific find the bug resource by ID. But I want to focus on the other endpoint, the "next" endpoint. Unlike with dailies, each user has its own progression, meaning that we can introduce harder and harder challenges. This responsibility should be handled by the backend, and is abstracted away in this single endpoint, that returns the resource it identified as the best for the user to do next, taking in variables such as already completed challenges of the user. 
 
 Here's the schema for the find the bug resource:
 
+.API schemas for find the bug
 image::80_MobileApp/80_FTB_Schema.png[]
 
 It is very simple. Just like with dailies, we have a unique identifier and `contentId` that is responsible of storing which content is actually holding the content of this resource. We have an additional field, `level`, which indicates how hard this challenge is, on a scale from 1 to 100.
@@ -232,6 +242,7 @@ To better identify where the connection is coming from on the backend, I suggest
 === Sequence diagram ===
 Here's a reminder on the authentication and authorization process:
 
+.Authentication on mobile, sequence diagram
 image::80_MobileApp/80_Authentication_Sequence_Diagram.png[]
 
 It is the same as in section 2, except that the user interacts with the application and not the web frontend. For more details, I suggest checking the section 2 where we go in depth on the whole process.

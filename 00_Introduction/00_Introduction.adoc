@@ -23,6 +23,7 @@ With that being said, I will take the stance that we have limited time resources
 == The existing ==
 We first need to understand the current architecture of Polycode. To do so, I think looking at a (very) simplified diagram of the current architecture will best describes what is currently going on :
 
+.Current architecture
 [#currentArchitecture]
 image:00_Introduction/TAD_00_CurrentArchitecture.png[]
 

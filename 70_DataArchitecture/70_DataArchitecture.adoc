@@ -41,6 +41,7 @@ The CAP theorem is a concept in distributed systems that states that it is impos
 
 The CAP theorem states that a distributed system can only provide two of these guarantees at the same time. For example, a system that prioritizes consistency and availability can't tolerate network partitions, while a system that prioritizes availability and partition tolerance can't guarantee consistency.
 
+.CAP Theorem
 image::70_DataArchitecture/70_CAP_Theorem.png[]
 
 The CAP theorem is not a hard rule, but more of a guideline to help understand trade-offs of distributed systems. The theorem is a way to think about the different requirements of a system, and how the choices made for one aspect of the system may impact the others. 
@@ -205,6 +206,7 @@ Let's get back to Polycode and apply what we learnt to our system. In this chapt
 === Current data architecture ===
 Here's the current data architecture:
 
+.Current data architecture
 image::70_DataArchitecture/70_Current_Architecture.png[]
 
 As you can see, it's a very rudimentary architecture. We have two databases, a relational one (PostgreSQL) and a document one (MongoDB). Let's talk about these choices.
@@ -218,6 +220,7 @@ Currently, both our PostgreSQL and MongoDB cluster does not have any kind of rep
 === Target data architecture ===
 Now that we have seen currently running data architecture and system, let's take a look at my suggestion for our target data architecture :
 
+.Target data architecture
 image::70_DataArchitecture/70_Target_Architecture.png[]
 
 As you can see, there's a lot to unpack here. Let's start by the pattern I chose to use. I you look closely, you can see that the numbers of databases (not cluster), almost match the number of microservices I've defined. Indeed, I've chose the Database per Service pattern. Let's start by addressing the main drawbacks of this pattern, and how I suggest to overcome them.
