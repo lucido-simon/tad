@@ -311,5 +311,19 @@ Unlike with gRPC, this suggestion is less about logical reasoning at a technical
 ==== Other suggestions ====
 Unrelated to the technological suggestions above, we also need to focus on code quality, by delivering high-quality code, that is compatible with a microservice architecture. Code reviews are going to be important, and listening to everyone's suggestions and feedback will be more important than ever. We need to collaborate and push a environment where we foster upfront thinking about our architecture. We need to listen to everybody's worries and manage learning curves for each technology and the different burden it can have on some people.
 
-== Putting it into practice ==
+==== Sequence diagram ====
+To better illustrate how the flow of a request would be, I've made a sequence diagram highlighting all the hops a request will have to go through in our system. This is simplified and doesn't take into account how the proxies are configured, advanced configuration, and doesn't show the full scope of the request from a business logic standpoint. It focuses on the topic of this section, inter-microservice communication:
 
+image::30_CommunicationBetweenMicroservices/30_Sequence_Diagram.png[]
+
+We can see all our actors here:
+
+* The gateway into our system, that accepts HTTP Request and forwards them with the appropriate gRPC service. This could be an application, but it also needs to have a foot in our application layer, since this is also the entry point into our service mesh. Istio allows to create gateways that handles quite a lot of technical logic, such as routing and rate limiting, and we should offload what we can to Istio. I would still have an application behind this though, that will be able to implement complicated business logic related concerns, such as fined-grained authentication and authorization.
+* The proxies of our service mesh. These are the sidecars proxy that we create for each of our replicas. In Istio case, these are Envoy proxies. They take care of the communication layer for our microservices. All the traffic downstream is within our service mesh data plane, and encrypted. The upstream traffic goes to our microservices, unencrypted.
+* Our microservices. These are our business logic units, that exposes gRPC services. To talk to other microservices, they use gRPC. However, they don't have to worry about service discovery, load balancing and general communication concerns, since the proxies are handling these concerns for them.
+
+This sequence diagram shows pretty well the additional hops a request has to go through with a classic service mesh deployment. Each gRPC request/response goes through at least 3 hops when communicating from microservices to microservices: one from microservice A to its proxy, then from proxy A to proxy B, and finally from proxy B to microservice B. This is where the performance overhead of service meshes comes in, and why eBPF-based or proxyless service-mesh are relevant solutions when tight on resources, since they eliminates these additional hops while retaining most of the features.
+
+=== Proof of concept ===
+
+== Conclusion ==
