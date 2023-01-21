@@ -151,3 +151,59 @@ Input validation are not a kind of attack but more a general good practice that 
 You can validate user's input in multiple ways, depending on the context, such as checking for a valid range, correct date, password strength check and more. Validation should be done in the backend, since you can't trust what's happening in the front-end. The user might try to send a hand-made request, or the user-agent might have been compromised. Frontend validation is great for the user, since it allows to have a immediate feedback if he mistakenly did something wrong. But backend user input validation is where you really need to focus on, because this is where the security measure actually is.
 
 == Operation security ==
+The last level of security I want to talk about is at the operation layer. At this layer, we are going to talk about the way you manage your infrastructure, and not the code that is running within it. This is arguably the most important aspect of your security layer, since gaining access to a host machine usually translates to having full access to its resources and services, and usually allows the attacker to move horizontally in your system.
+
+=== Security misconfiguration ===
+The first kind of security concerns that I want to talk about is general misconfiguration. This usually takes the form of weak passwords, default accounts, open ports, incorrect permissions or letting unnecessary services running. It can lead to unauthorized access, denial of service or privilege escalation, where the attacker gain even more access to your system.
+
+You should follow security guidelines for every of your running applications and services, and be thorough when configuring a new application on your application. What I saw happening in my (short) experience, is that people want to get a service running to try and see it running and how it behaves. They get it to work, never change the configuration again, and it end up in the production environment, publicly exposed and with poor security practices. You should discourage this kind of behavior and be very weary of what you are deploying and installing in your system, and how you do it. You should also regularly review and audit your configurations, trying to catch any misconfiguration or door left open for an attacker to come in.
+
+Security misconfigurations are ranked #5 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
+
+=== Outdated and vulnerable software ===
+We've already talked about this attack vector, but it takes a different shape when we talk about it at the operational layer. Whereas in the backend, we were mostly worried about dependencies, at the operation level, we are worried about software CVEs and unpatched vulnerabilities.
+
+You are dependent on a lot of software to run your application, and each of them might have special access to your system. No system is totally safe, as is the software you use. This is why it is important to constantly update your software, from the operating layer, to your service mesh, to ensure that no known vulnerabilities can be exploited by hackers. As an example, Wordpress is known for having a constant stream of critical CVEs, and it is of the uppermost importance install security patches as soon as they are up. However, the Wordpress community is also known to be quite slow to react to this kind of issues, and this is why a lot of Wordpress sites ends-up compromised.
+
+The same principle applies to your Linux kernel and Kubernetes cluster for example, since they both have full-access on your machine, and if compromised, would lead to catastrophic security failures.
+
+For your operation layer, you should:
+
+* Keep all your software up-to-date: Regularly check for and apply the latest security patches to ensure that known vulnerabilities are addressed.
+* Use an automated patch management system: Automated patch management systems can help ensure that all your dependencies are kept up-to-date with the latest security patches.
+* Use a vulnerability scanner: Vulnerability scanners can help identify vulnerabilities in a system and can be used to generate reports that can be used to prioritize which vulnerabilities should be addressed first.
+* Use software that are supported and actively maintained by the community or their vendor to ensure that security patches are released in a timely manner.
+
+Outdated and vulnerable software are ranked #6 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
+
+=== Data and system integrity failures ===
+Data integrity failure refers to the situation when the data stored or transmitted by a system is modified or destroyed in an unauthorized or unintended way, resulting in the loss of accuracy, completeness, or consistency of the data. System integrity failure refers to the situation when the system or its components (hardware, software, firmware) are altered or damaged in an unauthorized or unintended way, resulting in the loss of confidentiality, availability, and integrity of the system.
+
+Both types of failures can happen due to various reasons such as data corruption, hacking, software bugs, malware or unauthorized access.
+
+To prevent this type of failures, it is important to follow general security guidelines, but to also make sure that your data is durable by using relevant data replication and backups system in place.
+
+Data and system integrity failures are ranked #8 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
+
+=== Security logging and monitoring failures ===
+Security logging and monitoring failures refer to the situation where the logging and monitoring mechanisms used to secure a system fail to provide the level of security that was intended. This can happen due to various reasons such as poor logging configuration, lack of monitoring or alerting, or lack of proper incident response plan.
+
+There are several types of security logging and monitoring failures, including:
+
+* Inadequate logging: This occurs when the system does not log enough data, or does not log the right data, to detect and respond to security incidents.
+* Lack of monitoring: This occurs when the system is not monitored for suspicious activity, which can make it difficult to detect and respond to security incidents.
+* Lack of alerting: This occurs when the system does not have the capability to alert security personnel when suspicious activity is detected.
+* Lack of incident response plan: This occurs when the system does not have a plan in place for responding to security incidents.
+
+To prevent security logging and monitoring failures, it's important to follow these best practices:
+
+* Use of comprehensive logging: Use logging mechanisms that capture a comprehensive set of data, including user actions, system actions, and network activity.
+* Use of real-time monitoring: Use monitoring mechanisms that can detect suspicious activity in real-time, such as using intrusion detection systems (IDS) or security information and event management (SIEM) systems.
+* Use of alerting mechanisms: Use alerting mechanisms that can notify security personnel when suspicious activity is detected.
+* Use of incident response plan: Use incident response plan that outlines steps to be taken in case of security incident.
+* Regularly review and audit logs: Regularly review and audit logs to ensure that they are complete and accurate and address any issues that may arise.
+
+Outdated and vulnerable software are ranked #9s on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
+
+
+With all these security concerns in mind, let's get back to Polycode.
