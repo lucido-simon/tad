@@ -181,3 +181,24 @@ In this case, when logging in, the user will be able to edit its profile before 
 
 .Linking your Google and vanilla accounts sequence diagram
 image::./20_Identification/TAD_20_Google_LinkAccount.png[]
+
+=== Proof of concept ===
+Now that we have a deeper understanding of how I suggest handling authentication in the Polycode context by using keycloak as our OIDC, I have made a sample proof of concept that implements some of the describes flow shown above.
+
+You can find the repository https://github.com/polycode-lucido/oidc-poc[here], and an already deployed environment https://poly-code.com[here]. To sum up what this PoC does in a few lines:
+
+* Our IdP is keycloak
+* Our client and resource server is the backend
+* The user delegates access to its information to the backend using OAuth2
+* The user stays logged in using a cookie session
+* Authorization is handled at the keycloak level
+
+They are some lacking features and shortcuts:
+* Authorization is not as fined-grained as we have in the existing polycode
+* Mapping between cookie and JWTs is not done on a database, meaning we can't have replicas for the API
+* Is a bit buggy
+
+This is a PoC and I think it demonstrates nicely that my implementation can be made to work pretty easily.
+
+== Conclusion ==
+We discovered authentication, authorization and OIDC. We looked what keycloak was and how we can make use of it for Polycode, by using as our IdP. I would like, as an opener for this section, to discuss a bit more about how we could use this new keycloak instance. Indeed, this keycloak would only be used by polycode for now, but nothing is guarding us from using it for something else. Effectively, this keycloak could become our main IdP for all our future projects, federating users from Polytech's LDAP, Github and Google accounts and vanilla accounts. We must not see keycloak as being part of the Polycode system, but like Polycode system being reliant on keycloak to provide authentication and authorization capabilities. This opens up a pretty wide range of possibilities for future projects, or existing one who would want to integrate our user-base.
