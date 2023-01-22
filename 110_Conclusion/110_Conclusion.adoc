@@ -1,0 +1,45 @@
+= Polycode TAD: Conclusion =
+
+In this paper, we've looked at the most important aspects of microservices, and most of the requirements and constraints that comes with them. From designing our microservice architecture, to how to operate it, monitor and secure it, while talking about data architectures and more specific aspect for Polycode, like mobile application and runner architecture. 
+
+I hope that, through all this points, I have provided a great starting point for further deepening of each of the aspects I've touched on, as well as some of the tools needed to reflect on the decisions made with architecture that you are dealing with daily.
+
+To me, this paper opens up insightful discussion with the Polycode team about why and how we should evolve the project over time. Some of the suggestions I've made through this paper looks quite obvious to me, some are more opinionated and can be debated. Either way, I'm looking for feedback from the whole team about the decisions I've made, and I'm also looking forwards to exploring others' solutions, considering aspects, caveats that I was not able to identify or to explore.
+
+As a way to close this paper, I want to begin with summing up the most important points that were discussed.
+
+== Summary ==
+Before diving into the world of microservices, we started by identifying the Polycode domain, dividing it in multiple bounded contexts, obeying to the Domain Driven Design pattern. I've identified 4 main contexts, and with a careful and iterative process of architecture design, I ended up suggesting the following architecture:
+
+.Section 1: Microservice architecture suggestion
+image::10_Domains/10_Complete_Architecture.png[]
+
+Having this architecture in mind, we went forward with our next concern: how to handle authentication and authorization. After explaining the basics, I went deeper in the OIDC standard, since the IdP of choice would be keycloak. I've then showed you how I would handle our authentication flow, providing a proof of concept that used the mentioned techniques.
+
+As stated in the conclusion of this section, an important point to remember, is that our future keycloak deployment should not be seen as a component of the Polycode architecture, but as a dependency of the Polycode architecture. Having this mindset highlights the fact that this keycloak instance can be used as a way to authenticate users across multiple of our applications, being Polycode or other projects.
+
+We then dove deeper into our microservice architectures, by analyzing the options we had for inter-microservice communication. Since our services are now separated into their own application, we needed to find a way for them to communicate with each other, since we can't rely on simple functions calls anymore. I settled on gRPC, filling this gap in a very convenient way for us, despite the drawbacks it comes with. An important tipping factor in this decision is the rigidity that it comes with, that will force the team into designing more refined API designs upfront, since we need to define protobufs for any communication to happen. This rigidity will help solve some of the problems we currently have.
+
+I've suggested adding a service mesh, more specifically Istio as an added data plane in our operation layer. Istio would take care of managing service discovery, encryption, circuit breakers, retries and timeouts, as well as giving us more monitoring option and resiliency features. This means that we move all the infrastructure and network concerns into the operation layer, which makes total sense since it is not related to the business logic, which is what the application should focus on.
+
+We've identified that, in a microservice architecture, having ways to discover and monitor your system efficiently is key to maintaining a good resiliency a catching problems before they get out of control. This is what we focused on the 4th section of this paper, where I suggested using a OTLP-compatible stack to monitor our infrastructure, since it is becoming the de-facto way to implement observability in all microservice architectures. I've chose the Elastic stack, but adapted to fit these requirements.
+
+ElasticSearch was also brought up when talking about how to integrate a search engine into Polycode, where I identified that it would be a fitting solution to this problem. However, I've later explained that, for our needs and scale, using the integrated MongoDB full-text search functionalities would be sufficient for our needs.
+
+We then took a deep dive into the runner architecture, by making a complete overhaul of the system, that were compatible with the constraints I highlighted beforehand. I chose a solution that would allow to optimize cost, while guaranteeing scalability, by having a controller/worker architecture, where the worker pool could grow by registering new machines. Controllers would then send requests to workers, prioritizing on-premise workers, and turning towards serverless offerings of cloud providers to handle surge in demand.
+
+In this data architecture section, I've tackled the problem of storing data in a cloud-native manner, and how to organize the data stores that would fit the microservice architecture. I settled on the database-per-service pattern, since we structured our microservices in a way to be able to handle transactional consistency at the application layer. I've then described ways to secure performance and resiliency, as well as define a schema that pictures how the cluster and databases would be organized :
+
+.Section 7: Data target architecture
+image::70_DataArchitecture/70_Target_Architecture.png[]
+
+In the following section, we took an interesting dive into mobile applications, and what would make sense for Polycode. I've identified that there is no clear path for us to implement the desktop functionalities into a web application, and instead took the approach of defining new mobile-only features, that would fit the requirements needed for a mobile app: repetitive content and short in time.
+
+We then turned towards security, and what are the concerns to have during our migration towards microservices. I've started by highlighting the biggest security concerns a company should have, before identifying what we should do for Polycode. If you were to remember one thing for this section, it should be that security is a mindset that you need to have at every step of developing a product. Security should be an integral part of the development and deployment process for any web application.
+
+And finally, we took a look at how to integrate our frontend with our microservices. I've explored the solutions out there, but mainly focused on the concepts and the need for this kind of solution. At the end of the day, migrating towards micro-frontends results in the same logic than migrating towards microservices. However, I hope I demonstrated that having a monolithic frontend application can be compatible with having a microservice architecture. You will need to adapt some organizational behaviors that the micro-frontends makes mandatory, but with discipline and by extending the change of organization you adopted when switching to a microservice architecture, I would argue that it is totally feasible. I would suggest doing so for Polycode, while making sure this doesn't impact the user experience.
+
+== End note ==
+I want to make clear that this paper is not without limitations and there is room for much further exploration. I am excited to receive feedback on this work and to continue the conversation around microservices. I encourage others to build upon this research and to explore new avenues. I am always open to discussion and collaboration, and I look forward to exchanging with the Polycode team and anybody willing to discuss this matter. I am going to continue my exploration in the microservice world, and looking forward for any occasion on participating on related projects.
+
+Thank you for your time.
