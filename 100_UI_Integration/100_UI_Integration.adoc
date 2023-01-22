@@ -36,6 +36,51 @@ Another key point is that, with the page-based routing of NextJS, we actually a 
 
 However, it is interesting to explore the solutions we can adopt, that would allows us to develop in a way that decouples totally each UI Parts, effectively thinking of the frontend the same way we now think about the backend, using a microservice architecture.
 
+== Micro frontends ==
+An emerging pattern that is currently trying to answer the same problems that the microservice architecture, but for frontend application, is the micro frontends architecture. As the name implies, it revolves around the same concept as microservices: divide your frontend code into smaller, independent and decoupled applications. There are multiple ways to achieve this goal, I will try to dive into each of them, but they all try to solve the same problem: allow team to work simultaneously on a large and complex product, by breaking them into much more manageable pieces of code.
+
+Let's dive into the main way to achieve this, starting with server-side template composition.
+
+=== Server-side template composition ===
+Server-side template composition refers the process of combining multiple micro-frontends into a single page on the server side before sending the final HTML to the browser. This allows for the integration of different micro-frontends into a cohesive user interface, while still allowing each micro-frontend to be developed, deployed, and scaled independently. This approach can also improve the performance and SEO of the application by reducing the amount of JavaScript needed to be loaded on the client side. This approach tries to mix the server side rendering (SSR) approach of meta-framework like NextJS, and the micro-frontend architecture. This achieves similar benefits of server side rendering.
+
+Unlike with classic SSR, this is done by having a "container" server, which is the server that a user-agent will hit when requesting a website. This container server will then compose the page by fetching each necessary piece of the HTML template to the responsible micro frontend server. This approach focus on reducing the payload size sent to the client, by rendering the page on the server, but also significantly improves SEO (Search engine optimization, how well your site is ranked by search engines), since search engines crawlers still have limited ways to execute Javascript, which is why SPAs are usually not well ranked by search engines.
+
+This approach totally decouples each of your micro-frontends, but sharing data between your micro-frontends becomes a very difficult task. You might argue that with a micro-frontend approach, this should not happen, but in reality there is always a need for sharing some kind of data or message from one micro frontend to another, for example the logged in user.
+
+This approach allows for nested micro-frontend servers, where the container server would fetch data from another server, which itself fetches data from another server. This is great when breaking down features, but can increase the time needed to render a page. You need to carefully design a strong caching system when using this pattern, else the time to first byte to the end-user can quickly get out of hand.
+
+=== Run-time integration ===
+Runtime integration in a micro-frontend context refers to the process of combining multiple micro-frontends into a single page at runtime, in the browser, rather than on the server-side. This allows for a more dynamic and interactive user interface, as the different micro-frontends can communicate with each other and update in real-time.
+
+You can integrate your micro-frontend in a myriad of ways, but we will focus on two of them in this chapter: Javascript bundles, and Web components.
+
+However, runtime integration also has some limitations, such as increased complexity in managing the client-side code, and potential issues with SEO and performance if not implemented correctly. It's also worth noting that runtime integration requires a more powerful client-side, while server-side integration is more SEO friendly and can work with less powerful clients.
+
+==== Javascript bundles ====
+With this approach, each micro-frontend is loaded as a separate JavaScript bundle and runs independently in the browser. The micro-frontends communicate with each other through a shared event bus or a message-passing mechanism. The micro-frontends can also be loaded and unloaded dynamically, depending on the user's interactions with the application.
+
+There should be a container Javascript runtime, which will be responsible for fetching the correct Javascript bundle when needed. This allows for islands of interactivity, and the loading and unloading of bundles depending on the user interactions with the web page. This is a similar approach as the island patterns that frameworks like https://docs.astro.build/en/concepts/islands/[Astro] use.
+
+This approach has several benefits:
+
+* Dynamic updates: Micro-frontends can communicate with each other and update the user interface in real-time, providing a more dynamic and interactive user experience.
+* Flexibility: Micro-frontends can be developed, deployed and scaled independently, providing more flexibility for teams working on different parts of the application.
+* Improved performance: Since the majority of the code is loaded on demand, only the necessary micro-frontends are loaded, reducing the initial load time and improving the performance of the application.
+
+However, this approach is the heaviest on the client, since it requires executing a lot of Javascript. If you need to have a good SEO, this might not be the right approach either, since a lot of overhead work will be required to have an initial HTML placeholder, while the Javascript downloads and execute. Moreover, you need to carefully manage your dependency. If each of your micro frontends depends on React to function, for example, you don't want to download this dependency on the browser everytime a micro-frontends loads.
+
+==== Web Components ====
+Web components are a set of technologies that allow developers to create custom, reusable elements for use in HTML pages. These custom elements can be treated just like any other HTML element, and can be used to encapsulate the functionality of a micro-frontend.
+
+When using web components for runtime integration, each micro-frontend is implemented as a custom element. These custom elements can be loaded and unloaded dynamically, allowing for a more flexible and dynamic user interface. The micro-frontends can also communicate with each other through a shared event bus or a message-passing mechanism, allowing for real-time updates to the user interface.
+
+* Reusability: Web components are reusable and can be used across different parts of the application, reducing code duplication and making it easier to maintain the application.
+* Isolation: Web components provide a high level of isolation between the different micro-frontends, ensuring that changes to one micro-frontend do not affect the others.
+* Interoperability: Web components are built on standard web technologies and are compatible with other web technologies and frameworks, making it easy to integrate them into existing applications.
+* Browser support: Web components are supported by modern browsers, so this approach can be used in most web environments.
+
+However, web components do require a more powerful client-side and may have a steeper learning curve for developers not familiar with the technology. Additionally, web components have a slightly different way of handling browser events and styling compared to traditional HTML, and may require additional setup and configuration.
 
 == Conclusion ==
 Micro-frontend are a growing force in the web development industry, allowing for organizations to adopt a product-oriented approach for their team for the entirety of the stack, including the frontend, backend and operation layer. They bring similar advantages and drawbacks as with a microservice architecture, meaning that most teams and organizations that had the time to experiment with a microservice architecture found their way to gain as much value from them, while mitigating the drawbacks. They might use this knowledge to migrate towards a micro-frontend architecture, if they find their frontend to be too hard to maintain and to work on collaboratively.
