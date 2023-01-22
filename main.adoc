@@ -2,7 +2,7 @@
 Simon LUCIDO <simon.lucido@etu.umontpellier.fr>
 v1.0, 2023-01-22
 :doctype: book
-:toc:
+:toc: left
 
 
 include::00_Introduction/00_Introduction.adoc[]
