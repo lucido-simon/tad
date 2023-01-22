@@ -1,3 +1,45 @@
 = UI Integration =
 
 == Introduction ==
+Throughout this whole paper, I have been talking a lot about the migration of Polycode from a monolithic backend towards a microservice architecture. We have solved a lot of problems related to this migration, and have resolved a lot concerns we had prior to this migration. However, this shifts in mentality and paradigm in the backend raises multiple questions about how we can keep a UI that is closely integrated with the backend, in a way that is transparent for the end-user ?
+
+In this section, I'm going to talk about the side-effects this migration might have on the web UI, and more importantly, if we should shift our way of thinking and developing the UI into something that fits better our new architecture.
+
+=== How does the UI relates to the backend ? ===
+An important question that we must ask ourselves, is how does the frontend interacts with the backend. After all, your web UI is where all your hard work that you put in your backend microservices are going to be used, and a poorly integrated UI will spoil everything. The frontend of your application is where the end users journey begin. It should be seen as an integral part of your system.
+
+Currently in Polycode, both the backend and the frontend are developed in a monolithic manner. This is what thought would be the best fitting organization for the project, given that we are a small team and could coordinate pretty easily. At the beginning, we separated ourselves into 3 smaller teams: the backend team, the frontend team and the operational team. We realized during the first few months of the project that is was not the best decisions to have, since each team was not implicated well-enough in the overall end-product, and we lost the goal and instead focused on technical decisions.
+
+This is where we switched towards a more product-oriented approach, where we divided ourselves into 2 teams. However, instead of having each team responsible of a different stack, each team was responsible of a different products. One team would be responsible for implementing the candidates invite system for example, from the frontend to the backend. This has, for now, improved the overall code quality, and implication of the team, although it is too early to state that this is a definitive improvement. However, it makes much more sense to think like that, and allows for teams to focus on the end goal.
+
+I think this is the direction we need to take going forward, and this is further exacerbated by the migration towards microservices, whose one of the main benefits is to allow a fine division of responsibilities, where small team can be fully responsible of an element in your domain and contexts. This is especially fitting in larger project, and Polycode is starting to become one. Now, one team can be responsible to developing a whole product, owning their own microservice, their own database, and their own frontend.. Or not quite yet.
+
+Indeed, we saw this shift in paradigm in how we handle our backend development, operation management and project organization. The last piece of this puzzle that has not yet evolved to match this new way of organizing our development is the frontend. Actually, a team owns a microservice, owns its database, but share the frontend. This will lead to inevitable collisions, and we need to find a way to either work around this problem or completely eliminate it.
+
+I hope that it all makes sense to you on an organizational standpoint, but it might still not be clear how this will improve the end-user's experience.
+
+=== The end user experience ===
+There are several ways this will improve the end-user experience.
+
+First off, let's talk about the feature release schedule. By eliminating coordination and collision concerns between teams, this means that each team can fully focus on developing its product of the application. This will improve the speed at which each team can develop their features, and reduce the time spent on fixing bugs and integrations concerns with the other part of the system. By speeding up this process, the end-user can expect to have features developed more efficiently, and by extension, have new features released more often. 
+
+Secondly, as mentioned above, developing the frontend using the same paradigms as with microservices will lead to fewer bugs, since the applications can be developed in a isolated manner, not worrying about other parts of the system. This will free up more time for the developers to work on other things, since they won't have to chase side-effects of piece of codes that was written by another team 6 months ago, but also generally reduce the number of bugs that slips through the crack and ends up on the production environment.
+
+=== Polycode ===
+This all looks good on paper, even though we haven't considered the drawbacks yet. But I want to take a moment and stop to think wether or not it really makes sense to shifts towards a more microservice-oriented way to compose our frontend.
+
+Our current frontend stack is a NextJS application. The frontend is rapidly growing in size, and we have gained a significant technical debt due some poor decisions we made. However, this is slowly being addressed by some members of the team to try to scoop off some of this debt. I would still think that a complete overhaul of the underlying way we manage our frontend would be beneficial, but we can keep most of our components as is.
+
+It is still totally workable, and we must keep in mind that there are usually not more than two features being implemented in the frontend at the same time, something that will not move in time, since the team can only shrink in size. We have the problems of side-effects and integrating correctly with other parts of the frontend, but this is not a big problem at the moment.
+
+Another key point is that, with the page-based routing of NextJS, we actually a basic way to divide our application into multiple products. So we sort of already have the possibility to work the way described above, considering the size of the team and of the codebase. I would argue that we have bigger concerns today.
+
+However, it is interesting to explore the solutions we can adopt, that would allows us to develop in a way that decouples totally each UI Parts, effectively thinking of the frontend the same way we now think about the backend, using a microservice architecture.
+
+
+== Conclusion ==
+Micro-frontend are a growing force in the web development industry, allowing for organizations to adopt a product-oriented approach for their team for the entirety of the stack, including the frontend, backend and operation layer. They bring similar advantages and drawbacks as with a microservice architecture, meaning that most teams and organizations that had the time to experiment with a microservice architecture found their way to gain as much value from them, while mitigating the drawbacks. They might use this knowledge to migrate towards a micro-frontend architecture, if they find their frontend to be too hard to maintain and to work on collaboratively.
+
+However, just like with the microservice architecture, it is important to recognize that it is not a one-fit-all solution, and to adopting them means that you have carefully considered all the other options. If you don't have the necessity to switch to a micro-frontend architecture, I would advise against it. This will just add the burden of maintaining this kind of architecture without benefiting from it, which is obviously a bad idea.
+
+I would argue that this is the case for Polycode. Our current organization allows us to proceed in a product-oriented manner, even in the frontend, although it is still a "monolithic frontend". However, we don't have enough teams and members working on the project to really gain from micro-frontend. I would suggest continuing handling the UI of Polycode the way we do it currently.
