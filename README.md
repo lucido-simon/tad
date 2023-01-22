@@ -17,3 +17,7 @@ For each of this proof of concepts, there are corresponding live demos:
 * [Intermicroservice communication and security](https://inventory.poly-code.com)
 
 Please refer to each of these repos' README for more information.
+
+## Diagrams
+
+`TAD.excalidraw` contains the source file for all the diagrams of the document. You can open it with [Excalidraw](https://excalidraw.com/).
