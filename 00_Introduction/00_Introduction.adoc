@@ -7,24 +7,24 @@ For those unfamiliar, Polycode is a platform aimed at developers, offering cours
 
 However, the service has evolved quite rapidly, with new features being requested and added. The architecture and the code must reflect this dynamic, fast-paced constraint. Wide-range of features are being developed and will be developed, and this decoupling must be reflected in the approach taken by the project's development team.
 
-The newest feature currently is development, is a new service that opens Polycode to be a assessment platform. Schools will be able to create tests for candidates, and get summed up scores and results. More on that in later.
-XREF HELLO DON'T FORGET ABOUT ME PLEASE <--------------------------------------------------
+The newest feature currently is development, is a new service that opens Polycode to be a assessment platform. Schools will be able to create tests for candidates, and get summed up scores and results.
 
-It is important to note that, although this will all be related to Polycode, not every answers aims at directly solving the problem at the Polycode level. Some suggestions are broader, and can be applied for most microservices architecture.
-With the same mindset, most suggestions can be applied with no system in already in place, and can be used as foundations for building a microservices architecture, with no existing system.
+It is important to note that, although this will all be related to Polycode, not every answers aims at directly solving the problem at the Polycode level. Some suggestions are broader, and can be applied for most microservice architectures.
+With the same mindset, most suggestions can be applied with no system already in place, and can be used as foundations for building a microservice architecture, with no existing system.
 
 == The assumptions ==
 Before continuing, I would like to pause on some assumptions made along this papers. Unless specified, those assumptions will always be taken as true all along this document.
+
 First off, this project is maintained by students, in a scholar environments. This is a tool for learning as its core, and monetary aspects will be dampened in the suggestions. 
 I would suggest that, if it was not, migrating to microservices would be a waste of resources. I will dive more into that later in the paragraph. 
-XREF HELLO DON'T FORGET ABOUT ME PLEASE <--------------------------------------------------
-With that being said, I will take the stance that we have limited time resources, since the team is fixed and can't grow. I will assume that the team will be able to work for a few months specifically on this migration, letting us enough time to implement reasonable solutions. Rewriting a HTTP Proxy from scratch is not reasonable. Setting up a Service Mesh is.
+
+I will also take the stance that we have limited time resources, since the team is fixed and can't grow. I will assume that the team will be able to work for a few months specifically on this migration, letting us enough time to implement reasonable solutions. Rewriting a HTTP Proxy from scratch is not reasonable. Setting up a Service Mesh is.
 
 == The existing ==
 We first need to understand the current architecture of Polycode. To do so, I think looking at a (very) simplified diagram of the current architecture will best describes what is currently going on :
 
-.Current architecture
 [#currentArchitecture]
+.Current architecture
 image:00_Introduction/TAD_00_CurrentArchitecture.png[]
 
 To give some contexts for those unfamiliar with the project, what I call "Polycode Runners", is the API that allow us to run the code that the user typed in.
@@ -37,17 +37,17 @@ Very quick pass on the stack we have :
 * The https://prometheus.io/docs/visualization/grafana/[Prometheus/Grafana] stack for our metrics and monitoring.
 
 As you may have noticed, the current implementation is halfway between an old monolithic application, with a heavy native application, running on a bare-metal server.
-Instead, we are already in a Kubernetes context, which already allow for automatic scaling, if the application is made with the correct architecture decisions.
+Instead, we are already in a Kubernetes context, which already allows for automatic scaling, if the application is made with the correct architecture decisions.
 
 It is also worth noting that the current implementation mostly follows a service-oriented architecture.
 
 === Current limitations ===
-As shown in the diagram xref:currentArchitecture[above], except for the runner, everything is still mixed up in one big application, the API. This gives us enough flexibility to scale our application if the user count were to increase, but we would spin up a heavy server every time, although probably only a small portion of our application takes a the load.
+As shown in the diagram xref:currentArchitecture[above], except for the runner, everything is still mixed up in one big application, the API. This gives us enough flexibility to scale our application if the user count were to increase, but we would spin up a heavy server every time, although probably only a small portion of our application takes all the load.
 
 [#scalingMonolith]
-For example, we currently handles the authentication within the API. The users routes are hit pretty heavily, since every time the user loads the website, they try to fetch their own data. This might take over half of the available resources of the container (totally arbitrary, for the example), and the team routes only taking less than 1 percent of the available resources. This can lead to poor performance in high-traffic environments.
+For example, we currently handles the authentication within the API. The users routes are hit pretty heavily, since every time the user loads the website, they try to fetch data about themselves. This might take over half of the available resources of the container (totally arbitrary, for the example), and the team routes only taking less than 1 percent of the available resources. This can lead to poor performance in high-traffic environments.
 
-Another downside of the current implementation is that the application getting harder to maintain and update, caused by its growing codebase size and the intricacies and dependencies between each part.
+Another downside of the current implementation is that the application is getting harder to maintain and update, caused by its growing codebase size and the intricacies and dependencies between each part.
 It becomes hard to introduce new features, or update existing ones, without running the risk of breaking other parts of the code, although this problem is softened by our code architecture. Developing new features in parallel has also taken a hit, for the same reasons.
 Deploying it is a heavy process, since the API as a whole needs to be recreated in our cluster.
 
@@ -63,7 +63,7 @@ One of the key advantages of microservices is that they allow for greater flexib
 This resolves the issue mentioned xref:scalingMonolith[above]. We can now spin up 15 authentication microservices, while only having 3 team microservices. 
 
 ==== Resiliency and decoupling ====
-Another advantage of microservices is that they are designed to be fault-tolerant and resilient. Because microservices are modular and independent, if one service fails, the others can continue to operate, minimizing the impact of any issues on the overall application. This is not a given feature of microservices, but the architecture sets the groundwork for developers to build systems that are resilient, giving options to exploit the decoupling of microservices to achieve a great resiliency a fail-overs solutions.
+Another advantage of microservices is that they are designed to be fault-tolerant and resilient. Because microservices are modular and independent, if one service fails, the others can continue to operate, minimizing the impact of any issues on the overall application. This is not a given feature of microservices, but the architecture sets the groundwork for developers to build systems that are resilient, giving options to exploit the decoupling of microservices to achieve a great resiliency and have fail-over solutions.
 
 ==== Reducing complexity ====
 Because each microservice is a standalone component that communicates with other microservices through well-defined interfaces, developers can easily add new features or capabilities to the application by building and deploying additional microservices. This makes it possible to rapidly iterate and improve the application without having to make changes to the entire codebase.
@@ -79,22 +79,20 @@ The first thing I would like to touch on, is the cost associated with running a 
 For a basic, low traffic service, with no requirements or low requirements on uptime, microservices will add significant cost to your infrastructure. Stick to a well-architected monolith, as you will not benefit from a microservice architecture.
 
 ==== Time and entry barrier ====
-Another aspect to microservices that can be a limiting factor to you, is the added complexity compared to a simple, heavy, monolithic application. You will both need a team architects that have the skill set and the knowledge to actually build a architecture that makes sense (which is not necessarily easy)
-XREF HELLO DON'T FORGET ABOUT ME PLEASE <--------------------------------------------------
-and a team that can code in a "cloud-native" way, meaning they understand cloud patterns, how to build a stateless application, how to handle failures and how to define stable and sane APIs.
+Another aspect to microservices that can be a limiting factor to you, is the added complexity compared to a simple, heavy, monolithic application. You will both need a team architects that have the skill set and the knowledge to actually build a architecture that makes sense (which is not necessarily easy) and a team that can code in a "cloud-native" way, meaning they understand cloud patterns, how to build stateless applications, how to handle failures and how to define stable and sane APIs.
 You will also need experts to monitor and identify problem with your infrastructure. Developers don't typically now how to handle operations properly, you'll need to hire someone with this knowledge to actually keep an eye on your logs, metrics and traces, giving an helping hand to developers that might need help.
 [#educateYourTeam]
 These teams may need to adopt new tools, processes, and ways of working to support the development, deployment, and management of microservices. This can require significant training and organizational changes.
 
 ==== Migrating ====
 The last point I would like to touch on, applies to teams and project which already have an application running, in the form of a monolith. The process of migration is bumpy, and will cause headaches.
-Decomposing a monolithic application can be a complex and time-consuming process. It requires a deep understanding of the existing application and its dependencies, as well as careful planning to ensure that the resulting microservices are maintainable and scalable. There are tools you can use to ease this migration, such as the https://microservices.io/patterns/refactoring/strangler-application.html[strangler pattern], which aims at destructuring your monolith and putting your business logic into microservices step by step, while putting the new features in their own microservice to begin with.
+Decomposing a monolithic application can be a complex and time-consuming process. It requires a deep understanding of the existing application and its dependencies, as well as careful planning to ensure that the resulting microservices are maintainable and scalable. There are tools you can use to ease this migration, such as the https://microservices.io/patterns/refactoring/strangler-application.html[strangler pattern], which aims at destructuring your monolith and putting your business logic into microservices step by step, while putting the new features in their own microservice from the beginning.
 However, this also requires educating your team, as mentioned xref:educateYourTeam[above].
 
 == Does it really makes sense ? ==
 With that being said, we need to take a short time to stop and reconsider if migrating Polycode to microservices is actually worth it. Our current application structure and deployment scheme makes the migration easier than it would be with most of the monolith out there.
 But as a company, you might see that this project is getting little to no traction, and would probably try to limit expenditure for a project that is not showing signs of growth. You could flip the problem the other way around, and say that you need to invest more to actually have growth, but this is risky, and adding new features is bad, but not too bad as of right now. The load is next to none, scalability is not a problem, and I would argue that we currently have enough flexibility if the project were to gain traction to scale the application enough to have the time to react and rethink our system.
-I would even argue that this project is already too costly to run for what it is right now, architecture wise (although negligible at this scale) and employee wise. You would need developers that now how to build for the cloud, an operation employee to monitor and maintain your stack. Those are very expensive, and are a huge upfront investment that might yield no return.
+I would even argue that this project is already too costly to run for what it is right now, architecture wise (although negligible at this scale) and employee wise. You would need developers that know how to build for the cloud, an operation employee to monitor and maintain your stack. Those are very expensive, and are a huge upfront investment that might yield no return.
 
 Of course, all those considerations are out the window when you take into account that, we are not a company, but a group of students, working for free, with time to spare, longing for new technologies and complex systems. The downsides for us are negligible, and curiosity and the learning experience is worth it every step of the way.
 

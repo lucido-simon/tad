@@ -6,7 +6,7 @@ In this section we will look at how we can integrate a search engine within Poly
 === What is a search engine ===
 In the context of a web application, a search engine is a piece of software that allows the user to search the application's content for specific terms or phrases. It typically consists of a search interface that allows the user to enter their search query, and a search engine that processes the query and returns a list of results.
 
-A search engine usually works by indexing the content of the web application (in our case, Polycode). When a user performs a search, the search engine searches for matches to the search query and returns a list of results. The search engine may use various algorithms and techniques to determine the relevance of the results, such as analyzing the frequency and proximity of the search terms within the content, the presence of synonyms or related terms, and the quality and authority of the source of the content.
+A search engine usually works by indexing the content of the web application (in our case, Polycode). When a user performs a search, the search engine looks for matches to the search query and returns a list of results. The search engine may use various algorithms and techniques to determine the relevance of the results, such as analyzing the frequency and proximity of the search terms within the content, the presence of synonyms or related terms, and the quality and authority of the source of the content.
 
 Some search engines also allow users to specify additional parameters or filters to narrow their search, such as date range, language, or location. They may also offer features such as spell check and autocomplete to help users refine their search queries.
 
@@ -15,7 +15,7 @@ In addition to searching the content of a web application, some search engines m
 === Why would we want it in Polycode ===
 Currently, Polycode is populated with not a lot of contents, but it can already be quite hard to find what you are looking for. With the content list growing, and with more and more languages and modules you can learn, having a easy way to find what you are looking for becomes a primordial feature.
 
-A web application user experience is not only defined by the features and design of the site, but also by the ease of browsing the website. If we can't give a easy way for our users to look up specific terms, we are lacking a significant brick of user experience. A search engine can also help users discover new content that they may not have otherwise found. By providing suggestions for related or similar content, a search engine can help users explore the Polycode's offerings and discover new resources that they may find useful. If we open content creation to the regular users, some resources will be buried under the most popular contents and modules on Polycode, even though some niche community-made content might be the most fitting for a user particular need.
+A web application user experience is not only defined by the features and design of the site, but also by the ease of browsing the website. If we can't provide an easy way for our users to look up specific terms, we are lacking a significant brick of user experience. A search engine can also help users discover new content that they may not have otherwise found. By providing suggestions for related or similar content, a search engine can help users explore the Polycode's offerings and discover new resources that they may find useful. If we open content creation to the regular users, some resources will be buried under the most popular contents and modules on Polycode, even though some niche community-made content might be the most fitting for a user particular need.
 
 By making it easier for users to find the content they need, a search engine can help users feel more satisfied with the web application and encourage them to continue using it. 
 
@@ -68,7 +68,7 @@ Like with MongoDB, we already have a ElasticSearch up and running in our infrast
 
 We would need to create a new ElasticSearch cluster, preferably deployed in another system than our current ElasticSearch cluster, within our Polycode application system.
 
-However, the ElasticSearch ecosystem provides easy way to integrate with MongoDB using a connector such a MongoDB River, which allows you to index and search your MongoDB data in ElasticSearch. Separating the your data store and your search engine give you more granularity and control about your resources, and help making sure that your data is always accessible, even if you can't browse it due to your ElasticSearch cluster being overloaded or in a failure state.
+However, the ElasticSearch ecosystem provides easy way to integrate with MongoDB using a connector such a MongoDB River, which allows you to index and search your MongoDB data in ElasticSearch. Separating your data store and your search engine give you more granularity and control about your resources, and help making sure that your data is always accessible, even if you can't browse it due to your ElasticSearch cluster being overloaded or in a failure state.
 
 Overall, ElasticSearch is a great solution if you have a heavy dataset, and a high traffic of searches.
 
@@ -103,7 +103,7 @@ It can look very similar to ElasticSearch, and it is to an extent. Here are some
 In terms of popularity and adoption, Elasticsearch is currently more widely used than Solr and may be the default choice for many development teams. However, Solr is also a well-established and widely used search platform, and may be a good choice for certain use cases or applications.
 
 == Polycode ==
-Now that we have explored the available solutions on the market, we will now focus on Polycode and how we can integrate a search engine in the application. We will by showing how the user should interact with the search engine on the web page, talk about the solutions that I've retained, an we will finish by looking at some sequence diagrams that shows the process of indexing and searching.
+Now that we have explored the available solutions on the market, we will now focus on Polycode and how we can integrate a search engine in the application. I will begin by showing how the user should interact with the search engine on the web page, then talk about the solutions that I've retained, and we will finish by looking at some sequence diagrams that shows the process of indexing and searching.
 
 === UI Mockups ===
 

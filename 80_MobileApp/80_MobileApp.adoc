@@ -29,10 +29,10 @@ The previous approach looks like the best for the user experience, but it has so
 * This increases significantly the load on the infrastructure, for contents that are stable, bug free, known to be working and that is going to be downloaded anyway
 * The user might have a very limited bandwidth, which may cause the application to be too data-hungry for them
 
-Mixing both approaches will limit or eliminate their drawbacks, but it is important that it is at the cost of the app complexity.
+Mixing both approaches will limit or eliminate their drawbacks, but it is important to note that it is at the cost of the app complexity.
 
 ==== Handling releases ====
-The mobile app distribution is controlled by basically two actors (Google and Apple), who both have strict review processes for each applications and each of their updates. This means that relying on updating the application to releases new content or fix mundane bugs becomes a long process, and you need something that can circumvent those limitations.
+The mobile app distribution is controlled by basically two actors (Google and Apple), who both have strict review processes for each applications and each of their updates. This means that relying on updating the application to release new content or fix mundane bugs becomes a long process, and you need something that can circumvent those limitations.
 
 This is the problem of some frameworks out there, that promises a fast and easy development, for both platform, but actually bundles the rendering engine with the application as well as your application code, meaning that there is no way to update the rendering, except updating the app. This might be a tradeoff you're willing to make, but I don't think it's worth the pain.
 
@@ -90,10 +90,10 @@ The daily contents are a great feature and idea for our mobile app, but we also 
 The idea is simple: show a small sample of code, give some context about what is should be achieving, explain unwanted outcome of the sample of code, and let the user figure out what is wrong.
 
 ==== Click on the wrong line ====
-The user will try to read the code, and when identifying the faulty line of code that's causing the problem, clicks on it. The user is given 3 tries before losing the game. If the user manages to find the faulty line, a small MCQ appears.
+The user will try to read the code, and when he identifies the faulty line of code that's causing the problem, he clicks on it. The user is given 3 tries before losing the game. If the user manages to find the faulty line, a small MCQ appears.
 
 ==== Explaining the problem ====
-To make sure the user actually understood the problem, he will have to select between 4 explanations of what the faulty line is doing wrong. They will be given one chance to answer correctly, and if they does, they are granted a reward. More in-depth features can be explored, such as using Polypoints to have hints. 
+To make sure the user actually understood the problem, he will have to select between 4 explanations of what the faulty line is doing wrong. They will be given one chance to answer correctly, and if they do, they are granted a reward. More in-depth features can be explored, such as using Polypoints to have hints. 
 Since the progression is tracked per-user, we can introduce more and more difficult bugs, starting with simple iteration loop, to buffer overflows and dandling pointers.
 
 === Application flow ===
@@ -181,7 +181,7 @@ Designing an API properly is a task that is often overlooked. Your API defines t
 
 The main goals of API design are to make the API easy to use and understand, efficient, flexible, and stable. A good API should be easy to learn and use, with clear and concise documentation and error messages. It should be efficient, with minimal overhead and fast response times. It should be flexible, allowing for a wide range of use cases and integration with other systems, and it should be stable, with minimal changes or breaking changes over time.
 
-I'm going to present the necessary endpoints I've identified for our mobile features. Those will be the one the application will interact with, and not the administrative one (such as creating a new find the bug challenge, for example). All the already existing API that the mobile app will need to consume are not described here, such as authentication endpoints or contents endpoints. Keep in mind that this is a draft, and discussion with domain experts,technical leaders and overall, the Polycode team will be needed to refine this proposal.
+I'm going to present the necessary endpoints I've identified for our mobile features. Those will be the one the application will interact with, and not the administrative one (such as creating a new find the bug challenge, for example). All the already existing API that the mobile app will need to consume are not described here, such as authentication endpoints or contents endpoints. Keep in mind that this is a draft, and discussion with domain experts, technical leaders and overall, the Polycode team will be needed to refine this proposal.
 
 The API will be described in the https://swagger.io/specification/[Open API format]. The file is available xref:80_MobileApp/80_api.yaml[here]. I will provide related images of the endpoint or OpenAPI resource that I'm talking about during this section for readability purposes.
 
@@ -199,9 +199,9 @@ Let's look at the schemas for the daily resources:
 .API schemas for daily resources
 image::80_MobileApp/80_Daily_Schema.png[]
 
-There is only one for both of those resources. Indeed, they need to store the same kind of information. The `contentId` field, which directs to a content that will be responsible of showing the actual content, `openDate` and `closeDate`, that deals with having timestamp of when the daily challenge opens and close (this should be a 24-hour window, but I decided to include both to have more flexibility). If something's has failed when getting the notification to the application about the next dailies, the application can fallback to using the "current" endpoint to get the currently running daily. The last fields `type` and `status`, are responsible for identifying the resource, and its state, respectively. They are a bit of redundant information, but I figured it would make the life of developers easier. Once again, keep in 11900mind that this is a draft and further discussion with the team is required, for this kind of specifics.
+There is only one for both of those resources. Indeed, they need to store the same kind of information. The `contentId` field, which directs to a content that will be responsible of showing the actual content, `openDate` and `closeDate`, that deals with having timestamp of when the daily challenge opens and close (this should be a 24-hour window, but I decided to include both to have more flexibility). If something's has failed when getting the notification to the application about the next dailies, the application can fallback to using the "current" endpoint to get the currently running daily. The last fields `type` and `status`, are responsible for identifying the resource, and its state, respectively. They are a bit of redundant information, but I figured it would make the life of developers easier. Once again, keep in mind that this is a draft and further discussion with the team is required, for this kind of specifics.
 
-As for all the endpoints defined in this OpenAPI design, they are protected with our authentication cookie. This is mostly for rate limiting and consumers of our API.
+As for all the endpoints defined in this OpenAPI design, they are protected with our authentication cookie. This is mostly for rate limiting and authenticating consumers of our API.
 
 Let's look at our last two endpoints, related to the "find the bug" feature: 
 

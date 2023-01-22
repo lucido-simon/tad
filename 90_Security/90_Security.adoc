@@ -82,7 +82,7 @@ Securing your backend is very important, since this is where all sensitive data 
 === Broken access control / broken authentication ===
 Some attacks rely on bypassing or exploiting weaknesses in the authorization process to gain unauthorized access to resources or perform actions that they should not be able to. This can be done by manipulating the authentication process or exploiting vulnerabilities in the application's code. In our case, we are running a Role-Based Access Policies (RBAC) authorization framework.
 
-Authentication and authorization is a very important aspect of security. You should use robust and well-maintained tools to handle that for you, unless you can have a team with the resources necessary to audit and attack your in-house authentication and authorization engine. You should oblige to the least privilege principle, meaning that you give the bare-minimum authorization a user should have access to.
+Authentication and authorization is a very important aspect of security. You should use robust and well-maintained tools to handle that for you, unless you can have a team with the resources necessary to audit and attack your in-house authentication and authorization engine. You should obey to the least privilege principle, meaning that you give the bare-minimum authorization a user should have access to.
 
 Broken access control is ranked #1 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
@@ -133,7 +133,7 @@ Outdated and vulnerable software are ranked #6 on https://owasp.org/www-project-
 === Server-side request forgery (SSRF) ===
 Server-side request forgery (SSRF) is a type of security vulnerability that occurs when an attacker is able to send a request to a server from a vulnerable application, in order to access resources or perform actions that the attacker should not be able to access. This type of attack is typically used to gain unauthorized access to internal systems, such as databases or other sensitive resources, by exploiting the trust relationship between the server and the vulnerable application. This is typically done by tricking a server into sending a request to an internal service.
 
-To prevent SSRFs attacks, you should have an overall good and secure system that checks and validates user inputs and that is protected from injections. You can also make use of WAF (Web Application Firewall) to inspect and drop any requests that doesn't match any routes, parameters and HTTP Methods known to the system.
+To prevent SSRFs attacks, you should have an overall good and secure system that checks and validates user inputs and that is protected from injections. You can also make use of WAF (Web Application Firewall) to inspect and drop any requests that doesn't match any routes, parameters and HTTP Methods combination known to the system.
 
 SSRF is ranked #10 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
@@ -156,14 +156,14 @@ The last level of security I want to talk about is at the operation layer. At th
 === Security misconfiguration ===
 The first kind of security concerns that I want to talk about is general misconfiguration. This usually takes the form of weak passwords, default accounts, open ports, incorrect permissions or letting unnecessary services running. It can lead to unauthorized access, denial of service or privilege escalation, where the attacker gain even more access to your system.
 
-You should follow security guidelines for every of your running applications and services, and be thorough when configuring a new application on your application. What I saw happening in my (short) experience, is that people want to get a service running to try and see it running and how it behaves. They get it to work, never change the configuration again, and it end up in the production environment, publicly exposed and with poor security practices. You should discourage this kind of behavior and be very weary of what you are deploying and installing in your system, and how you do it. You should also regularly review and audit your configurations, trying to catch any misconfiguration or door left open for an attacker to come in.
+You should follow security guidelines for every of your running applications and services, and be thorough when configuring a new application on your application. What I saw happening in my (short) experience, is that people want to get a service running to try it and see how it behaves. They get it to work, never change the configuration again, and it end up in the production environment, publicly exposed and with poor security practices. You should discourage this kind of behavior and be very weary of what you are deploying and installing in your system, and how you do it. You should also regularly review and audit your configurations, trying to catch any misconfiguration or door left open for an attacker to come in.
 
 Security misconfigurations are ranked #5 on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 
 === Outdated and vulnerable software ===
 We've already talked about this attack vector, but it takes a different shape when we talk about it at the operational layer. Whereas in the backend, we were mostly worried about dependencies, at the operation level, we are worried about software CVEs and unpatched vulnerabilities.
 
-You are dependent on a lot of software to run your application, and each of them might have special access to your system. No system is totally safe, as is the software you use. This is why it is important to constantly update your software, from the operating layer, to your service mesh, to ensure that no known vulnerabilities can be exploited by hackers. As an example, Wordpress is known for having a constant stream of critical CVEs, and it is of the uppermost importance install security patches as soon as they are up. However, the Wordpress community is also known to be quite slow to react to this kind of issues, and this is why a lot of Wordpress sites ends-up compromised.
+You are dependent on a lot of software to run your application, and each of them might have special access to your system. No system is totally safe, as is the software you use. This is why it is important to constantly update your software, from the operating layer to your service mesh, to ensure that no known vulnerabilities can be exploited by hackers. As an example, Wordpress is known for having a constant stream of critical CVEs, and it is of the uppermost importance install security patches as soon as they are up. However, the Wordpress community is also known to be quite slow to react to this kind of issues, and this is why a lot of Wordpress sites ends-up compromised.
 
 The same principle applies to your Linux kernel and Kubernetes cluster for example, since they both have full-access on your machine, and if compromised, would lead to catastrophic security failures.
 
@@ -199,9 +199,9 @@ To prevent security logging and monitoring failures, it's important to follow th
 
 * Use of comprehensive logging: Use logging mechanisms that capture a comprehensive set of data, including user actions, system actions, and network activity.
 * Use of real-time monitoring: Use monitoring mechanisms that can detect suspicious activity in real-time, such as using intrusion detection systems (IDS) or security information and event management (SIEM) systems.
-* Use of alerting mechanisms: Use alerting mechanisms that can notify security personnel when suspicious activity is detected.
+* Use of alerting mechanisms: Use alerting tooling that can notify security personnel when suspicious activity is detected.
 * Use of incident response plan: Use incident response plan that outlines steps to be taken in case of security incident.
-* Regularly review and audit logs: Regularly review and audit logs to ensure that they are complete and accurate and address any issues that may arise.
+* Regularly review and audit logs: Make sure that they are complete and accurate and address any issues that may arise.
 
 Outdated and vulnerable software are ranked #9s on https://owasp.org/www-project-top-ten/[OWASP's top ten web application security risks].
 

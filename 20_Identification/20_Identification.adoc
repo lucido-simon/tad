@@ -9,11 +9,11 @@ Let's break down this problem by first understanding important concepts that sur
 Most of today's systems defines personalized behavior based on who is using the application. Think of a bank application, you want to see your accounts and transactions, but you don't want to see someone else's !
 To be able to do this, the application needs to know who you are. This is what authentication is. Authentication is the process of verifying the identity of a user.
 
-This process can be done in a myriad, but the most common ways the end user is going to identify themselves is by providing a username and password. Or by using a third party service, like Facebook or Google, to identify themselves. 
+This process can be done in a myriad of ways, but the most common one the end user is going to identify themselves with is by providing a username and password. Or by using a third party service, like Facebook or Google, to identify themselves. 
 
-Those third party service, like Facebook or Google, are called identity providers (IdP). There are multiples types of them, the most common being OpenID Connect (OIDC) and SAML. 
+Those third party service, like Facebook or Google, are called identity providers (IdP). There are multiples types of standards, the most common being OpenID Connect (OIDC) and SAML. 
 
-This question is about OIDC, so I'm not going to go into details about SAML. OIDC is gaining in popularity, thanks to its use of JSON which make it much more easier to work with with nowadays solutions, while the older SAML protocol is XML based. SAML is still widely used, but mostly in enterprise environments.
+This section is about OIDC, so I'm not going to go into details about SAML. OIDC is gaining in popularity, thanks to its use of JSON which make it much more easier to work with with nowadays solutions, while the older SAML protocol is XML based. SAML is still widely used, but mostly in company environments.
 
 === What is authorization? ===
 
@@ -29,7 +29,7 @@ The main participants are :
 
 * The end user, which is the entity that is going to authenticate. They are the equivalent of the resource owner in OAuth2, and one of the resource they own is their identity.
 * The Relying Party (RP), or client, which is the application that is going to use the identity of the end user. They rely on the OpenID Provider (OP) to authenticate the end user.
-* The OpenID Provider (OP), which is the entity that is going to authenticate the end user. They are an authorization server in OAuth2. They provide the identity of the end user to the relying party. The identity may contains information about the user, like their name, email, etc..
+* The OpenID Provider (OP), also referred as IdP (Identity Provider), which is the entity that is going to authenticate the end user. They are an authorization server in OAuth2. They provide the identity of the end user to the relying party. The identity may contains information about the user, like their name, email, etc..
 * The Resource Server, which owns the resource that the end user or client is going to access. They trusts the Authorization Server (the OIDC Provider), and will check the token provided by the OP to verify the client was given access to the resource. A Resource Server may be in the same system as the Authorization Server.
 
 This data is exchanged using JSON Web Tokens (JWT). JWT are a way to encode data in a compact way, using JSON. They are usually signed using an asymmetric algorithm, and can be verified using a public key.
@@ -154,7 +154,7 @@ image::./20_Identification/TAD_20_Vanilla_Login.png[]
 ==== User creates an account or logs in, via Polytech LDAP ====
 In the following sequence diagram, the user logs in into Polycode using its Polytech LDAP account. The user is redirected to the IDP, where they can enter their Polytech LDAP credentials. If it's the first time the user connects to Polycode, a new entry will be made in the Keycloak database. Keycloak needs to do this in order to store information that are needed in the OIDC context. Since we are likely to be limited to a read-only access to the LDAP, we also need to store everything the user might edit later on. Storing in the local database also allows for caching, which will speed up all requests that needs to check for a LDAP linked user.
 
-It is worth noting that Keycloak will always validate the user password using the LDAP, and delegates the storage of the password to. This is done to ensure that the user's password is always up to date, and synchronized with the LDAP.
+It is worth noting that Keycloak will always validate the user password using the LDAP, and delegates the storage of the password to it. This is done to ensure that the user's password is always up to date, and synchronized with the LDAP.
 
 The IdP will then verify the user's credentials and redirect the user to the web application, with an authorization code. The authorization code flow is described in a xref:auth-code-flow[previous diagram].
 
@@ -193,7 +193,8 @@ You can find the repository https://github.com/polycode-lucido/oidc-poc[here], a
 * The user stays logged in using a cookie session
 * Authorization is handled at the keycloak level
 
-They are some lacking features and shortcuts:
+They are, however, some lacking features and shortcuts:
+
 * Authorization is not as fined-grained as we have in the existing polycode
 * Mapping between cookie and JWTs is not done on a database, meaning we can't have replicas for the API
 * Is a bit buggy
@@ -201,4 +202,4 @@ They are some lacking features and shortcuts:
 This is a PoC and I think it demonstrates nicely that my implementation can be made to work pretty easily.
 
 == Conclusion ==
-We discovered authentication, authorization and OIDC. We looked what keycloak was and how we can make use of it for Polycode, by using as our IdP. I would like, as an opener for this section, to discuss a bit more about how we could use this new keycloak instance. Indeed, this keycloak would only be used by polycode for now, but nothing is guarding us from using it for something else. Effectively, this keycloak could become our main IdP for all our future projects, federating users from Polytech's LDAP, Github and Google accounts and vanilla accounts. We must not see keycloak as being part of the Polycode system, but like Polycode system being reliant on keycloak to provide authentication and authorization capabilities. This opens up a pretty wide range of possibilities for future projects, or existing one who would want to integrate our user-base.
+We discovered authentication, authorization and OIDC. We looked what keycloak was and how we can make use of it for Polycode, by using as our IdP. I would like, as an opener for further thinking to this section, to discuss a bit more about how we could use this new keycloak instance. Indeed, this keycloak would only be used by polycode for now, but nothing is guarding us from using it for something else. Effectively, this keycloak could become our main IdP for all our future projects, federating users from Polytech's LDAP, Github accounts, Google accounts and vanilla accounts. We must not see keycloak as being part of the Polycode system, but like Polycode system being reliant on keycloak to provide authentication and authorization capabilities. This opens up a pretty wide range of possibilities for future projects, or existing one who would want to integrate our user-base.
